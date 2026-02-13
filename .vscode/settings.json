@@ -1,0 +1,15 @@
+{
+    // 1. 告诉 VS Code：Python 解释器在 backend/.venv 里
+    // ${workspaceFolder} 代表当前打开的 BS 文件夹路径
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+
+    // 2. 告诉 Pylance (代码分析工具)：代码的根目录在哪里
+    // 这样当你写 "from app.models import User" 时，它才知道去 backend 文件夹里找 app
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/backend",
+        "${workspaceFolder}/ultralytics1"
+    ],
+
+    // 3. (可选) 如果你用终端，让终端打开时自动激活环境
+    "python.terminal.activateEnvironment": true
+}
