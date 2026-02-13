@@ -36,3 +36,5 @@
   *.lock
   # ruff
   .ruff_cache/
+
+  .vscode/
