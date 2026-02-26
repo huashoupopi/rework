@@ -35,7 +35,10 @@
       "SIM",   # flake8-simplify
       "TCH",   # flake8-type-checking
   ]
-  ignore = ["E501"]  # 行长由 line-length 控制，不重复报
+  ignore = ["E501", "UP035"]
+
 
   [tool.ruff.lint.isort]
   known-first-party = ["app"]
+  [tool.ruff.lint.flake8-bugbear]
+  extend-immutable-calls = ["fastapi.Depends"]
