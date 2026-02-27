@@ -6,6 +6,7 @@ from fastapi import (
     APIRouter,
     BackgroundTasks,
     Depends,
+    File,
     HTTPException,
     Query,
     UploadFile,
@@ -51,9 +52,9 @@ async def background_detect_task(task_id: int, file_path: str, result_path: str)
 
 
 @router.post("/tasks/upload", response_model=list[TaskSchema])
-async def uoload_tasks(
-    files: list[UploadFile],
+async def upload_tasks(
     background_tasks: BackgroundTasks,
+    files: list[UploadFile] = File(),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[Task]:
@@ -92,6 +93,33 @@ async def get_tasks(
 ) -> TaskPaginationSchema:
     result = await get_tasks_paginated(db, current_user.id, current_user.is_superuser, skip, limit)
     return result
+
+
+# 批量下载 要移动到/task/{task_id}之前 Fastapi按照注册顺序匹配
+@router.get("/tasks/batch/download")
+async def batch_download_tasks(
+    task_ids: list[int] = Query(),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    if not task_ids:
+        raise HTTPException(status_code=400, detail="无任务ID提供")
+    tasks = []
+    for task_id in task_ids:
+        task = await db.get(Task, task_id)
+        if not task:
+            raise HTTPException(status_code=404, detail=f"任务ID {task_id} 未找到")
+        if not current_user.is_superuser and task.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail=f"没有权限访问任务ID {task_id}")
+        if not task.result_path or not Path(task.result_path).exists():
+            raise HTTPException(status_code=404, detail=f"任务ID {task_id} 的结果文件未找到")
+        tasks.append(task)
+    zip_path = FileService.create_zip_for_tasks(tasks)
+    return StreamingResponse(
+        content=zip_path,
+        media_type="application/zip",
+        headers={"Content-Disposition": 'attachment; filename="tasks.zip"'},
+    )
 
 
 @router.get("/tasks/{task_id}", response_model=TaskSchema)
@@ -145,31 +173,4 @@ async def download_result_image(
         path=task.result_path,
         filename=download_name,
         media_type="image/jpeg",
-    )
-
-
-# 批量下载
-@router.get("/tasks/batch/download")
-async def batch_download_tasks(
-    task_ids: list[int] = Query(),
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> StreamingResponse:
-    if not task_ids:
-        raise HTTPException(status_code=400, detail="无任务ID提供")
-    tasks = []
-    for task_id in task_ids:
-        task = await db.get(Task, task_id)
-        if not task:
-            raise HTTPException(status_code=404, detail=f"任务ID {task_id} 未找到")
-        if not current_user.is_superuser and task.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail=f"没有权限访问任务ID {task_id}")
-        if not task.result_path or not Path(task.result_path).exists():
-            raise HTTPException(status_code=404, detail=f"任务ID {task_id} 的结果文件未找到")
-        tasks.append(task)
-    zip_path = FileService.create_zip_for_tasks(tasks)
-    return StreamingResponse(
-        content=zip_path,
-        media_type="application/zip",
-        headers={"Content-Disposition": 'attachment; filename="tasks.zip"'},
     )

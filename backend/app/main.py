@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.database import engine, init_models
 from app.core.logging import setup_logging
-from app.routers import auth, user
+from app.routers import auth, task, user
 from app.services.yolo_service import YOLOService
 
 # 给每一个文件一个独立的logger，方便定位来源
@@ -43,6 +43,7 @@ app = FastAPI(lifespan=lifespan)
 # 挂载路由
 app.include_router(auth.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
+app.include_router(task.router, prefix="/api")
 # 挂载静态文件
 if not STATIC_DIR.exists():
     os.makedirs(STATIC_DIR)

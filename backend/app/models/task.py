@@ -29,7 +29,7 @@ class Task(Base):
     )
     original_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     result_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    detect_result: Mapped[JSON | None] = mapped_column(JSON, nullable=True)
+    detect_result: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
 
