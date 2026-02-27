@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.models.task import Task
 
 
 class User(Base):
@@ -15,3 +19,7 @@ class User(Base):
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
     # 这里使用server_default让数据库自动设置时间，避免时区问题，查询时直接用datetime对象 而不是用default=datetime.now
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    # 反向关系，User对象可以通过tasks属性访问关联的Task对象列表
+    tasks: Mapped[list["Task"]] = relationship(
+        back_populates="owner", lazy="selectin", cascade="all, delete-orphan"
+    )
