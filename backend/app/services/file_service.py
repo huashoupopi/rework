@@ -5,7 +5,7 @@ import uuid
 import zipfile
 from pathlib import Path
 
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile
 
 from app.models.task import Task
 
@@ -19,6 +19,8 @@ class FileService:
     async def save_file(file: UploadFile) -> tuple[str, str | None, str]:
         task_uuid = str(uuid.uuid4())
         file_name = file.filename
+        if not file_name:
+            raise HTTPException(status_code=400, detail="文件名不能为空")
         file_extension = Path(str(file_name)).suffix
         save_name = f"{task_uuid}{file_extension}"
         save_path = UPLOAD_DIR / save_name
@@ -48,7 +50,7 @@ class FileService:
             if result_path.exists():
                 result_path.unlink()
         except Exception as e:
-            logger.exception(f"Error deleting files for task {uuid_str}: {e}")
+            logger.exception("Error deleting files for task %s: %s", uuid_str, e)
 
     @staticmethod
     def create_zip_for_tasks(tasks: list[Task]) -> io.BytesIO:

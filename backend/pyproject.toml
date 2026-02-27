@@ -12,6 +12,7 @@
       "pwdlib[argon2]>=0.2",
       "python-multipart>=0.0.18",
       "ultralytics",
+      "dill>=0.4.1",
 ]
 
   [dependency-groups]

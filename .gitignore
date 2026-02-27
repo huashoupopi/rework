@@ -1,40 +1,43 @@
 # Python
-  __pycache__/
-  *.py[cod]
-  *.egg-info/
-  dist/
-  build/
-  .venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.pyc
+dist/
+build/
+.venv/
 
-  # 环境变量（绝对不能提交）
-  .env
-  .env.*
-  !.env.example
+# 环境变量（绝对不能提交）
+.env
+.env.*
+!.env.example
 
-  # IDE
-  .vscode/
-  .idea/
-  *.swp
-  *.swo
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-  # OS
-  .DS_Store
-  Thumbs.db
+# OS
+.DS_Store
+Thumbs.db
 
-  # 上传与推理结果（运行时生成）
-  backend/uploads/*
-  backend/results/*
-  !backend/uploads/.gitkeep
-  !backend/results/.gitkeep
+# 上传与推理结果（运行时生成）
+backend/uploads/*
+backend/results/*
+!backend/uploads/.gitkeep
+!backend/results/.gitkeep
 
-  # 模型文件
-  *.pt
-  *.onnx
-  *.bin
+# 模型文件
+*.pt
+*.onnx
+*.bin
 
-  # uv
-  *.lock
-  # ruff
-  .ruff_cache/
+# 第三方大目录（避免索引/CPU飙升）
+ultralytics1/
 
-  .vscode/
+# uv
+*.lock
+
+# ruff
+.ruff_cache/

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Allow emergency bypass when needed:
+#   BYPASS_GIT_GUARD=1 git commit -m "..."
+if [[ "${BYPASS_GIT_GUARD:-0}" == "1" ]]; then
+  exit 0
+fi
+
+staged_files="$(git diff --cached --name-only --diff-filter=ACMR || true)"
+if [[ -z "${staged_files}" ]]; then
+  exit 0
+fi
+
+blocked_regex='(^|/)\.DS_Store$|(^|/)__pycache__/|\.pyc$|(^|/)ultralytics1/'
+blocked_files="$(echo "${staged_files}" | grep -E "${blocked_regex}" || true)"
+
+if [[ -n "${blocked_files}" ]]; then
+  echo "ERROR: 检测到不应提交的文件/目录："
+  echo "${blocked_files}"
+  echo
+  echo "修复建议："
+  echo "1) 加入 .gitignore（如果还没有）"
+  echo "2) 取消追踪：git rm -r --cached <path>"
+  echo "3) 重新提交"
+  exit 1
+fi
+
+# Safety valve: if staged files suddenly explode, stop and ask for sanity check.
+staged_count="$(echo "${staged_files}" | sed '/^$/d' | wc -l | tr -d ' ')"
+if [[ "${staged_count}" -gt 500 ]]; then
+  echo "ERROR: 本次提交暂存文件数为 ${staged_count} (>500)，疑似误追踪。"
+  echo "请先执行：git status --short | head -n 100"
+  exit 1
+fi
+
+exit 0

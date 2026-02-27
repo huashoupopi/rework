@@ -1,0 +1,97 @@
+# -----------------------------
+# Baseline .gitignore (Python + Frontend + AI app)
+# Copy this file to your new repo root as .gitignore
+# -----------------------------
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python bytecode / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.hypothesis/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Env files / secrets
+.env
+.env.*
+!.env.example
+
+# Logs / runtime temp
+*.log
+logs/
+tmp/
+temp/
+
+# Test / coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Frontend / Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+.next/
+.nuxt/
+.parcel-cache/
+
+# Local database
+*.sqlite3
+*.db
+
+# AI / model artifacts
+*.pt
+*.onnx
+*.bin
+*.safetensors
+checkpoints/
+wandb/
+mlruns/
+events.out.tfevents.*
+
+# App runtime outputs (adjust by project)
+uploads/
+results/
+
+# Large local folders (example)
+third_party/
+datasets/
+
+# Lockfiles policy:
+# For APP repos (recommended): keep lockfiles tracked for reproducibility.
+# For personal playground repos only: uncomment next line.
+*.lock
