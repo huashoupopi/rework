@@ -23,3 +23,9 @@ class UserPublic(UserBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+    """
+    这种写法也行：
+    class Config:
+        from_attributes = True
+    但是在pydantic v2中推荐使用ConfigDict，避免和pydantic v1的Config混淆
+    """

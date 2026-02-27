@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from app.core.config import settings
 from app.core.database import Base  # 引入Base以便alembic能找到模型
+from app.models.task import Task  # noqa: F401
 from app.models.user import User  # noqa: F401
 
 # 若有模型 需要在这里导入所有模型文件 以便alembic能找到模型

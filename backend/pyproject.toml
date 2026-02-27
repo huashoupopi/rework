@@ -11,7 +11,8 @@
       "pyjwt>=2.10",
       "pwdlib[argon2]>=0.2",
       "python-multipart>=0.0.18",
-  ]
+      "ultralytics",
+]
 
   [dependency-groups]
   dev = [
@@ -23,6 +24,10 @@
 [tool.ruff]
   target-version = "py312"
   line-length = 99
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
 
   [tool.ruff.lint]
   select = [
@@ -42,3 +47,6 @@
   known-first-party = ["app"]
   [tool.ruff.lint.flake8-bugbear]
   extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.uv.sources]
+ultralytics = { path = "../ultralytics1", editable = true }

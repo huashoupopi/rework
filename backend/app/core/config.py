@@ -8,7 +8,7 @@ _ENV_FILE_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
 
 
 class Settings(BaseSettings):
-    BASE_URL: Path = Path(__file__).resolve().parent.parent
+    BASE_DIR: Path = Path(__file__).resolve().parent.parent
     DB_HOST: str = ""
     DB_PORT: int = 5433
     DB_USER: str = ""
