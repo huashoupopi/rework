@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from app.core.database import engine, init_models
 from app.core.logging import setup_logging
 from app.routers import auth, user
+from app.services.yolo_service import YOLOService
 
 # 给每一个文件一个独立的logger，方便定位来源
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await init_models()
 
     # 其他启动服务 例如YOLO模型加载等
+    YOLOService.load_model()
     yield
     # 其他关闭服务
     logger.info("Shutting down...")
