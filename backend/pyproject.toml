@@ -47,6 +47,10 @@ default = true
   known-first-party = ["app"]
   [tool.ruff.lint.flake8-bugbear]
   extend-immutable-calls = ["fastapi.Depends"]
+  [tool.ruff.lint.per-file-ignores]
+  "app/routers/*.py" = ["B008"]
+  "app/routers/**/*.py" = ["B008"]
+
 
 [tool.uv.sources]
 ultralytics = { path = "../ultralytics1", editable = true }

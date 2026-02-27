@@ -1,11 +1,15 @@
-from app.core.database import Base
-from enum import Enum
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, ForeignKey, JSON, func
 from datetime import datetime
+from enum import Enum
 from typing import TYPE_CHECKING
+
+from sqlalchemy import JSON, ForeignKey, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.core.database import Base
+
 if TYPE_CHECKING:
     from app.models.user import User
+
 
 class TaskStatus(Enum):
     PENDING = "pending"
@@ -13,13 +17,16 @@ class TaskStatus(Enum):
     COMPLETED = "completed"
     FAILED = "failed"
 
+
 class Task(Base):
     __tablename__ = "tasks"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     uuid: Mapped[str] = mapped_column(String(36), unique=True, index=True)
     file_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    status: Mapped[str] = mapped_column(String(20), nullable=False, default=TaskStatus.PENDING.value)
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default=TaskStatus.PENDING.value
+    )
     original_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     result_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     detect_result: Mapped[JSON | None] = mapped_column(JSON, nullable=True)

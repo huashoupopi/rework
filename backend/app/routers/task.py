@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from pathlib import Path
 
 from fastapi import (
     APIRouter,
@@ -10,6 +11,7 @@ from fastapi import (
     UploadFile,
     status,
 )
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import AsyncSessionLocal, get_db
@@ -36,7 +38,7 @@ async def background_detect_task(task_id: int, file_path: str, result_path: str)
             detect_result = await asyncio.to_thread(YOLOService.predict, file_path, result_path)
             task.status = TaskStatus.COMPLETED.value
             task.result_path = result_path
-            task.detect_result = detect_result
+            task.detect_result = detect_result  # type: ignore
             await db.commit()
             logger.info("[后台] 任务 ID %d 处理完成 total=%s", task_id, detect_result["total"])
     except Exception:
@@ -48,7 +50,7 @@ async def background_detect_task(task_id: int, file_path: str, result_path: str)
                 await db.commit()
 
 
-@router.post("tasks/upload", response_model=list[TaskSchema])
+@router.post("/tasks/upload", response_model=list[TaskSchema])
 async def uoload_tasks(
     files: list[UploadFile],
     background_tasks: BackgroundTasks,
@@ -57,10 +59,10 @@ async def uoload_tasks(
 ) -> list[Task]:
     created_tasks = []
     for file in files:
-        if not file.content_type.startswith("image/"):
+        if not file.content_type.startswith("image/"):  # type: ignore
             continue
         uuid_str, file_name, save_path = await FileService.save_file(file)
-        result_path = FileService.get_result_path(uuid_str, file_name)
+        result_path = FileService.get_result_path(uuid_str, file_name)  # type: ignore
         new_task = Task(
             user_id=current_user.id,
             uuid=uuid_str,
@@ -120,3 +122,54 @@ async def delete_task(
     FileService.delete_file(task.uuid, task.file_name)
     await db.delete(task)
     await db.commit()
+
+
+# 单张图片下载
+@router.get("/tasks/{task_id}/download/image")
+async def download_result_image(
+    task_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> FileResponse:
+    task = await db.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="任务未找到")
+    if not current_user.is_superuser and task.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="没有权限访问此任务")
+    if not task.result_path or not Path(task.result_path).exists():
+        raise HTTPException(status_code=404, detail="结果文件未找到")
+    original_name = Path(task.file_name).stem
+    ext = Path(task.file_name).suffix
+    download_name = f"{original_name}_result{ext}"
+    return FileResponse(
+        path=task.result_path,
+        filename=download_name,
+        media_type="image/jpeg",
+    )
+
+
+# 批量下载
+@router.get("/tasks/batch/download")
+async def batch_download_tasks(
+    task_ids: list[int] = Query(),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    if not task_ids:
+        raise HTTPException(status_code=400, detail="无任务ID提供")
+    tasks = []
+    for task_id in task_ids:
+        task = await db.get(Task, task_id)
+        if not task:
+            raise HTTPException(status_code=404, detail=f"任务ID {task_id} 未找到")
+        if not current_user.is_superuser and task.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail=f"没有权限访问任务ID {task_id}")
+        if not task.result_path or not Path(task.result_path).exists():
+            raise HTTPException(status_code=404, detail=f"任务ID {task_id} 的结果文件未找到")
+        tasks.append(task)
+    zip_path = FileService.create_zip_for_tasks(tasks)
+    return StreamingResponse(
+        content=zip_path,
+        media_type="application/zip",
+        headers={"Content-Disposition": 'attachment; filename="tasks.zip"'},
+    )

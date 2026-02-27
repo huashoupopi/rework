@@ -1,9 +1,13 @@
+import io
 import logging
 import shutil
 import uuid
+import zipfile
 from pathlib import Path
 
-from fastapi import File, UploadFile
+from fastapi import UploadFile
+
+from app.models.task import Task
 
 logger = logging.getLogger(__name__)
 UPLOAD_DIR = Path("static/uploads")
@@ -12,7 +16,7 @@ RESULT_DIR = Path("static/results")
 
 class FileService:
     @staticmethod
-    async def save_file(file: UploadFile = File()) -> tuple[str, str | None, str]:
+    async def save_file(file: UploadFile) -> tuple[str, str | None, str]:
         task_uuid = str(uuid.uuid4())
         file_name = file.filename
         file_extension = Path(str(file_name)).suffix
@@ -45,3 +49,14 @@ class FileService:
                 result_path.unlink()
         except Exception as e:
             logger.exception(f"Error deleting files for task {uuid_str}: {e}")
+
+    @staticmethod
+    def create_zip_for_tasks(tasks: list[Task]) -> io.BytesIO:
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            for task in tasks:
+                if task.result_path and Path(task.result_path).exists():
+                    arcname = f"{task.id}_{task.file_name}"
+                    zip_file.write(task.result_path, arcname=arcname)
+        zip_buffer.seek(0)
+        return zip_buffer
