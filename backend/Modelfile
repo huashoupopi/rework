@@ -1,0 +1,40 @@
+# 1. 把主厨请过来（注意路径要对）
+FROM ./models/unsloth/Qwen3___5-4B-GGUF/Qwen3.5-4B-Q4_K_M.gguf
+
+# 2. 给主厨戴上能看图片的眼镜（注意路径要对）
+# ADAPTER ./models/unsloth/Qwen3___5-4B-GGUF/mmproj-F16.gguf
+
+# --- 关键修复：Qwen 专用的对话模板 (ChatML) ---
+# 这段代码告诉 Ollama 怎么把对话包装成 Qwen 能看懂的格式
+# 不要改动这里的任何符号，这是 Ollama 的标准语法
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{ if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+{{ end }}<|im_start|>assistant
+"""
+
+# --- 参数设置 ---
+# 设置上下文长度
+PARAMETER num_ctx 8192
+
+# 停止词 (告诉模型什么时候闭嘴，这非常重要！)
+# 停止词（避免过早截断）
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
+
+
+# RAG 场景建议低温，保持严谨
+PARAMETER temperature 0.2
+PARAMETER top_p 0.9
+
+# --- 系统提示词 ---
+SYSTEM """
+你是一位专业、严谨的风电运维技术专家助手。
+你的任务是根据提供的知识库内容回答用户关于风机故障、维修流程和安全规范的问题。
+原则：
+1. 必须基于事实回答，严禁编造。
+2. 对于基础常识问题，可以简要回答。
+3. 如果知识库中没有相关信息或者你看不懂图片，请直接回答“资料不足”。
+4. 优先使用中文回答。
+"""

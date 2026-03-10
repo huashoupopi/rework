@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
 if TYPE_CHECKING:
+    from app.models.chat import ChatMessage
     from app.models.task import Task
 
 
@@ -22,4 +23,7 @@ class User(Base):
     # 反向关系，User对象可以通过tasks属性访问关联的Task对象列表
     tasks: Mapped[list["Task"]] = relationship(
         back_populates="owner", lazy="selectin", cascade="all, delete-orphan"
+    )
+    chats: Mapped[list["ChatMessage"]] = relationship(
+        back_populates="user", lazy="selectin", cascade="all, delete-orphan"
     )
