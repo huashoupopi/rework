@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
-*.pyc
 dist/
 build/
 .venv/
@@ -33,11 +32,12 @@ backend/results/*
 *.onnx
 *.bin
 
-# 第三方大目录（避免索引/CPU飙升）
-ultralytics1/
-
 # uv
 *.lock
-
 # ruff
 .ruff_cache/
+
+.vscode/
+*.gguf
+models/
+ultralytics1/

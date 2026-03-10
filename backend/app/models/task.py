@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
 if TYPE_CHECKING:
+    from app.models.chat import ChatMessage
     from app.models.user import User
 
 
@@ -34,3 +35,6 @@ class Task(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
 
     owner: Mapped["User"] = relationship(back_populates="tasks", lazy="selectin")
+    chats: Mapped[list["ChatMessage"]] = relationship(
+        back_populates="task", lazy="selectin", cascade="all, delete-orphan"
+    )
