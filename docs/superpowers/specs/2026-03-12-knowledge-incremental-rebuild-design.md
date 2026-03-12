@@ -48,9 +48,10 @@ class KnowledgeDocument(Base):
     updated_at: datetime
 
     # === 新增字段 ===
-    indexed_at: datetime | None     # 最后一次成功索引的时间
-    index_status: str               # "pending" | "indexed" | "failed"
-    error_message: str | None       # 索引失败时的错误信息（最多 500 字符）
+    indexed_at: datetime | None         # 最后一次成功索引的时间
+    index_status: str                   # "pending" | "indexed" | "failed"
+    error_message: str | None           # 索引失败时的错误信息（最多 500 字符）
+    last_build_attempt_at: datetime | None  # 最后一次尝试构建的时间（用于检测超时任务）
 ```
 
 **字段说明**：
@@ -60,6 +61,7 @@ class KnowledgeDocument(Base):
   - `"indexed"`: 文档已成功索引
   - `"failed"`: 索引失败（embedding 错误、文件损坏等）
 - `error_message`: 索引失败时记录错误原因，方便调试（最多 500 字符）
+- `last_build_attempt_at`: 记录最后一次尝试构建的时间，用于检测超时任务（如超过 30 分钟仍为 pending 则视为失败）
 
 #### KnowledgeDocumentVersion 表（无变化）
 
@@ -242,6 +244,7 @@ python build_knowledge.py --mode=incremental --doc-keys=doc1,doc2
 
 ```python
 import argparse
+import fcntl
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -254,84 +257,114 @@ from app.models.knowledge import KnowledgeDocument
 
 logger = logging.getLogger(__name__)
 
+# 文件锁路径
+LOCK_FILE = Path(settings.BASE_DIR).parent / ".rebuild.lock"
+
+def acquire_lock():
+    """获取文件锁，如果已被占用则抛出异常"""
+    lock_fd = open(LOCK_FILE, "w")
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return lock_fd
+    except BlockingIOError:
+        raise RuntimeError("另一个重建任务正在运行")
+
+def release_lock(lock_fd):
+    """释放文件锁"""
+    fcntl.flock(lock_fd, fcntl.LOCK_UN)
+    lock_fd.close()
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["full", "incremental"], required=True)
     parser.add_argument("--doc-keys", type=str, help="逗号分隔的 doc_key 列表（仅 incremental 模式）")
     args = parser.parse_args()
 
-    # 初始化 vector store
-    vector_store = PGVectorStore.from_params(
-        database=settings.DB_NAME,
-        host=settings.DB_HOST,
-        port=str(settings.DB_PORT),
-        password=settings.DB_PASSWORD,
-        user=settings.DB_USER,
-        table_name=settings.DB_TABLE,
-        embed_dim=1024,
-        hybrid_search=True,
-    )
-
-    if args.mode == "full":
-        # 全量重建：清空 pgvector
-        vector_store.clear()
-        # 加载所有文档
-        documents = load_all_documents()
-    else:
-        # 增量重建：只加载指定文档
-        doc_keys = args.doc_keys.split(",") if args.doc_keys else []
-        if not doc_keys:
-            print("增量模式需要指定 --doc-keys")
-            return
-
-        # 删除旧 chunks（使用原始 SQL，因为 PGVectorStore 不提供 metadata filter 删除）
-        with engine.connect() as conn:
-            for doc_key in doc_keys:
-                result = conn.execute(
-                    text(f"DELETE FROM {settings.DB_TABLE} WHERE metadata->>'doc_key' = :doc_key"),
-                    {"doc_key": doc_key}
-                )
-                logger.info(f"删除文档 {doc_key} 的旧 chunks: {result.rowcount} 条")
-            conn.commit()
-
-        # 加载指定文档
-        documents = load_documents_by_keys(doc_keys)
-
-    # 分块 + Embedding + 写入
+    # 获取文件锁
     try:
-        index = VectorStoreIndex.from_documents(documents, vector_store=vector_store)
-        logger.info(f"索引构建成功：{len(documents)} 个文档")
-    except Exception as e:
-        logger.exception(f"索引构建失败: {e}")
-        # 标记失败的文档
+        lock_fd = acquire_lock()
+    except RuntimeError as e:
+        logger.error(str(e))
+        return 1
+
+    try:
+        # 初始化 vector store
+        vector_store = PGVectorStore.from_params(
+            database=settings.DB_NAME,
+            host=settings.DB_HOST,
+            port=str(settings.DB_PORT),
+            password=settings.DB_PASSWORD,
+            user=settings.DB_USER,
+            table_name=settings.DB_TABLE,
+            embed_dim=1024,
+            hybrid_search=True,
+        )
+
+        if args.mode == "full":
+            # 全量重建：清空 pgvector
+            vector_store.clear()
+            # 加载所有文档
+            documents = load_all_documents()
+        else:
+            # 增量重建：只加载指定文档
+            doc_keys = args.doc_keys.split(",") if args.doc_keys else []
+            if not doc_keys:
+                logger.error("增量模式需要指定 --doc-keys")
+                return 1
+
+            # 删除旧 chunks（使用原始 SQL）
+            with engine.connect() as conn:
+                for doc_key in doc_keys:
+                    result = conn.execute(
+                        text(f"DELETE FROM {settings.DB_TABLE} WHERE metadata->>'doc_key' = :doc_key"),
+                        {"doc_key": doc_key}
+                    )
+                    logger.info(f"删除文档 {doc_key} 的旧 chunks: {result.rowcount} 条")
+                conn.commit()
+
+            # 加载指定文档
+            documents = load_documents_by_keys(doc_keys)
+
+        # 分块 + Embedding + 写入
+        try:
+            index = VectorStoreIndex.from_documents(documents, vector_store=vector_store)
+            logger.info(f"索引构建成功：{len(documents)} 个文档")
+        except Exception as e:
+            logger.exception(f"索引构建失败: {e}")
+            # 标记失败的文档
+            db = SessionLocal()
+            try:
+                for doc in documents:
+                    doc_key = doc.metadata.get("doc_key")
+                    db_doc = db.query(KnowledgeDocument).filter_by(doc_key=doc_key).first()
+                    if db_doc:
+                        db_doc.index_status = "failed"
+                        db_doc.error_message = str(e)[:500]  # 截断错误信息
+                        db_doc.last_build_attempt_at = datetime.utcnow()
+                db.commit()
+            finally:
+                db.close()
+            return 1
+
+        # 更新数据库状态
         db = SessionLocal()
         try:
             for doc in documents:
                 doc_key = doc.metadata.get("doc_key")
                 db_doc = db.query(KnowledgeDocument).filter_by(doc_key=doc_key).first()
                 if db_doc:
-                    db_doc.index_status = "failed"
-                    db_doc.error_message = str(e)[:500]  # 截断错误信息
+                    db_doc.indexed_at = datetime.utcnow()
+                    db_doc.index_status = "indexed"
+                    db_doc.error_message = None  # 清除旧的错误信息
+                    db_doc.last_build_attempt_at = datetime.utcnow()
             db.commit()
         finally:
             db.close()
-        return
 
-    # 更新数据库状态
-    db = SessionLocal()
-    try:
-        for doc in documents:
-            doc_key = doc.metadata.get("doc_key")
-            db_doc = db.query(KnowledgeDocument).filter_by(doc_key=doc_key).first()
-            if db_doc:
-                db_doc.indexed_at = datetime.utcnow()
-                db_doc.index_status = "indexed"
-                db_doc.error_message = None  # 清除旧的错误信息
-        db.commit()
+        logger.info(f"索引构建完成：{len(documents)} 个文档")
+        return 0
     finally:
-        db.close()
-
-    logger.info(f"索引构建完成：{len(documents)} 个文档")
+        release_lock(lock_fd)
 
 def load_all_documents():
     """加载 knowledge_base/ 下所有文档"""
@@ -384,6 +417,13 @@ class KnowledgeService:
     @staticmethod
     def trigger_full_rebuild(db: Session) -> dict:
         """触发全量重建"""
+        # 检查是否有任务正在运行
+        if is_rebuild_running():
+            return {
+                "status": "conflict",
+                "message": "另一个重建任务正在运行，请稍后再试"
+            }
+
         # 重置所有文档状态
         db.query(KnowledgeDocument).update({
             "index_status": "pending",
@@ -407,6 +447,13 @@ class KnowledgeService:
     @staticmethod
     def trigger_incremental_rebuild(db: Session) -> dict:
         """触发增量重建"""
+        # 检查是否有任务正在运行
+        if is_rebuild_running():
+            return {
+                "status": "conflict",
+                "message": "另一个重建任务正在运行，请稍后再试"
+            }
+
         # 查询待索引的文档
         pending_docs = db.query(KnowledgeDocument).filter(
             (KnowledgeDocument.index_status == "pending") |
@@ -435,6 +482,20 @@ class KnowledgeService:
             "doc_keys": doc_keys,
             "message": f"增量重建已启动，共 {len(doc_keys)} 个文档"
         }
+
+def is_rebuild_running() -> bool:
+    """检查是否有重建任务正在运行（通过检查锁文件）"""
+    lock_file = Path(settings.BASE_DIR).parent / ".rebuild.lock"
+    if not lock_file.exists():
+        return False
+
+    try:
+        with open(lock_file, "r") as f:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            fcntl.flock(f, fcntl.LOCK_UN)
+            return False
+    except BlockingIOError:
+        return True
 
     @staticmethod
     def delete_document_index(db: Session, doc_key: str, physical_delete: bool = False) -> dict:
@@ -524,6 +585,7 @@ def delete_document(
 def get_status(db: Session = Depends(get_db)):
     """查询索引状态"""
     from app.models.knowledge import KnowledgeDocument
+    from app.services.knowledge_service import is_rebuild_running
 
     docs = db.query(KnowledgeDocument).all()
 
@@ -532,6 +594,7 @@ def get_status(db: Session = Depends(get_db)):
         "indexed": sum(1 for d in docs if d.index_status == "indexed"),
         "pending": sum(1 for d in docs if d.index_status == "pending"),
         "failed": sum(1 for d in docs if d.index_status == "failed"),
+        "rebuild_running": is_rebuild_running(),  # 是否有重建任务正在运行
         "documents": [
             {
                 "doc_key": d.doc_key,
@@ -539,7 +602,8 @@ def get_status(db: Session = Depends(get_db)):
                 "index_status": d.index_status,
                 "indexed_at": d.indexed_at.isoformat() if d.indexed_at else None,
                 "latest_version": d.latest_version,
-                "error_message": d.error_message if d.index_status == "failed" else None
+                "error_message": d.error_message if d.index_status == "failed" else None,
+                "last_build_attempt_at": d.last_build_attempt_at.isoformat() if d.last_build_attempt_at else None
             }
             for d in docs
         ]
@@ -572,7 +636,25 @@ def get_status(db: Session = Depends(get_db)):
 8. 子进程处理该文档 → index_status="indexed"
 ```
 
-**注意**：`POST /knowledge/upload` 接口需要修改，确保新上传的文档初始状态为 `index_status="pending"`。
+**注意**：`POST /knowledge/upload` 接口需要修改，确保新上传的文档初始状态为：
+- `index_status="pending"`
+- `indexed_at=NULL`
+- `last_build_attempt_at=NULL`
+
+**上传接口修改示例**：
+```python
+# 在 knowledge_service.py 的上传逻辑中
+new_doc = KnowledgeDocument(
+    doc_key=doc_key,
+    title=title,
+    status="active",
+    latest_version=1,
+    index_status="pending",  # 新增
+    indexed_at=None,         # 新增
+    last_build_attempt_at=None  # 新增
+)
+db.add(new_doc)
+```
 
 ### 删除文档流程
 
@@ -601,9 +683,11 @@ def get_status(db: Session = Depends(get_db)):
 
 **实现方式**：使用文件锁防止多个重建任务同时执行
 
+**文件锁实现**（在 `build_knowledge.py` 中）：
+
 ```python
-# build_knowledge.py 开头
 import fcntl
+from pathlib import Path
 
 LOCK_FILE = Path(settings.BASE_DIR).parent / ".rebuild.lock"
 
@@ -629,9 +713,26 @@ finally:
     release_lock(lock_fd)
 ```
 
-**API 层处理**：
-- 在 `KnowledgeService.trigger_*_rebuild()` 中检查锁文件
-- 如果锁文件存在且被占用，返回 `409 Conflict`
+**API 层检测**（在 `knowledge_service.py` 中）：
+
+```python
+def is_rebuild_running() -> bool:
+    """检查是否有重建任务正在运行"""
+    lock_file = Path(settings.BASE_DIR).parent / ".rebuild.lock"
+    if not lock_file.exists():
+        return False
+
+    try:
+        with open(lock_file, "r") as f:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            fcntl.flock(f, fcntl.LOCK_UN)
+            return False
+    except BlockingIOError:
+        return True
+```
+
+**API 响应**：
+- 如果检测到锁文件被占用，返回 `409 Conflict`
 - 响应示例：
   ```json
   {
@@ -644,6 +745,11 @@ finally:
 - 如果 `build_knowledge.py` 进程崩溃，锁文件会自动释放（进程退出时 OS 自动释放 flock）
 - 如果进程被 kill -9 强制杀死，锁文件也会自动释放
 - 无需手动清理僵尸锁
+
+**超时任务检测**：
+- 通过 `last_build_attempt_at` 字段检测超时任务
+- 如果文档的 `index_status="pending"` 且 `last_build_attempt_at` 超过 30 分钟，视为构建失败
+- 可以通过定时任务或管理接口将这些文档标记为 `"failed"`
 
 ### 数据一致性
 
