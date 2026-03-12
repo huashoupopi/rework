@@ -50,6 +50,7 @@ class KnowledgeDocument(Base):
     # === 新增字段 ===
     indexed_at: datetime | None     # 最后一次成功索引的时间
     index_status: str               # "pending" | "indexed" | "failed"
+    error_message: str | None       # 索引失败时的错误信息（最多 500 字符）
 ```
 
 **字段说明**：
@@ -58,6 +59,7 @@ class KnowledgeDocument(Base):
   - `"pending"`: 文档已上传但未索引，或索引已过期
   - `"indexed"`: 文档已成功索引
   - `"failed"`: 索引失败（embedding 错误、文件损坏等）
+- `error_message`: 索引失败时记录错误原因，方便调试（最多 500 字符）
 
 #### KnowledgeDocumentVersion 表（无变化）
 
@@ -164,12 +166,12 @@ DELETE /knowledge/documents/{doc_key}
 - 更新数据库：
   - `index_status = "pending"`
   - `indexed_at = NULL`
-  - 可选：`status = "deleted"`（软删除）或物理删除文件
+  - 如果 `physical_delete=true`，则标记 `status = "deleted"` 并删除物理文件
 
 **请求参数**：
 ```json
 {
-  "delete_files": false  // 是否同时删除物理文件（默认 false，只删除索引）
+  "physical_delete": false  // 是否物理删除文件（默认 false，只删除索引）
 }
 ```
 
@@ -179,7 +181,7 @@ DELETE /knowledge/documents/{doc_key}
   "status": "success",
   "doc_key": "manual_wind",
   "chunks_deleted": 42,
-  "files_deleted": false
+  "physical_delete": false
 }
 ```
 
@@ -240,12 +242,17 @@ python build_knowledge.py --mode=incremental --doc-keys=doc1,doc2
 
 ```python
 import argparse
+import logging
+from datetime import datetime
 from pathlib import Path
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.vector_stores.postgres import PGVectorStore
+from sqlalchemy import text
 from app.core.config import settings
-from app.core.database import SessionLocal
+from app.core.database import SessionLocal, engine
 from app.models.knowledge import KnowledgeDocument
+
+logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -277,15 +284,38 @@ def main():
             print("增量模式需要指定 --doc-keys")
             return
 
-        # 删除旧 chunks
-        for doc_key in doc_keys:
-            vector_store.delete_by_metadata_filter({"doc_key": doc_key})
+        # 删除旧 chunks（使用原始 SQL，因为 PGVectorStore 不提供 metadata filter 删除）
+        with engine.connect() as conn:
+            for doc_key in doc_keys:
+                result = conn.execute(
+                    text(f"DELETE FROM {settings.DB_TABLE} WHERE metadata->>'doc_key' = :doc_key"),
+                    {"doc_key": doc_key}
+                )
+                logger.info(f"删除文档 {doc_key} 的旧 chunks: {result.rowcount} 条")
+            conn.commit()
 
         # 加载指定文档
         documents = load_documents_by_keys(doc_keys)
 
     # 分块 + Embedding + 写入
-    index = VectorStoreIndex.from_documents(documents, vector_store=vector_store)
+    try:
+        index = VectorStoreIndex.from_documents(documents, vector_store=vector_store)
+        logger.info(f"索引构建成功：{len(documents)} 个文档")
+    except Exception as e:
+        logger.exception(f"索引构建失败: {e}")
+        # 标记失败的文档
+        db = SessionLocal()
+        try:
+            for doc in documents:
+                doc_key = doc.metadata.get("doc_key")
+                db_doc = db.query(KnowledgeDocument).filter_by(doc_key=doc_key).first()
+                if db_doc:
+                    db_doc.index_status = "failed"
+                    db_doc.error_message = str(e)[:500]  # 截断错误信息
+            db.commit()
+        finally:
+            db.close()
+        return
 
     # 更新数据库状态
     db = SessionLocal()
@@ -296,11 +326,12 @@ def main():
             if db_doc:
                 db_doc.indexed_at = datetime.utcnow()
                 db_doc.index_status = "indexed"
+                db_doc.error_message = None  # 清除旧的错误信息
         db.commit()
     finally:
         db.close()
 
-    print(f"索引构建完成：{len(documents)} 个文档")
+    logger.info(f"索引构建完成：{len(documents)} 个文档")
 
 def load_all_documents():
     """加载 knowledge_base/ 下所有文档"""
@@ -406,31 +437,39 @@ class KnowledgeService:
         }
 
     @staticmethod
-    def delete_document_index(db: Session, doc_key: str, delete_files: bool = False) -> dict:
+    def delete_document_index(db: Session, doc_key: str, physical_delete: bool = False) -> dict:
         """删除文档索引"""
         doc = db.query(KnowledgeDocument).filter_by(doc_key=doc_key).first()
         if not doc:
             raise ValueError(f"文档不存在: {doc_key}")
 
-        # 从 pgvector 删除 chunks（需要直接执行 SQL）
+        # 从 pgvector 删除 chunks（使用原始 SQL）
         from app.core.database import engine
+        from sqlalchemy import text
         with engine.connect() as conn:
             result = conn.execute(
-                f"DELETE FROM {settings.DB_TABLE} WHERE metadata->>'doc_key' = %s",
-                (doc_key,)
+                text(f"DELETE FROM {settings.DB_TABLE} WHERE metadata->>'doc_key' = :doc_key"),
+                {"doc_key": doc_key}
             )
             chunks_deleted = result.rowcount
+            conn.commit()
 
         # 更新数据库状态
         doc.index_status = "pending"
         doc.indexed_at = None
 
-        if delete_files:
+        if physical_delete:
+            # 标记为已删除
             doc.status = "deleted"
-            # 可选：物理删除文件
-            # knowledge_file = Path(settings.KNOWLEDGE_DIR) / f"{doc_key}.pdf"
-            # if knowledge_file.exists():
-            #     knowledge_file.unlink()
+            # 物理删除文件
+            knowledge_file = Path(settings.KNOWLEDGE_DIR) / f"{doc_key}.pdf"
+            if knowledge_file.exists():
+                knowledge_file.unlink()
+            # 也可以删除 .md 文件
+            for suffix in [".md", ".markdown"]:
+                md_file = Path(settings.KNOWLEDGE_DIR) / f"{doc_key}{suffix}"
+                if md_file.exists():
+                    md_file.unlink()
 
         db.commit()
 
@@ -438,7 +477,7 @@ class KnowledgeService:
             "status": "success",
             "doc_key": doc_key,
             "chunks_deleted": chunks_deleted,
-            "files_deleted": delete_files
+            "physical_delete": physical_delete
         }
 ```
 
@@ -471,12 +510,12 @@ def rebuild_incremental(db: Session = Depends(get_db)):
 @router.delete("/documents/{doc_key}")
 def delete_document(
     doc_key: str,
-    delete_files: bool = False,
+    physical_delete: bool = False,
     db: Session = Depends(get_db)
 ):
     """删除文档索引"""
     try:
-        result = KnowledgeService.delete_document_index(db, doc_key, delete_files)
+        result = KnowledgeService.delete_document_index(db, doc_key, physical_delete)
         return result
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -499,7 +538,8 @@ def get_status(db: Session = Depends(get_db)):
                 "title": d.title,
                 "index_status": d.index_status,
                 "indexed_at": d.indexed_at.isoformat() if d.indexed_at else None,
-                "latest_version": d.latest_version
+                "latest_version": d.latest_version,
+                "error_message": d.error_message if d.index_status == "failed" else None
             }
             for d in docs
         ]
@@ -521,7 +561,7 @@ def get_status(db: Session = Depends(get_db)):
    ↓
 3. 保存到 knowledge_base/{doc_key}.pdf
    ↓
-4. 创建 KnowledgeDocument（index_status="pending"）
+4. 创建 KnowledgeDocument（index_status="pending", indexed_at=NULL）
    ↓
 5. 创建 KnowledgeDocumentVersion
    ↓
@@ -531,6 +571,8 @@ def get_status(db: Session = Depends(get_db)):
    ↓
 8. 子进程处理该文档 → index_status="indexed"
 ```
+
+**注意**：`POST /knowledge/upload` 接口需要修改，确保新上传的文档初始状态为 `index_status="pending"`。
 
 ### 删除文档流程
 
@@ -551,14 +593,57 @@ def get_status(db: Session = Depends(get_db)):
 ### 索引失败
 
 - 如果 `build_knowledge.py` 执行失败（文件损坏、embedding 超时等）
-- 将文档标记为 `index_status="failed"`
-- 管理员可以通过 `GET /knowledge/status` 查看失败的文档
+- 将文档标记为 `index_status="failed"`, `error_message` 记录错误原因
+- 管理员可以通过 `GET /knowledge/status` 查看失败的文档和错误信息
 - 修复问题后，再次调用增量重建
 
 ### 并发控制
 
-- `build_knowledge.py` 使用文件锁，防止多个重建任务同时执行
-- 如果已有重建任务在运行，返回 `409 Conflict`
+**实现方式**：使用文件锁防止多个重建任务同时执行
+
+```python
+# build_knowledge.py 开头
+import fcntl
+
+LOCK_FILE = Path(settings.BASE_DIR).parent / ".rebuild.lock"
+
+def acquire_lock():
+    """获取文件锁，如果已被占用则抛出异常"""
+    lock_fd = open(LOCK_FILE, "w")
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return lock_fd
+    except BlockingIOError:
+        raise RuntimeError("另一个重建任务正在运行")
+
+def release_lock(lock_fd):
+    """释放文件锁"""
+    fcntl.flock(lock_fd, fcntl.LOCK_UN)
+    lock_fd.close()
+
+# main() 中使用
+lock_fd = acquire_lock()
+try:
+    # ... 执行重建逻辑
+finally:
+    release_lock(lock_fd)
+```
+
+**API 层处理**：
+- 在 `KnowledgeService.trigger_*_rebuild()` 中检查锁文件
+- 如果锁文件存在且被占用，返回 `409 Conflict`
+- 响应示例：
+  ```json
+  {
+    "status": "conflict",
+    "message": "另一个重建任务正在运行，请稍后再试"
+  }
+  ```
+
+**超时处理**：
+- 如果 `build_knowledge.py` 进程崩溃，锁文件会自动释放（进程退出时 OS 自动释放 flock）
+- 如果进程被 kill -9 强制杀死，锁文件也会自动释放
+- 无需手动清理僵尸锁
 
 ### 数据一致性
 
@@ -574,7 +659,13 @@ def get_status(db: Session = Depends(get_db)):
 | 全量重建 | 2 个 PDF（4MB） | ~5 分钟 |
 | 全量重建 | 10 个 PDF（20MB） | ~25 分钟 |
 | 增量重建 | 1 个新 PDF（2MB） | ~3 秒 |
+| 增量重建 | 5 个新 PDF（10MB） | ~15 秒 |
 | 删除索引 | 1 个文档（42 chunks） | <1 秒 |
+
+**说明**：
+- 全量重建时间与文档数量和大小成正比
+- 增量重建只处理变化的文档，性能提升 100 倍
+- 删除索引只需执行一条 SQL，几乎瞬时完成
 
 ---
 
