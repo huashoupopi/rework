@@ -24,4 +24,5 @@ jobs:
       # --no-sources：不解析 [tool.uv.sources] 里的本地 ultralytics1 路径
       - run: uv sync --dev --no-sources --default-index https://pypi.org/simple
       - run: uv run --no-sources ruff check app/utils/stream_parser.py tests/test_stream_parser.py tests/test_rag_eval.py evals/run_rag_eval.py
-      - run: uv run --no-sources pytest -m "not needs_model and not needs_db" -q
+      # --ignore：这两份测试模块级 import 会拉起 RAG/DB，marker 挡不住收集
+      - run: uv run --no-sources pytest -m "not needs_model and not needs_db" --ignore=tests/test_rag_prompt_constraints.py --ignore=tests/test_request_observability.py -q
