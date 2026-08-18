@@ -41,6 +41,7 @@
   --motion-slow: 220ms;
   --stagger-step: 50ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --easter-logo-spin: 3s;
 
   --success-soft: rgba(43, 163, 112, 0.16);
   --warning-soft: rgba(255, 180, 77, 0.16);
@@ -256,17 +257,26 @@ textarea {
 
 .app-sidebar__brand-mark {
   align-items: center;
-  background: linear-gradient(135deg, #1b5cff 0%, #7da8ff 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  border: 0;
   border-radius: 14px;
-  box-shadow: 0 6px 16px rgba(27, 92, 255, 0.2);
-  color: white;
+  box-shadow: var(--glow-accent);
+  color: var(--surface-strong);
+  cursor: pointer;
   display: flex;
   flex-shrink: 0;
   font-size: 1.1rem;
   font-weight: 700;
   height: 42px;
   justify-content: center;
+  overflow: hidden;
+  padding: 0;
   width: 42px;
+}
+
+.app-sidebar__brand-mark .wind-turbine-svg {
+  height: 34px;
+  width: 34px;
 }
 
 .app-sidebar__brand-copy p {
@@ -319,13 +329,14 @@ textarea {
   border-radius: var(--radius-sm);
   color: var(--surface-strong);
   display: flex;
+  font-size: 0.9rem;
   gap: 10px;
   min-height: 42px;
   padding: 0 10px;
-  font-size: 0.9rem;
+  position: relative;
   transition:
-    background 180ms ease,
-    box-shadow 180ms ease;
+    background var(--motion-base) var(--ease-out),
+    box-shadow var(--motion-base) var(--ease-out);
 }
 
 .app-sidebar__link:hover {
@@ -333,9 +344,19 @@ textarea {
 }
 
 .app-sidebar__link--active {
-  background: var(--glass-bg-strong);
-  box-shadow: 0 2px 8px rgba(24, 51, 96, 0.06);
+  background: var(--accent-soft);
+  box-shadow: var(--glow-accent);
   font-weight: 500;
+}
+
+.app-sidebar__link--active::before {
+  background: var(--accent);
+  border-radius: 99px;
+  box-shadow: var(--glow-accent);
+  content: "";
+  inset: 8px auto 8px 0;
+  position: absolute;
+  width: 3px;
 }
 
 .app-sidebar__footnote {
@@ -381,7 +402,7 @@ textarea {
 }
 
 .app-topbar__eyebrow {
-  color: rgba(16, 32, 56, 0.42);
+  color: var(--surface-muted);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -2190,13 +2211,19 @@ textarea {
   text-transform: uppercase;
 }
 
+.auth-hero__title,
 .auth-hero h1 {
   color: var(--surface-strong);
-  font-size: clamp(2.6rem, 5vw, 4.2rem);
+  font-size: clamp(2.4rem, 4.6vw, 3.8rem);
   letter-spacing: -0.04em;
   line-height: 0.98;
   margin: 0;
-  max-width: 12ch;
+  max-width: none;
+}
+
+.auth-hero__title-text,
+.auth-hero__title-line {
+  display: block;
 }
 
 .auth-hero__description {
@@ -2368,6 +2395,10 @@ textarea {
   box-shadow: var(--glow-accent);
 }
 
+.glass-button--block {
+  width: 100%;
+}
+
 .aurora-background {
   isolation: isolate;
   min-height: 100%;
@@ -2390,6 +2421,94 @@ textarea {
 .aurora-background__content {
   position: relative;
   z-index: 1;
+}
+
+.aurora-background.auth-page {
+  min-height: 100vh;
+}
+
+.aurora-background--night .aurora-background__blob {
+  opacity: 0.28;
+}
+
+.aurora-background--night::after {
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, rgba(232, 238, 252, 0.7), transparent),
+    radial-gradient(1px 1px at 28% 68%, rgba(232, 238, 252, 0.45), transparent),
+    radial-gradient(1px 1px at 63% 18%, rgba(232, 238, 252, 0.65), transparent),
+    radial-gradient(1.4px 1.4px at 81% 42%, rgba(232, 238, 252, 0.55), transparent),
+    radial-gradient(1px 1px at 47% 84%, rgba(232, 238, 252, 0.4), transparent);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.wind-turbine-3d,
+.auth-hero__turbine {
+  height: 220px;
+  width: 220px;
+}
+
+.wind-turbine-svg__blades {
+  transform-box: fill-box;
+  transform-origin: 60px 75px;
+}
+
+.wind-turbine-svg[data-spinning="true"][data-stopped="false"] .wind-turbine-svg__blades {
+  animation: turbine-spin var(--easter-logo-spin) linear infinite;
+}
+
+.wind-turbine-svg[data-boost="true"][data-stopped="false"] .wind-turbine-svg__blades {
+  animation-duration: calc(var(--easter-logo-spin) / 4);
+}
+
+.wind-turbine-svg[data-stopped="true"] .wind-turbine-svg__blades {
+  animation: none;
+}
+
+@keyframes turbine-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.background-paths {
+  color: var(--accent);
+  height: 100%;
+  inset: 0;
+  opacity: 0.45;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+}
+
+.not-found-page {
+  align-items: center;
+  display: grid;
+  justify-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 32px 20px;
+  position: relative;
+}
+
+.not-found-card {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  max-width: 420px;
+  padding: 32px 28px;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.not-found-card p {
+  color: var(--surface-muted);
+  margin: 0;
 }
 
 .spotlight-card {
@@ -2446,7 +2565,8 @@ textarea {
 
 @media (prefers-reduced-motion: reduce) {
   .shimmer-text,
-  .aurora-background__blob {
+  .aurora-background__blob,
+  .wind-turbine-svg__blades {
     animation: none;
   }
 

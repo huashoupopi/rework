@@ -6,14 +6,15 @@ import { cn, tokenDurationSeconds } from "@/shared/lib/utils"
 type AuroraBackgroundProps = {
   children?: React.ReactNode
   className?: string
+  night?: boolean
 }
 
-export function AuroraBackground({ children, className }: AuroraBackgroundProps) {
+export function AuroraBackground({ children, className, night = false }: AuroraBackgroundProps) {
   const reduceMotion = useReducedMotion()
   const duration = tokenDurationSeconds("--motion-slow", 220) * 18
 
   return (
-    <div className={cn("aurora-background", className)}>
+    <div className={cn("aurora-background", night && "aurora-background--night", className)} data-night={night ? "true" : "false"}>
       {reduceMotion ? (
         <div aria-hidden className="aurora-background__blob aurora-background__blob--static" />
       ) : (
