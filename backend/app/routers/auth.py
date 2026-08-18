@@ -1,5 +1,6 @@
+import hashlib
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -8,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.redis import get_redis
 from app.core.security import create_access_token, verify_password
 from app.crud.user import create_user, get_user_by_username
 from app.models.user import User
@@ -55,6 +57,11 @@ async def get_current_user(
         detail="无法验证凭据",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    r = get_redis()
+    if await r.get(f"blacklist:{token_hash}"):
+        logger.warning("Token在黑名单中，拒绝访问")
+        raise credentials_exception
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id: str | None = payload.get("sub")
@@ -70,6 +77,26 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+@router.get("/auth/logout", status_code=204)
+async def logout(token: str = Depends(oauth2_scheme)) -> None:
+    """
+    登出，将当前token加入黑名单 实际要换成Short token + refresh token
+    """
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
+        remaining = int((exp - datetime.now(tz=UTC)).total_seconds())
+        if remaining < 0:
+            return
+    except jwt.InvalidTokenError:
+        return
+
+    # 存入redis 黑名单 TTL=token剩余时间
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    r = get_redis()
+    await r.set(f"blacklist:{token_hash}", "1", ex=remaining)
 
 
 """

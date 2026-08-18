@@ -1,0 +1,45 @@
+# Git
+.git/
+.github/
+.githooks/
+.gitignore
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Python 缓存（**/ 确保匹配所有子目录）
+**/__pycache__/
+*.pyc
+**/.venv/
+**/.ruff_cache/
+
+# 前端 node_modules（前端有自己的构建阶段）
+frontend/myapp/node_modules/
+frontend/myapp/dist/
+
+# 运行时数据（通过 volume 挂载）
+backend/static/uploads/
+backend/static/results/
+backend/models/hf_cache/
+backend/models/docling_cache/
+backend/knowledge_from/
+backend/models/unsloth/
+
+# 文档 / 非必要文件
+docs/
+templates/
+scripts/
+*.md
+.claude/
+.superpowers/
+.worktrees/
+test.py
+LMSTUDIO_CHAT_THINKING_FIX_PLAN.md
+
+# 环境文件（通过 env_file 挂载）
+.env
+.env.*
+!.env.example

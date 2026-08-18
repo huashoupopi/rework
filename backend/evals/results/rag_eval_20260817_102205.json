@@ -1,0 +1,134 @@
+{
+  "summary": {
+    "total_cases": 5,
+    "passed_cases": 0,
+    "pass_rate": 0.0,
+    "avg_score": 0.6
+  },
+  "results": [
+    {
+      "case_id": "blade_crack_repair",
+      "status": "FAIL",
+      "request_id": "rag-eval-blade_crack_repair-1786933237290",
+      "route": "rag",
+      "elapsed_ms": 19963.2,
+      "score": 0.6,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "0/3",
+        "keyword_missed": [
+          "裂纹",
+          "环氧树脂",
+          "玻璃纤维布"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": false,
+        "total": 0.6
+      },
+      "answer_preview": "系统错误，检索服务暂时不可用。",
+      "source_count": 5
+    },
+    {
+      "case_id": "corrosion_repair",
+      "status": "FAIL",
+      "request_id": "rag-eval-corrosion_repair-1786933257271",
+      "route": "rag",
+      "elapsed_ms": 14827.4,
+      "score": 0.6,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "0/3",
+        "keyword_missed": [
+          "腐蚀",
+          "环氧腻子",
+          "底漆"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": false,
+        "total": 0.6
+      },
+      "answer_preview": "系统错误，检索服务暂时不可用。",
+      "source_count": 5
+    },
+    {
+      "case_id": "hide_craze_detection",
+      "status": "FAIL",
+      "request_id": "rag-eval-hide_craze_detection-1786933272137",
+      "route": "rag",
+      "elapsed_ms": 20153.0,
+      "score": 0.6,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "0/3",
+        "keyword_missed": [
+          "隐裂",
+          "超声波",
+          "热像仪"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": false,
+        "total": 0.6
+      },
+      "answer_preview": "系统错误，检索服务暂时不可用。",
+      "source_count": 5
+    },
+    {
+      "case_id": "thunderstrike_handling",
+      "status": "FAIL",
+      "request_id": "rag-eval-thunderstrike_handling-1786933292307",
+      "route": "rag",
+      "elapsed_ms": 16713.8,
+      "score": 0.6,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "0/3",
+        "keyword_missed": [
+          "雷击",
+          "停机",
+          "导雷系统"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": false,
+        "total": 0.6
+      },
+      "answer_preview": "系统错误，检索服务暂时不可用。",
+      "source_count": 5
+    },
+    {
+      "case_id": "greeting_capability",
+      "status": "FAIL",
+      "request_id": "rag-eval-greeting_capability-1786933309035",
+      "route": "fallback",
+      "elapsed_ms": 16103.2,
+      "score": 0.6,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "0/2",
+        "keyword_missed": [
+          "风电",
+          "运维"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": false,
+        "total": 0.6
+      },
+      "answer_preview": "系统错误，检索服务暂时不可用。",
+      "source_count": 0
+    }
+  ]
+}

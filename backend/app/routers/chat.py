@@ -1,31 +1,81 @@
 import asyncio
-import json
+import io
 import logging
 import re
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
 
-import httpx
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import StreamingResponse
+from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal, get_db
+from app.core.rate_limit import rate_limit
+from app.core.redis import get_redis
 from app.crud import chat as chat_crud
 from app.models import task, user
 from app.routers.auth import get_current_user
 from app.schemas.chat import ChatHistoryResponse, ChatMessageSchema
+from app.services.rag_service import RagService
 from app.utils.stream_parser import ThinkStreamParser
 
 logger = logging.getLogger(__name__)
+
+
+def _deduplicate_content(content: str) -> str:
+    """去重模型重复生成的回答段落。
+
+    某些模型（特别是通过 LM Studio 运行的推理模型）会生成重复的回答，
+    表现为同一段内容出现两次或多次。此函数检测并移除重复段。
+    """
+    text = content.strip()
+    if not text:
+        return text
+
+    length = len(text)
+    # 尝试从中间位置找到重复的前缀
+    for split_pos in range(length // 3, length * 2 // 3):
+        first_half = text[:split_pos].strip()
+        second_half = text[split_pos:].strip()
+        if first_half and second_half and first_half == second_half:
+            logger.info("检测到重复回答 len=%d→%d", length, len(first_half))
+            return first_half
+
+    return text
+
 
 router = APIRouter(tags=["chat"])
 
 _ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 _MAX_IMAGE_SIZE_MB = 10
 _USER_IMAGE_QUOTA = 100  # 每个用户最多保留 100 张聊天图片
+
+
+def _strip_and_reencode(image_bytes: bytes, suffix: str) -> bytes:
+    """
+    剥离 EXIF 元数据 + 重编码图片。
+
+    为什么需要这一步？
+    - EXIF 字段可以嵌入任意文本（ImageDescription、UserComment 等）
+    - Pillow 重新保存时会自动丢弃 EXIF 和隐藏数据
+    - 重编码还能消除某些图片格式的隐写术载荷
+
+    为什么不只用 piexif.remove()？
+    - piexif 只处理 EXIF，不处理其他元数据（XMP、IPTC）
+    - 重编码是更彻底的方案：所有非像素数据都丢弃
+    """
+    img = Image.open(io.BytesIO(image_bytes))
+    # 转为 RGB（去除 alpha 通道中可能的隐藏数据）
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+    buf = io.BytesIO()
+    fmt = "PNG" if suffix.lower() == ".png" else "JPEG"
+    img.save(buf, format=fmt, quality=90)
+    return buf.getvalue()
 
 
 @router.post("/chat/stream")
@@ -37,8 +87,38 @@ async def chat_stream(
     current_user: user.User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> StreamingResponse:
-    if not question.strip():
+    normalized_question = question.strip()
+    if not normalized_question:
+        logger.warning(
+            "chat event=bad_request user_id=%d task_id=%s reason=empty_question",
+            current_user.id,
+            task_id,
+        )
         raise HTTPException(status_code=400, detail="问题不能为空")
+
+    chat_started_at = time.perf_counter()
+    requested_image_count = sum(1 for image in images if image.filename)
+    logger.info(
+        "chat event=start user_id=%d task_id=%s question_len=%d image_count=%d",
+        current_user.id,
+        task_id,
+        len(normalized_question),
+        requested_image_count,
+    )
+
+    # 限流
+    await rate_limit(current_user.id, "chat_stream", limit=10, window=60)
+    # 分布式锁
+    r = get_redis()
+    lock_key = f"lock:chat:{current_user.id}"
+    acquired = await r.set(lock_key, "1", ex=120, nx=True)
+    if not acquired:
+        logger.warning(
+            "chat event=lock_conflict user_id=%d task_id=%s",
+            current_user.id,
+            task_id,
+        )
+        raise HTTPException(status_code=409, detail="上一条消息还在生成中，请稍后")
 
     # 1. 处理上传图片 - 按用户分目录存储
     uploaded_image_paths: list[tuple[str, str | None]] = []
@@ -67,6 +147,9 @@ async def chat_stream(
                 raise HTTPException(
                     status_code=400, detail=f"图片大小超过 {_MAX_IMAGE_SIZE_MB} MB"
                 )
+
+            # 剥离 EXIF + 重编码
+            content = _strip_and_reencode(content, suffix)
 
             file_path.write_bytes(content)
 
@@ -135,85 +218,229 @@ async def chat_stream(
     if vision_image_paths:
         logger.info("视觉模型将使用 %d 张图片", len(vision_image_paths))
 
-    # 7. 构建messages
-    messages = _build_messages(
-        question=question,
-        session_messages=session_messages,
-        image_context=image_context,
-    )
-
     # 8. 流式生成器
     async def event_generator():
+        full_response = ""
         parser = ThinkStreamParser()
-        all_yielded: list[str] = []
+        result_meta: dict = {}
+        finish_reason = "ok"
+        # 流式去重：缓冲式前缀指纹检测
+        # 原理：捕获正文开头 N 字符作为指纹，后续逐字符增量匹配。
+        # 新内容先进缓冲区而非直接 yield，匹配满指纹长度则确认重复并丢弃，
+        # 不匹配则释放缓冲内容。最多延迟 N 字符的输出。
+        _stream_stopped = False  # 确认重复的终止标志
+        _think_ended = False
+        _PREFIX_LEN = 15
+        _prefix = ""  # 正文前缀指纹
+        _match_cursor = 0  # 增量匹配位置
+        _pending = ""  # 疑似重复的缓冲（未 yield）
 
         async with AsyncSessionLocal() as bg_session:
             try:
-                async with httpx.AsyncClient() as client:
-                    async with client.stream(
-                        "POST",
-                        f"{settings.OLLAMA_BASE_URL}/api/chat",
-                        json={
-                            "model": settings.LLM_MODEL_NAME,
-                            "messages": messages,
-                            "stream": True,
-                        },
-                        timeout=90.0,
-                    ) as resp:
-                        async for line in resp.aiter_lines():
-                            if await request.is_disconnected():
-                                logger.info("客户端已断开连接，停止生成")
-                                break
-                            if not line:
-                                continue
-                            data = json.loads(line)
-                            raw_token = data.get("message", {}).get("content", "")
+                async for raw_token in RagService.generate_chat_stream(
+                    question=question,
+                    image_context=image_context,
+                    chat_window=session_messages,
+                    vision_image_paths=vision_image_paths,
+                    result_meta=result_meta,
+                ):
+                    parsed = parser.feed(raw_token)
+                    if parsed:
+                        full_response += parsed
 
-                            if raw_token:
-                                parsed = parser.feed(raw_token)
-                                if parsed:
-                                    all_yielded.append(parsed)
-                                    yield parsed
-                            if data.get("done"):
-                                break
+                        # <<<SOURCES>>> 标记始终发送
+                        if "<<<SOURCES>>>" in parsed:
+                            yield parsed
+                            continue
+
+                        if _stream_stopped:
+                            continue
+
+                        # ---- THINK_END 之前：直接 yield ----
+                        if not _think_ended:
+                            if ThinkStreamParser.MARKER_END in parsed:
+                                _think_ended = True
+                                marker = ThinkStreamParser.MARKER_END
+                                idx = parsed.index(marker)
+                                # MARKER_END 及之前的部分直接发送
+                                yield parsed[: idx + len(marker)]
+                                # 切换 parser 为直通模式，释放缓冲区
+                                buffered = parser.set_passthrough()
+                                # MARKER_END 之后的内容 + 缓冲区残留 → 进入去重流程
+                                after = parsed[idx + len(marker) :] + buffered
+                                if after:
+                                    safe = ""
+                                    for ch in after:
+                                        if not _prefix and ch.strip() == "":
+                                            safe += ch
+                                            continue
+                                        if len(_prefix) < _PREFIX_LEN:
+                                            _prefix += ch
+                                            safe += ch
+                                    if safe:
+                                        yield safe
+                            else:
+                                yield parsed
                             await asyncio.sleep(0)
+                            continue
+
+                        # ---- THINK_END 之后：逐字符缓冲去重 ----
+                        safe_to_yield = ""
+                        for ch in parsed:
+                            if _stream_stopped:
+                                break
+
+                            # 阶段1: 还在收集前缀指纹
+                            if len(_prefix) < _PREFIX_LEN:
+                                if not _prefix and ch.strip() == "":
+                                    safe_to_yield += ch
+                                    continue
+                                _prefix += ch
+                                safe_to_yield += ch
+                                continue
+
+                            # 阶段2: 前缀已满，增量匹配检测重复
+                            if _match_cursor == 0 and ch.strip() == "":
+                                # 空白字符（段落分隔符）在匹配开始前，先缓冲
+                                _pending += ch
+                            elif ch == _prefix[_match_cursor]:
+                                _match_cursor += 1
+                                _pending += ch
+                                if _match_cursor >= _PREFIX_LEN:
+                                    _stream_stopped = True
+                                    logger.info(
+                                        "流式去重：前缀重现确认 pending=%d",
+                                        len(_pending),
+                                    )
+                                    break
+                            else:
+                                # 不匹配 → 释放缓冲
+                                safe_to_yield += _pending + ch
+                                _pending = ""
+                                _match_cursor = 0
+
+                        if safe_to_yield:
+                            yield safe_to_yield
+
+                    await asyncio.sleep(0)
+
+                if not _stream_stopped:
+                    if _pending:
+                        yield _pending
                     remaining = parser.flush()
                     if remaining:
-                        all_yielded.append(remaining)
+                        full_response += remaining
                         yield remaining
-
-                full_output = "".join(all_yielded)
+                else:
+                    remaining = parser.flush()
+                    if remaining:
+                        full_response += remaining
+                # 去掉思考内容和来源信息等标记，保留纯回答文本
                 content_only = re.sub(
                     rf"{re.escape(ThinkStreamParser.MARKER_START)}"
                     rf".*?"
                     rf"{re.escape(ThinkStreamParser.MARKER_END)}",
                     "",
-                    full_output,
+                    full_response,
                     flags=re.DOTALL,
                 ).strip()
+
+                content_only = re.sub(
+                    r"\n?<<<SOURCES>>>.*?<<<SOURCES_END>>>",
+                    "",
+                    content_only,
+                    flags=re.DOTALL,
+                ).strip()
+
+                # 去重：如果模型重复生成了相同的回答段落，只保留第一段
+                content_only = _deduplicate_content(content_only)
 
                 if not content_only:
                     content_only = "系统繁忙，未生成回答。"
                     yield content_only
-                meta: dict | None = None
+                meta: dict = {}
                 if parser.think_content:
-                    meta = {
-                        "think": parser.think_content,
-                    }
+                    meta["think"] = parser.think_content
+                if result_meta.get("sources"):
+                    meta["sources"] = result_meta["sources"]
+                if result_meta.get("route"):
+                    meta["route"] = result_meta["route"]
+                if result_meta.get("finish_reason"):
+                    meta["finish_reason"] = result_meta["finish_reason"]
+                # eval 观测口字段（rewritten_query 仅多轮时出现；
+                # retrieval_debug 仅 RAG_EVAL_DEBUG=1 时出现，生产零开销）
+                if result_meta.get("rewritten_query"):
+                    meta["rewritten_query"] = result_meta["rewritten_query"]
+                if result_meta.get("retrieval_debug"):
+                    meta["retrieval_debug"] = result_meta["retrieval_debug"]
+
+                # output_safe, leak_desc = check_output_leak(content_only)
+                # if not output_safe:
+                #    if meta is None:
+                #        meta = {}
+                #    meta["leak_warning"] = leak_desc
+
                 await chat_crud.create_message(
                     bg_session,
                     user_id=current_user.id,
                     role="assistant",
                     content=content_only,
                     task_id=task_id,
-                    meta=meta,
+                    meta=meta or None,
                 )
             except asyncio.CancelledError:
-                logger.info("生成任务被取消")
+                finish_reason = "cancelled"
+                logger.info("客户端断开，保存已生成内容 len=%d", len(full_response))
+                # 客户端断开但已有内容时，仍然保存到数据库
+                if full_response.strip():
+                    partial = re.sub(
+                        rf"{re.escape(ThinkStreamParser.MARKER_START)}"
+                        rf".*?"
+                        rf"{re.escape(ThinkStreamParser.MARKER_END)}",
+                        "",
+                        full_response,
+                        flags=re.DOTALL,
+                    ).strip()
+                    partial = re.sub(
+                        r"\n?<<<SOURCES>>>.*?<<<SOURCES_END>>>",
+                        "",
+                        partial,
+                        flags=re.DOTALL,
+                    ).strip()
+                    if partial:
+                        meta_cancel: dict = {}
+                        if parser.think_content:
+                            meta_cancel["think"] = parser.think_content
+                        if result_meta.get("sources"):
+                            meta_cancel["sources"] = result_meta["sources"]
+                        await chat_crud.create_message(
+                            bg_session,
+                            user_id=current_user.id,
+                            role="assistant",
+                            content=partial,
+                            task_id=task_id,
+                            meta=meta_cancel or None,
+                        )
                 raise
             except Exception:
+                finish_reason = "internal_error"
                 logger.exception("流式生成失败")
                 yield "\n[系统错误，请重试]"
+            finally:
+                total_ms = (time.perf_counter() - chat_started_at) * 1000
+                final_reason = result_meta.get("finish_reason", finish_reason)
+                logger.info(
+                    "chat event=done user_id=%d task_id=%s finish_reason=%s route=%s "
+                    "sources=%d response_len=%d total_ms=%.1f",
+                    current_user.id,
+                    task_id,
+                    final_reason,
+                    result_meta.get("route", "unknown"),
+                    len(result_meta.get("sources") or []),
+                    len(full_response),
+                    total_ms,
+                )
+                await r.delete(lock_key)
 
     return StreamingResponse(
         event_generator(),
@@ -224,38 +451,6 @@ async def chat_stream(
             "Connection": "keep-alive",
         },
     )
-
-
-def _build_messages(
-    question: str,
-    session_messages: list[dict[str, str]],
-    image_context: dict | None = None,
-) -> list[dict[str, str]]:
-    """构建发送给 Ollama 的 messages 列表"""
-    messages: list[dict[str, str]] = []
-
-    system_content = "你是一个专业的风电叶片缺陷分析助手。请根据用户的问题给出准确、专业的回答。"
-
-    if image_context and isinstance(image_context, dict):
-        total = image_context.get("total", 0)
-        objects = image_context.get("objects", []) or []
-        defect_lines = [
-            f"- {obj.get('class', 'unknown')} (置信度: {obj.get('confidence', 'N/A')})"
-            for obj in objects
-        ]
-        defect_str = "\n".join(defect_lines) or "- 无"
-        system_content += (
-            f"\n\n当前图像检测结果（共 {total} 个缺陷）:\n{defect_str}\n"
-            "当用户询问「这张图」或「这个缺陷」时，请结合以上检测结果回答。"
-        )
-
-    messages.append({"role": "system", "content": system_content})
-
-    for msg in session_messages:
-        messages.append({"role": msg["role"], "content": msg["content"]})
-
-    messages.append({"role": "user", "content": question})
-    return messages
 
 
 @router.get("/chat/history", response_model=ChatHistoryResponse)

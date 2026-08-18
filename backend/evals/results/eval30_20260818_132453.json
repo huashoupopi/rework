@@ -1,0 +1,68 @@
+{
+  "summary": {
+    "total_cases": 4,
+    "passed_cases": 4,
+    "pass_rate": 1.0
+  },
+  "layers": {
+    "multi_turn": {
+      "total": 4,
+      "passed": 4,
+      "errors": 0
+    }
+  },
+  "results": [
+    {
+      "case_id": "RW01",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 35382.4,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "叶片腐蚀（含前缘冲蚀）可按特征、等级与规范工艺处理如下。\n\n## 特征与等级\n- **特征**：叶片前缘或后缘出现材料剥落、坑蚀，表面粗糙度增大；主要发生在前缘（Leading Edge），海上机组更常见。\n- **严重等级（Corrosion）**：\n  - **轻度**：面积 &lt; 0.1 m²，深度 &lt;"
+    },
+    {
+      "case_id": "RW02",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 31893.6,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "隐裂的检测方法主要有：\n\n1. **敲击法（空鼓音）**  \n2. **相控阵超声波检测（PAUT）**：可生成截面 B-scan 图像，精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一。  \n3. **超声波扫描**  \n4. **热像仪 / 红外热像检测（IRT）**  \n   - **主动式（A"
+    },
+    {
+      "case_id": "RW03",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 28509.7,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "叶片修复质量验收标准如下：\n\n| 检查项目 | 合格标准 |\n|---|---|\n| 表面平整度 | 与原叶片轮廓偏差 < 1 mm/m |\n| 涂层附着力 | 划格测试 0 级（无脱落） |\n| 修复区硬度 | 邵氏 D 硬度 ≥ 75 |\n| 超声检测 | 无内部空洞或分层 |\n| 导雷系统 | 接地电阻 < 10"
+    },
+    {
+      "case_id": "RW04",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 26581.4,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "风机叶片**轻度腐蚀**的划分标准如下：\n\n- **面积** < 0.1 m²  \n- **深度** < 1 mm  \n\n特征一般是叶片前缘或后缘出现材料剥落、坑蚀，表面粗糙度增大。\n\n另外，针对前缘腐蚀，还有 **LE-1（轻微）** 的划分：表面涂层粗糙、失去光泽；建议清洗并观察。"
+    }
+  ]
+}

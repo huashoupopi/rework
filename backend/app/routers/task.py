@@ -1,10 +1,10 @@
-import asyncio
+import hashlib
+import json
 import logging
 from pathlib import Path
 
 from fastapi import (
     APIRouter,
-    BackgroundTasks,
     Depends,
     File,
     HTTPException,
@@ -15,52 +15,54 @@ from fastapi import (
 from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import AsyncSessionLocal, get_db
+from app.core.database import get_db
+from app.core.rate_limit import rate_limit
+from app.core.redis import get_arq_redis, get_redis
 from app.crud.task import get_tasks_paginated
 from app.models.task import Task, TaskStatus
 from app.models.user import User
 from app.routers.auth import get_current_user
 from app.schemas.task import TaskPaginationSchema, TaskSchema
 from app.services.file_service import FileService
-from app.services.yolo_service import YOLOService
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["任务管理(Tasks)"])
 
 
-async def background_detect_task(task_id: int, file_path: str, result_path: str) -> None:
-    logger.info("[后台] 开始处理任务 ID: %d", task_id)
-    try:
-        async with AsyncSessionLocal() as db:
-            task: Task | None = await db.get(Task, task_id)
-            if not task:
-                return
-            detect_result = await asyncio.to_thread(YOLOService.predict, file_path, result_path)
-            task.status = TaskStatus.COMPLETED.value
-            task.result_path = result_path
-            task.detect_result = detect_result  # type: ignore
-            await db.commit()
-            logger.info("[后台] 任务 ID %d 处理完成 total=%s", task_id, detect_result["total"])
-    except Exception:
-        logger.exception("处理任务 ID %d 时发生错误", task_id)
-        async with AsyncSessionLocal() as db:
-            task: Task | None = await db.get(Task, task_id)
-            if task:
-                task.status = TaskStatus.FAILED.value
-                await db.commit()
-
-
 @router.post("/tasks/upload", response_model=list[TaskSchema])
 async def upload_tasks(
-    background_tasks: BackgroundTasks,
     files: list[UploadFile] = File(),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[Task]:
+    # 限流
+    await rate_limit(current_user.id, "upload", limit=20, window=60)  # 每分钟最多上传20次
     created_tasks = []
+    r = get_redis()
+    arq = get_arq_redis()  # 获取Arq Redis连接
+
     for file in files:
+        # 先过滤非图片文件
         if not file.content_type.startswith("image/"):  # type: ignore
+            continue
+
+        # 读取文件内容用于计算 hash
+        content = await file.read()
+        await file.seek(0)  # 重置文件指针，后续还要读
+
+        # 分布式锁：防重复提交
+        file_hash = hashlib.md5(content).hexdigest()
+        lock_key = f"lock:upload:{current_user.id}:{file_hash}"
+        # SET NX: key不存在时设置成功并返回True，存在时返回False
+        acquired = await r.set(lock_key, "1", nx=True, ex=30)
+        if not acquired:
+            logger.info(
+                "跳过重复文件 user_id=%d file=%s file_hash=%s",
+                current_user.id,
+                file.filename,
+                file_hash,
+            )
             continue
         uuid_str, file_name, save_path = await FileService.save_file(file)
         result_path = FileService.get_result_path(uuid_str, file_name)  # type: ignore
@@ -75,7 +77,16 @@ async def upload_tasks(
         db.add(new_task)
         await db.commit()
         await db.refresh(new_task)
-        background_tasks.add_task(background_detect_task, new_task.id, save_path, result_path)
+        # background_tasks.add_task(background_detect_task, new_task.id, save_path, result_path)
+        job = await arq.enqueue_job(
+            "run_yolo_detection",
+            new_task.id,
+            _job_id=f"yolo_{new_task.id}",
+        )
+        logger.info(
+            "YOLO 任务已入队 task_id=%d job_id=%s", new_task.id, job.job_id if job else "duplicate"
+        )
+
         created_tasks.append(new_task)
     if not created_tasks:
         raise HTTPException(
@@ -104,6 +115,8 @@ async def batch_download_tasks(
 ) -> StreamingResponse:
     if not task_ids:
         raise HTTPException(status_code=400, detail="无任务ID提供")
+    if len(task_ids) > 20:
+        raise HTTPException(status_code=400, detail="一次最多下载20个任务")
     tasks = []
     for task_id in task_ids:
         task = await db.get(Task, task_id)
@@ -128,11 +141,42 @@ async def get_task_detail(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> Task:
+    r = get_redis()
+    # 先查redis缓存
+    cached = await r.get(f"task:result:{task_id}")
+    if cached:
+        data = json.loads(cached)
+        if data.get("user_id") != current_user.id and not current_user.is_superuser:
+            raise HTTPException(status_code=404, detail="任务不存在")
+        logger.debug("缓存命中 task_id=%d", task_id)
+        return data
+    # 缓存未命中再查数据库
     task = await db.get(Task, task_id)
     if not task:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="任务未找到")
+        raise HTTPException(status_code=404, detail="任务不存在")
     if task.user_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="没有权限访问此任务")
+
+    # 回填数据 只缓存已完成的任务
+    if task.status == TaskStatus.COMPLETED.value:
+        await r.set(
+            f"task:result:{task_id}",
+            json.dumps(
+                {
+                    "id": task.id,
+                    "uuid": task.uuid,
+                    "file_name": task.file_name,
+                    "user_id": task.user_id,
+                    "status": task.status,
+                    "original_path": task.original_path,
+                    "result_path": task.result_path,
+                    "detect_result": task.detect_result,
+                    "created_at": task.created_at.isoformat(),
+                }
+            ),
+            ex=3600,  # 一小时过期
+        )
+        logger.debug("缓存回填 task_id=%d", task_id)
     return task
 
 

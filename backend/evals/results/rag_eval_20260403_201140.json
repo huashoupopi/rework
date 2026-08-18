@@ -1,0 +1,54 @@
+{
+  "summary": {
+    "total_cases": 2,
+    "passed_cases": 2,
+    "pass_rate": 1.0,
+    "avg_score": 0.9
+  },
+  "results": [
+    {
+      "case_id": "hide_craze_detection",
+      "status": "PASS",
+      "request_id": "rag-eval-hide_craze_detection-1775218286551",
+      "route": "rag",
+      "elapsed_ms": 9726.6,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "根据提供的上下文，隐裂（Hide Craze）的检测方法主要包括以下几种：\n\n1.  **敲击法**：通过听**空鼓音**来判断。\n2.  **超声波扫描**：包括**相控阵超声波检测 (PAUT)**，该方法可生成截面（B-scan）或三维图像，精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一。\n3.  **热像仪检测**：即**热像检测 (Infrared Thermogra",
+      "source_count": 5
+    },
+    {
+      "case_id": "thunderstrike_handling",
+      "status": "PASS",
+      "request_id": "rag-eval-thunderstrike_handling-1775218296303",
+      "route": "rag",
+      "elapsed_ms": 4579.0,
+      "score": 0.8,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "2/3",
+        "keyword_missed": [
+          "导雷系统"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 0.8
+      },
+      "answer_preview": "叶片雷击损伤后的第一步是**立即停机并锁定叶轮**（机械制动 + 变桨锁定）。\n\n具体依据如下：\n1. **紧急响应**：一旦 SCADA 系统显示雷击事件或巡检发现损伤，必须**立即停机**。\n2. **安全锁定**：停机后需进行**锁定叶轮**操作，确保作业安全。\n3. **初步记录**：在确保安全的前提下，需**拍照记录损伤范围**，并上报运维系统。\n\n注意：严禁在未停机或未评估安全的情况下",
+      "source_count": 5
+    }
+  ]
+}

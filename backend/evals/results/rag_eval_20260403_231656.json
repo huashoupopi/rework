@@ -1,0 +1,51 @@
+{
+  "summary": {
+    "total_cases": 5,
+    "passed_cases": 1,
+    "pass_rate": 0.2,
+    "avg_score": 1.0
+  },
+  "results": [
+    {
+      "case_id": "blade_crack_repair",
+      "status": "PASS",
+      "request_id": "rag-eval-blade_crack_repair-1775229361571",
+      "route": "rag",
+      "elapsed_ms": 13398.1,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "叶片裂纹的修复需根据裂纹等级（I级、II级、III级）采取不同方案，但通用且关键的修复步骤如下：\n\n**关键修复步骤：**\n1.  **打磨与开槽**：沿裂纹两侧各 20 mm 范围打磨至玻璃纤维层，并进行 V 型开槽（槽深需超过裂纹深度 2 mm）。\n2.  **清洁处理**：使用丙酮清洗开槽区域并吹干。\n3.  **树脂注入**：注入低黏度环氧树脂（推荐采用真空注入工艺效果更佳）。\n4.  *",
+      "source_count": 5
+    },
+    {
+      "case_id": "corrosion_repair",
+      "status": "ERROR",
+      "error": ""
+    },
+    {
+      "case_id": "hide_craze_detection",
+      "status": "ERROR",
+      "error": ""
+    },
+    {
+      "case_id": "thunderstrike_handling",
+      "status": "ERROR",
+      "error": ""
+    },
+    {
+      "case_id": "greeting_capability",
+      "status": "ERROR",
+      "error": ""
+    }
+  ]
+}

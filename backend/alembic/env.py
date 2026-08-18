@@ -9,6 +9,11 @@ from alembic import context
 from app.core.config import settings
 from app.core.database import Base  # 引入Base以便alembic能找到模型
 from app.models.chat import ChatImage, ChatMessage  # noqa: F401
+from app.models.knowledge import (  # noqa: F401
+    KnowledgeChunkConfig,
+    KnowledgeDocument,
+    KnowledgeDocumentVersion,
+)
 from app.models.task import Task  # noqa: F401
 from app.models.user import User  # noqa: F401
 

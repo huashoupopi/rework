@@ -1,0 +1,119 @@
+{
+  "summary": {
+    "total_cases": 5,
+    "passed_cases": 5,
+    "pass_rate": 1.0,
+    "avg_score": 0.92
+  },
+  "results": [
+    {
+      "case_id": "blade_crack_repair",
+      "status": "PASS",
+      "request_id": "rag-eval-blade_crack_repair-1775217568491",
+      "route": "rag",
+      "elapsed_ms": 14952.2,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "根据提供的上下文，叶片裂纹的修复方案取决于裂纹的等级（I 级、II 级或 III 级），但通用的关键修复步骤和工艺如下：\n\n### 1. 修复前的评估与分级\n在修复前需先判定裂纹等级，不同等级对应不同处置策略：\n*   **I 级裂纹（轻微）**：仅存在于胶衣层，长度<150mm。处置为打磨表面，使用修补膏填充。\n*   **II 级裂纹（中度）**：伤及表面毡层，长度 150mm~500mm。处",
+      "source_count": 5
+    },
+    {
+      "case_id": "corrosion_repair",
+      "status": "PASS",
+      "request_id": "rag-eval-corrosion_repair-1775217583477",
+      "route": "rag",
+      "elapsed_ms": 10460.5,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "根据提供的上下文，风机叶片腐蚀的修复流程如下：\n\n### 1. 腐蚀等级判断与处置原则\n在修复前需先评估腐蚀的严重程度：\n*   **轻度**：面积 < 0.1 m²，深度 < 1 mm。\n*   **中度**：面积 0.1~0.5 m²，深度 1~3 mm。\n*   **重度**：面积 > 0.5 m² 或深度 > 3 mm，**必须停机修复**。\n*   **前缘腐蚀特例**：若前缘涂层完全剥",
+      "source_count": 5
+    },
+    {
+      "case_id": "hide_craze_detection",
+      "status": "PASS",
+      "request_id": "rag-eval-hide_craze_detection-1775217593960",
+      "route": "rag",
+      "elapsed_ms": 13138.3,
+      "score": 0.8,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "2/3",
+        "keyword_missed": [
+          "热像仪"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 0.8
+      },
+      "answer_preview": "根据提供的上下文，隐裂（Hide Craze）表面无明显裂缝但内部层间已分离，肉眼不可见，必须依赖专业设备进行定期检测。主要的检测方法包括：\n\n1.  **相控阵超声波检测 (PAUT)**\n    *   **特点**：是检测隐性裂纹**最有效的手段之一**。\n    *   **功能**：可生成截面（B-scan）或三维图像，精确定位内部裂纹的深度、长度和取向。\n\n2.  **热像检测 (In",
+      "source_count": 5
+    },
+    {
+      "case_id": "thunderstrike_handling",
+      "status": "PASS",
+      "request_id": "rag-eval-thunderstrike_handling-1775217607120",
+      "route": "rag",
+      "elapsed_ms": 5504.5,
+      "score": 0.8,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "2/3",
+        "keyword_missed": [
+          "导雷系统"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 0.8
+      },
+      "answer_preview": "根据提供的上下文，叶片发生雷击损伤后，**第一步**（紧急响应）是：\n\n**立即停机并锁定叶轮**。\n\n具体执行要求如下：\n1.  **触发条件**：一旦 SCADA 系统显示雷击事件，或巡检人员发现损伤。\n2.  **操作动作**：立即执行停机操作，并进行机械制动和变桨锁定，确保风机处于安全静止状态。\n3.  **后续动作**：在停机锁定后，方可进行远程初步评估或安排专业人员登机进行详细检查。\n",
+      "source_count": 5
+    },
+    {
+      "case_id": "greeting_capability",
+      "status": "PASS",
+      "request_id": "rag-eval-greeting_capability-1775217612644",
+      "route": "fallback",
+      "elapsed_ms": 22452.1,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "2/2",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "你好！我是您的风电运维技术助手。虽然当前知识库中未找到与您具体问题直接匹配的文档，但我可以结合通用专业知识，为您提供以下方面的支持：\n\n1.  **故障诊断与修复**：协助分析叶片裂纹、腐蚀、雷击损伤、螺栓松动等常见故障，提供修复步骤、工艺要求及注意事项。\n2.  **检测技术建议**：介绍超声波、热成像、声发射等无损检测（NDT）技术的应用场景及操作要点。\n3.  **运维安全规范**：提供高空",
+      "source_count": 0
+    }
+  ]
+}

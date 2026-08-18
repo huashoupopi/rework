@@ -1,5 +1,26 @@
 import logging
 
+from app.core.request_context import get_request_id
+
+_REQUEST_ID_FACTORY_INSTALLED = False
+
+
+def _install_request_id_record_factory() -> None:
+    global _REQUEST_ID_FACTORY_INSTALLED
+    if _REQUEST_ID_FACTORY_INSTALLED:
+        return
+
+    old_factory = logging.getLogRecordFactory()
+
+    def record_factory(*args, **kwargs):
+        record = old_factory(*args, **kwargs)
+        if not hasattr(record, "request_id"):
+            record.request_id = get_request_id()
+        return record
+
+    logging.setLogRecordFactory(record_factory)
+    _REQUEST_ID_FACTORY_INSTALLED = True
+
 
 def setup_logging() -> None:
     """
@@ -28,7 +49,16 @@ def setup_logging() -> None:
     - %(lineno)d: 行号
     生产默认info 排障临时开debug 问题解决后记得关掉debug级别日志
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    _install_request_id_record_factory()
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - request_id=%(request_id)s - %(message)s"
     )
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    if not root_logger.handlers:
+        root_logger.addHandler(logging.StreamHandler())
+
+    for handler in root_logger.handlers:
+        handler.setFormatter(formatter)
