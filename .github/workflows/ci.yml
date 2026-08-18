@@ -6,15 +6,43 @@ on:
   pull_request:
 
 jobs:
-  test:
+  backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.2-pg16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: wind_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d wind_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      # 不读真实 .env。纯逻辑测试不得依赖密钥。
-      DB_PASSWORD: ci-not-used
-      REDIS_PASSWORD: ci-not-used
+      # 不读真实 .env。密钥用 CI 占位。
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: ci
+      DB_PASSWORD: ci
+      DB_NAME: wind_db
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ci-not-a-secret
       # 不解析 [tool.uv.sources] 的本地 ultralytics1
       UV_NO_SOURCES: "1"
     steps:
@@ -24,8 +52,14 @@ jobs:
       # --no-sources：不解析 [tool.uv.sources] 里的本地 ultralytics1 路径
       - run: uv sync --dev --no-sources --default-index https://pypi.org/simple
       - run: uv run --no-sources ruff check app/utils/stream_parser.py tests/test_stream_parser.py tests/test_rag_eval.py evals/run_rag_eval.py
-      # --ignore：这两份测试模块级 import 会拉起 RAG/DB，marker 挡不住收集
-      - run: uv run --no-sources pytest -m "not needs_model and not needs_db" --ignore=tests/test_rag_prompt_constraints.py --ignore=tests/test_request_observability.py -q
+      - run: uv run --no-sources alembic upgrade head
+      # 试过摘掉 --ignore。摘不掉的原因：
+      # test_rag_prompt_constraints / test_request_observability 都在模块级
+      # import RagService / app.main，收集阶段就拉起 llama-index +
+      # sentence_transformers，与 datasets 的 IterableDataset 冲突
+      # （CI 实测 ImportError）。marker 与 PG/Redis services 挡不住收集。
+      # needs_db 用例要等收集不再 import RAG 栈才能摘 ignore。
+      - run: uv run --no-sources pytest -m "not needs_model" --ignore=tests/test_rag_prompt_constraints.py --ignore=tests/test_request_observability.py -q
 
   frontend:
     runs-on: ubuntu-latest
