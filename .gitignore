@@ -59,3 +59,4 @@ frontend/myapp/dist/
 .ruff_cache/
 
 .vscode/
+.superpowers/
