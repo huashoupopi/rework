@@ -36,12 +36,13 @@ jobs:
           --health-retries 5
     env:
       # 不读真实 .env。密钥用 CI 占位。
-      DB_HOST: postgres
+      # 托管 runner 不在 container 里，service 走 localhost 映射端口
+      DB_HOST: 127.0.0.1
       DB_PORT: "5432"
       DB_USER: ci
       DB_PASSWORD: ci
       DB_NAME: wind_db
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: redis://127.0.0.1:6379/0
       SECRET_KEY: ci-not-a-secret
       UV_FROZEN: "1"
     steps:
