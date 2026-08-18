@@ -37,7 +37,7 @@ test("loads knowledge documents on mount with default list params", async () => 
       keyword: "",
       limit: 10,
       offset: 0,
-      status: "",
+      status: "active",
     })
   })
 
