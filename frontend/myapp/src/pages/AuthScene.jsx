@@ -1,9 +1,10 @@
 import * as React from "react"
 
-import { isNightSkyHour } from "@/shared/lib/nightSky"
-import { AuroraBackground } from "@/shared/ui/AuroraBackground"
-import { StaggerList } from "@/shared/ui/StaggerList"
-import { ShimmerText } from "@/shared/ui/ShimmerText"
+import { tokenDurationSeconds } from "@/shared/lib/utils"
+import { DotPattern } from "@/shared/ui/magicui/dot-pattern"
+import { LineShadowText } from "@/shared/ui/magicui/line-shadow-text"
+import { Ripple } from "@/shared/ui/magicui/ripple"
+import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { WindTurbineSvg } from "@/shared/ui/WindTurbineSvg"
 
 const WindTurbine3D = React.lazy(() =>
@@ -36,33 +37,42 @@ export function AuthScene({
   spinning = true,
   stopped = false,
 }) {
-  const night = isNightSkyHour()
-
   return (
-    <AuroraBackground className="auth-page" night={night}>
+    <div className="auth-page">
+      <DotPattern className="auth-page__dots" cr={0.7} glow={false} height={22} width={22} />
       <div className="auth-stage">
         <section className="auth-hero">
           <p className="auth-hero__eyebrow">REWORK</p>
           <h1 className="auth-hero__title">
-            <ShimmerText as="span" className="auth-hero__title-text">
-              {titleLines.map((line) => (
-                <span className="auth-hero__title-line" key={line}>
+            {titleLines.map((line) => (
+              <span className="auth-hero__title-line" key={line}>
+                <LineShadowText as="span" shadowColor="rgba(77,141,255,0.28)">
                   {line}
-                </span>
-              ))}
-            </ShimmerText>
+                </LineShadowText>
+              </span>
+            ))}
           </h1>
           <p className="auth-hero__description">{description}</p>
-          <StaggerList className="auth-hero__panel">
-            {METRICS.map((metric) => (
-              <div className="auth-hero__metric" key={metric.label}>
-                <span>{metric.label}</span>
-                <strong>{metric.title}</strong>
-                <p>{metric.copy}</p>
-              </div>
-            ))}
-          </StaggerList>
+          <InView
+            once
+            transition={{ duration: tokenDurationSeconds("--motion-slow", 220) }}
+            variants={{
+              hidden: { opacity: 0, y: 8 },
+              visible: { opacity: 1, y: 0 },
+            }}
+          >
+            <div className="auth-hero__panel">
+              {METRICS.map((metric) => (
+                <div className="auth-hero__metric" key={metric.label}>
+                  <span>{metric.label}</span>
+                  <strong>{metric.title}</strong>
+                  <p>{metric.copy}</p>
+                </div>
+              ))}
+            </div>
+          </InView>
           <div className="auth-hero__turbine">
+            <Ripple className="auth-hero__ripple" mainCircleOpacity={0.08} mainCircleSize={180} numCircles={4} />
             <React.Suspense fallback={<WindTurbineSvg boost={boost} spinning={spinning} stopped={stopped} />}>
               <WindTurbine3D boost={boost} spinning={spinning} stopped={stopped} />
             </React.Suspense>
@@ -70,6 +80,6 @@ export function AuthScene({
         </section>
         {children}
       </div>
-    </AuroraBackground>
+    </div>
   )
 }

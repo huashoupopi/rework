@@ -6,8 +6,10 @@ import { useReducedMotion } from "motion/react"
 import { getCurrentUser, login } from "@/features/auth/api/auth-api"
 import { useAuthStore } from "@/features/auth/store/auth-store"
 import { tokenDurationSeconds } from "@/shared/lib/utils"
-import { GlassButton } from "@/shared/ui/GlassButton"
+import { InteractiveHoverButton } from "@/shared/ui/magicui/interactive-hover-button"
 import { GlassCard } from "@/shared/ui/GlassCard"
+import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
+import { Spotlight } from "@/shared/ui/motion-primitives/spotlight"
 
 import { AuthScene } from "./AuthScene"
 
@@ -84,6 +86,10 @@ export function LoginPage() {
       titleLines={["风机叶片", "智能检测"]}
     >
       <GlassCard className="auth-card">
+        <Spotlight className="from-[rgba(77,141,255,0.22)] via-[rgba(77,141,255,0.08)] to-transparent" size={260} />
+        <div className="auth-card__trail">
+          <BorderTrail className="bg-[var(--accent)]" size={36} transition={{ duration: 12, ease: "linear", repeat: Number.POSITIVE_INFINITY }} />
+        </div>
         <div className="auth-card__copy">
           <p className="auth-card__eyebrow">登录</p>
           <Typography.Title level={2}>欢迎回来</Typography.Title>
@@ -97,9 +103,9 @@ export function LoginPage() {
           <Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码" }]}>
             <Input.Password disabled={locked} placeholder="请输入密码" />
           </Form.Item>
-          <GlassButton className="glass-button--block glass-button--primary" disabled={locked || submitting} type="submit">
+          <InteractiveHoverButton className="w-full border-[var(--glass-border)] bg-[var(--glass-bg-strong)]" disabled={locked || submitting} type="submit">
             {submitting ? "叶片加速中" : "登录"}
-          </GlassButton>
+          </InteractiveHoverButton>
         </Form>
         <Typography.Paragraph>
           <Link to="/register">没有账号？立即注册</Link>

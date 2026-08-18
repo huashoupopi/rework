@@ -2,7 +2,6 @@ import { render, screen, waitFor } from "@testing-library/react"
 import { afterEach, expect, test, vi } from "vitest"
 
 import { AnimatedNumber } from "./AnimatedNumber"
-import { AuroraBackground } from "./AuroraBackground"
 import { EmptyState } from "./EmptyState"
 import { GlassButton } from "./GlassButton"
 import { GlassCard } from "./GlassCard"
@@ -39,7 +38,6 @@ test("foundation components render their content", () => {
       <GlassCard>卡片</GlassCard>
       <GlassPanel>转发壳</GlassPanel>
       <GlassButton>提交</GlassButton>
-      <AuroraBackground>极光</AuroraBackground>
       <SpotlightCard>光斑</SpotlightCard>
       <ShimmerText as="h1">标题微光</ShimmerText>
       <StaggerList>
@@ -54,7 +52,6 @@ test("foundation components render their content", () => {
   expect(screen.getByText("卡片")).toBeInTheDocument()
   expect(screen.getByText("转发壳")).toBeInTheDocument()
   expect(screen.getByRole("button", { name: "提交" })).toBeInTheDocument()
-  expect(screen.getByText("极光")).toBeInTheDocument()
   expect(screen.getByText("光斑")).toBeInTheDocument()
   expect(screen.getByRole("heading", { name: "标题微光" })).toBeInTheDocument()
   expect(screen.getByText("一项")).toBeInTheDocument()
@@ -66,13 +63,11 @@ test("reduced motion still renders the same labels", async () => {
   stubReducedMotion(true)
   render(
     <>
-      <AuroraBackground>静态极光</AuroraBackground>
       <ShimmerText>静态标题</ShimmerText>
       <AnimatedNumber value={7} />
     </>,
   )
 
-  expect(screen.getByText("静态极光")).toBeInTheDocument()
   expect(screen.getByText("静态标题")).toBeInTheDocument()
   await waitFor(() => {
     expect(screen.getByText("7")).toBeInTheDocument()

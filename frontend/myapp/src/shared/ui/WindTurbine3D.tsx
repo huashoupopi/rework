@@ -50,40 +50,76 @@ export function WindTurbine3D({ boost = false, spinning = true, stopped = false 
           return
         }
 
-        const width = host.clientWidth || 280
-        const height = host.clientHeight || 280
+        const width = host.clientWidth || 520
+        const height = host.clientHeight || 520
         const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 40)
-        camera.position.set(3.4, 1.7, 5.4)
-        camera.lookAt(0, 1.15, 0)
+        const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 40)
+        camera.position.set(2.15, 1.25, 3.35)
+        camera.lookAt(0, 1.05, 0)
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
         renderer.setSize(width, height)
         host.appendChild(renderer.domElement)
 
-        const metal = new THREE.MeshStandardMaterial({ color: 0xb7c7db, metalness: 0.35, roughness: 0.45 })
-        const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, 2.3, 12), metal)
-        tower.position.y = 0.05
-        const nacelle = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.22, 0.22), metal)
-        nacelle.position.set(0.1, 1.24, 0)
+        const metal = new THREE.MeshStandardMaterial({
+          color: 0x8596ab,
+          emissive: 0x182233,
+          emissiveIntensity: 0.2,
+          metalness: 0.7,
+          roughness: 0.36,
+        })
+        const bladeMetal = new THREE.MeshStandardMaterial({
+          color: 0x8ea0b4,
+          emissive: 0x151e2d,
+          emissiveIntensity: 0.16,
+          metalness: 0.66,
+          roughness: 0.4,
+        })
+        const edge = new THREE.LineBasicMaterial({ color: 0xb4c6da, opacity: 0.42, transparent: true })
+        const addRim = (mesh: THREE.Mesh) => {
+          mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, 22), edge))
+        }
+
+        const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.24, 2.55, 16), metal)
+        tower.position.y = 0.08
+        addRim(tower)
+        const nacelle = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.26, 0.26), metal)
+        nacelle.position.set(0.12, 1.38, 0)
+        addRim(nacelle)
 
         const hub = new THREE.Group()
-        hub.position.set(0.32, 1.24, 0)
-        const bladeGeometry = new THREE.CylinderGeometry(0.016, 0.072, 1.32, 8)
-        bladeGeometry.translate(0, 0.66, 0)
-        bladeGeometry.scale(1, 1, 0.32)
-        const bladeMaterial = new THREE.MeshStandardMaterial({ color: 0x4d8dff, metalness: 0.2, roughness: 0.35 })
+        hub.position.set(0.4, 1.38, 0)
+        const bladeGeometry = new THREE.CylinderGeometry(0.018, 0.08, 1.55, 8)
+        bladeGeometry.translate(0, 0.78, 0)
+        bladeGeometry.scale(1, 1, 0.28)
         for (let index = 0; index < 3; index += 1) {
-          const blade = new THREE.Mesh(bladeGeometry, bladeMaterial)
+          const blade = new THREE.Mesh(bladeGeometry, bladeMetal)
           blade.rotation.z = (index * Math.PI * 2) / 3
+          addRim(blade)
           hub.add(blade)
         }
-        hub.add(new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), metal))
+        const cap = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 14), metal)
+        addRim(cap)
+        hub.add(cap)
 
-        const key = new THREE.DirectionalLight(0xffffff, 1.15)
-        key.position.set(3, 5, 4)
-        scene.add(new THREE.AmbientLight(0x6d88aa, 0.55), key, tower, nacelle, hub)
+        const key = new THREE.DirectionalLight(0xe4edf7, 1.25)
+        key.position.set(3.2, 4.6, 3.4)
+        const rimLight = new THREE.DirectionalLight(0x9db6d2, 0.55)
+        rimLight.position.set(-2.8, 1.8, -2.2)
+        scene.add(new THREE.AmbientLight(0x6d7f96, 0.55), key, rimLight, tower, nacelle, hub)
+
+        const resize = () => {
+          if (!hostRef.current) {
+            return
+          }
+          const nextWidth = hostRef.current.clientWidth || width
+          const nextHeight = hostRef.current.clientHeight || height
+          camera.aspect = nextWidth / nextHeight
+          camera.updateProjectionMatrix()
+          renderer.setSize(nextWidth, nextHeight)
+        }
+        window.addEventListener("resize", resize)
 
         let frame = 0
         let last = performance.now()
@@ -96,7 +132,7 @@ export function WindTurbine3D({ boost = false, spinning = true, stopped = false 
           last = now
           const flags = flagsRef.current
           if (flags.spinning && !flags.stopped) {
-            hub.rotation.z += delta * (flags.boost ? 11 : 2.6)
+            hub.rotation.z += delta * (flags.boost ? 4.2 : 0.7)
           }
           renderer.render(scene, camera)
           frame = requestAnimationFrame(tick)
@@ -120,6 +156,7 @@ export function WindTurbine3D({ boost = false, spinning = true, stopped = false 
 
         cleanup = () => {
           cancelAnimationFrame(frame)
+          window.removeEventListener("resize", resize)
           document.removeEventListener("visibilitychange", onVisibility)
           renderer.dispose()
           if (renderer.domElement.parentNode === host) {
