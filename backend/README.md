@@ -1,5 +1,7 @@
 # windslice-backend
 
+[![CI](https://github.com/huashoupopi/rework/actions/workflows/ci.yml/badge.svg)](https://github.com/huashoupopi/rework/actions/workflows/ci.yml)
+
 本地：
 
 ```bash
