@@ -1,0 +1,47 @@
+[
+  {
+    "id": "blade_crack_repair",
+    "question": "叶片裂纹一般怎么修复？关键步骤有哪些？",
+    "expected_route": "rag",
+    "must_mention": ["裂纹", "环氧树脂", "玻璃纤维布"],
+    "must_not_mention": ["不知道"],
+    "min_sources": 1,
+    "min_answer_chars": 60
+  },
+  {
+    "id": "corrosion_repair",
+    "question": "风机叶片腐蚀应该怎么修复？",
+    "expected_route": "rag",
+    "must_mention": ["腐蚀", "环氧腻子", "底漆"],
+    "must_not_mention": ["不知道"],
+    "min_sources": 1,
+    "min_answer_chars": 50
+  },
+  {
+    "id": "hide_craze_detection",
+    "question": "隐裂通常怎么检测？",
+    "expected_route": "rag",
+    "must_mention": ["隐裂", "超声波", "热像仪"],
+    "must_not_mention": ["不知道"],
+    "min_sources": 1,
+    "min_answer_chars": 40
+  },
+  {
+    "id": "thunderstrike_handling",
+    "question": "叶片雷击损伤后关键处理步骤有哪些？",
+    "expected_route": "rag",
+    "must_mention": ["雷击", "停机", "导雷系统"],
+    "must_not_mention": ["不知道"],
+    "min_sources": 1,
+    "min_answer_chars": 40
+  },
+  {
+    "id": "greeting_capability",
+    "question": "你好，你能帮我做什么？",
+    "expected_route": "fallback",
+    "must_mention": ["风电", "运维"],
+    "must_not_mention": [],
+    "min_sources": 0,
+    "min_answer_chars": 20
+  }
+]

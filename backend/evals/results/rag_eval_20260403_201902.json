@@ -1,0 +1,115 @@
+{
+  "summary": {
+    "total_cases": 5,
+    "passed_cases": 5,
+    "pass_rate": 1.0,
+    "avg_score": 1.0
+  },
+  "results": [
+    {
+      "case_id": "blade_crack_repair",
+      "status": "PASS",
+      "request_id": "rag-eval-blade_crack_repair-1775218672432",
+      "route": "rag",
+      "elapsed_ms": 9220.9,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "叶片裂纹的修复需根据裂纹等级（I 级、II 级、III 级）采取不同方案，关键修复步骤如下：\n\n**1. 表面处理与开槽**\n*   **打磨**：沿裂纹两侧各 20 mm 范围打磨至玻璃纤维层。\n*   **开槽**：进行 V 型开槽，槽深需超过裂纹深度 2 mm。\n\n**2. 清洁与填充**\n*   **清洗**：使用丙酮清洗并吹干。\n*   **注胶**：注入低黏度环氧树脂（真空注入效果更佳",
+      "source_count": 5
+    },
+    {
+      "case_id": "corrosion_repair",
+      "status": "PASS",
+      "request_id": "rag-eval-corrosion_repair-1775218681685",
+      "route": "rag",
+      "elapsed_ms": 14117.8,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "风机叶片腐蚀的修复步骤如下：\n\n1. 用 80 目砂纸打磨腐蚀区域，去除松散材料。\n2. 使用丙酮清洗剂清洗，并等待干燥（≥ 30 分钟）。\n3. 填充环氧腻子，刮平，固化 4 小时。\n4. 使用 120 目砂纸打磨至平整。\n5. 涂刷底漆（干燥 2 小时）并涂刷前缘保护漆作为面漆。\n6. 最后使用 240 目砂纸抛光，恢复气动轮廓。\n\n**关键后续检查点**：若腐蚀属于重度（面积 > 0.5 m",
+      "source_count": 5
+    },
+    {
+      "case_id": "hide_craze_detection",
+      "status": "PASS",
+      "request_id": "rag-eval-hide_craze_detection-1775218695846",
+      "route": "rag",
+      "elapsed_ms": 22309.7,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "隐裂的检测方法主要包括以下几种：\n\n1.  **敲击法**：通过听空鼓音来初步判断。\n2.  **超声波扫描**：特别是**相控阵超声波检测 (PAUT)**，可生成截面（B-scan）或三维图像，精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一。\n3.  **热像仪检测**：\n    *   **主动式热像检测 (Active Thermography)**：对叶片表面施加均匀",
+      "source_count": 5
+    },
+    {
+      "case_id": "thunderstrike_handling",
+      "status": "PASS",
+      "request_id": "rag-eval-thunderstrike_handling-1775218718187",
+      "route": "rag",
+      "elapsed_ms": 15616.1,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "叶片雷击损伤后的关键处理步骤如下：\n\n1.  **立即停机与锁定**：一旦 SCADA 系统显示雷击事件或巡检发现损伤，必须立即停机并锁定叶轮（机械制动 + 变桨锁定）。\n2.  **拍照记录与上报**：拍照记录损伤范围，并上报运维系统。\n3.  **损伤评估**：\n    *   由专业人员登机检查，评估爆裂口尺寸、位置及对主承力结构的影响。\n    *   进行 LPS（导雷系统）完整性测试，",
+      "source_count": 5
+    },
+    {
+      "case_id": "greeting_capability",
+      "status": "PASS",
+      "request_id": "rag-eval-greeting_capability-1775218733838",
+      "route": "fallback",
+      "elapsed_ms": 8805.1,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "2/2",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "你好！我是你的风电运维技术助手。虽然当前知识库中暂无直接匹配的专业文档，但我可以基于通用知识协助你解决以下风电运维相关问题：\n\n1. **故障诊断与处理**：分析风机常见故障（如变桨系统异常、发电机过热、齿轮箱振动等）的可能原因及排查步骤。\n2. **预防性维护建议**：提供定期巡检要点、润滑周期、关键部件（叶片、轴承、塔筒）的维护策略。\n3. **安全规范指导**：解读高空作业、电气安全、紧急停",
+      "source_count": 0
+    }
+  ]
+}

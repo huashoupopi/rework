@@ -26,7 +26,7 @@ class Task(Base):
     uuid: Mapped[str] = mapped_column(String(36), unique=True, index=True)
     file_name: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(
-        String(20), nullable=False, default=TaskStatus.PENDING.value
+        String(20), nullable=False, server_default=TaskStatus.PENDING.value
     )
     original_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     result_path: Mapped[str | None] = mapped_column(String(500), nullable=True)

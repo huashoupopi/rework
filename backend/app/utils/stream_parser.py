@@ -8,6 +8,7 @@ class ThinkStreamParser:
         self._in_think: bool = False
         self._buffer: str = ""
         self._think_content: str = ""
+        self._passthrough: bool = False
 
     @property
     def think_content(self) -> str:
@@ -23,7 +24,16 @@ class ThinkStreamParser:
             self._in_think = False
         return remaining
 
+    def set_passthrough(self) -> str:
+        """思考块结束后切换为直通模式，释放缓冲区并停止标签检测。"""
+        remaining = self._buffer
+        self._buffer = ""
+        self._passthrough = True
+        return remaining
+
     def feed(self, token: str) -> str:
+        if self._passthrough:
+            return token
         self._buffer += token
         output = ""
 

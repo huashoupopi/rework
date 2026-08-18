@@ -1,0 +1,115 @@
+{
+  "summary": {
+    "total_cases": 5,
+    "passed_cases": 5,
+    "pass_rate": 1.0,
+    "avg_score": 1.0
+  },
+  "results": [
+    {
+      "case_id": "blade_crack_repair",
+      "status": "PASS",
+      "request_id": "rag-eval-blade_crack_repair-1786933783879",
+      "route": "rag",
+      "elapsed_ms": 25019.1,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "叶片裂纹修复一般按以下关键步骤进行：\n\n1. 沿裂纹两侧各 20 mm 范围打磨至玻璃纤维层  \n2. V 型开槽（槽深需超过裂纹深度 2 mm）  \n3. 丙酮清洗，吹干  \n4. 注入低黏度环氧树脂（真空注入效果更佳）  \n5. 铺 2~4 层玻璃纤维布（每层固化后再铺下一层）  \n6. 打磨至与原叶片轮廓一致  \n7. 涂层恢复  \n\n补充说明（分级处置要点）：  \n- **I 级（轻微）*",
+      "source_count": 5
+    },
+    {
+      "case_id": "corrosion_repair",
+      "status": "PASS",
+      "request_id": "rag-eval-corrosion_repair-1786933808913",
+      "route": "rag",
+      "elapsed_ms": 26671.5,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "风机叶片腐蚀可按以下流程修复：\n\n**修复前准备：**\n1. 停机并锁定叶轮（机械制动 + 变桨锁定）\n2. 检查天气：风速 < 8 m/s，温度 5~35°C，相对湿度 < 80%\n3. 安全防护：高处作业绳索系统，至少 2 人协作\n4. 准备材料：环氧树脂、玻璃纤维布、砂纸（80/120/240 目）、丙酮清洗剂\n\n**腐蚀修复步骤：**\n1. 用 80 目砂纸打磨腐蚀区域，去除松散材料  \n",
+      "source_count": 5
+    },
+    {
+      "case_id": "hide_craze_detection",
+      "status": "PASS",
+      "request_id": "rag-eval-hide_craze_detection-1786933835609",
+      "route": "rag",
+      "elapsed_ms": 20245.9,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "隐裂通常采用以下方法检测：\n\n- **敲击法**（听空鼓音）\n- **超声波扫描**（含相控阵超声波检测 PAUT，可生成截面 B-scan 像，定位内部裂纹深度、长度和取向）\n- **热像仪 / 热像检测（IRT）**  \n  - 主动式：对叶片表面施加均匀热脉冲（如热灯或热风枪），利用裂纹处热传导差异导致的表面温度异常检测  \n  - 被动式：利用运行中内部损伤摩擦生热导致的局部温升\n- **",
+      "source_count": 5
+    },
+    {
+      "case_id": "thunderstrike_handling",
+      "status": "PASS",
+      "request_id": "rag-eval-thunderstrike_handling-1786933855883",
+      "route": "rag",
+      "elapsed_ms": 29785.8,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "3/3",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "叶片雷击损伤后的关键处理步骤如下：\n\n1. **立即停机并锁定**：一旦发现雷击事件或损伤，立即停机，锁定叶轮（机械制动 + 变桨锁定），并拍照记录损伤范围，上报运维系统。  \n2. **安全与工程评估**：评估叶片完整性；测量接闪器到叶根引下线的电阻（标准值应 < 200mΩ）；进行 LPS 导通性测试与接地电阻测试；必要时用超声波或 X 射线检查隐性分层。损伤面积 > 200 cm² 时建议更",
+      "source_count": 5
+    },
+    {
+      "case_id": "greeting_capability",
+      "status": "PASS",
+      "request_id": "rag-eval-greeting_capability-1786933885686",
+      "route": "fallback",
+      "elapsed_ms": 27760.7,
+      "score": 1.0,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": true,
+        "keyword_hit_count": "2/2",
+        "keyword_missed": [],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 1.0
+      },
+      "answer_preview": "你好，我是风电运维技术助手。\n\n我可以协助你处理与风力发电运维相关的问题，例如：\n- 风机设备原理与常见故障排查\n- 变桨、偏航、传动链、发电机、塔筒等系统运维要点\n- 状态监测、振动/温度异常的初步分析思路\n- 巡检、保养、检修作业的一般注意事项\n- 安全规范与现场操作的基本原则\n- 风电场常见技术概念与术语解释\n\n直接把你的具体问题发给我即可。  \n说明：当前知识库中没有直接对应文档时，我会基",
+      "source_count": 0
+    }
+  ]
+}

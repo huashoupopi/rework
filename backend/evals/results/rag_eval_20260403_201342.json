@@ -1,0 +1,33 @@
+{
+  "summary": {
+    "total_cases": 1,
+    "passed_cases": 1,
+    "pass_rate": 1.0,
+    "avg_score": 0.8
+  },
+  "results": [
+    {
+      "case_id": "thunderstrike_handling",
+      "status": "PASS",
+      "request_id": "rag-eval-thunderstrike_handling-1775218417605",
+      "route": "rag",
+      "elapsed_ms": 4590.2,
+      "score": 0.8,
+      "scores": {
+        "route_match": true,
+        "keyword_coverage": false,
+        "keyword_hit_count": "2/3",
+        "keyword_missed": [
+          "导雷系统"
+        ],
+        "banned_phrase_absent": true,
+        "banned_phrase_hits": [],
+        "source_count_ok": true,
+        "answer_length_ok": true,
+        "total": 0.8
+      },
+      "answer_preview": "叶片雷击损伤后的第一步是**立即停机并锁定风机**（一旦 SCADA 系统显示雷击事件或巡检发现损伤，必须立即执行）。\n\n紧接着的关键步骤是进行**拍照记录损伤范围并上报运维系统**，随后清除炭化材料至新鲜基材。",
+      "source_count": 5
+    }
+  ]
+}

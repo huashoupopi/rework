@@ -1,0 +1,111 @@
+services:
+  # ── PostgreSQL + pgvector ──
+  postgres:
+    # 钉 0.8.2：修 CVE-2026-3172（并行 HNSW 建索引缓冲区溢出，影响 0.6.0–0.8.1）
+    # 浮动 tag `pg16` 不保证扩展版本。已有数据卷不会自动跑 init，升级后执行：
+    #   docker compose exec postgres psql -U "$DB_USER" -d "$DB_NAME" -c "ALTER EXTENSION vector UPDATE;"
+    image: pgvector/pgvector:0.8.2-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?请在 .env 中设置 DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-wind_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ──
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:?请在 .env 中设置 REDIS_PASSWORD} --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend API ──
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      # 覆盖 .env 中的连接地址，指向 Docker 内部网络
+      DB_HOST: postgres
+      DB_PORT: 5432
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      # HuggingFace 模型下载镜像（bge-m3 Embedding、Docling OCR 模型等）
+      HF_ENDPOINT: https://hf-mirror.com
+    volumes:
+      - ./backend/static:/app/static
+      - ./backend/models:/app/models
+      - ./backend/knowledge_base:/app/knowledge_base
+      - ./backend/managed_versions:/app/managed_versions
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/ready"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 120s  # 首次加载 Embedding 模型需要时间（模型文件从本地挂载）
+
+  # ── Arq Worker（与 backend 共享同一镜像，不同启动命令） ──
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      HF_ENDPOINT: https://hf-mirror.com
+    volumes:
+      - ./backend/static:/app/static
+      - ./backend/models:/app/models
+      - ./backend/knowledge_base:/app/knowledge_base
+      - ./backend/managed_versions:/app/managed_versions
+    command: ["arq", "app.worker.WorkerSettings"]
+
+  # ── Frontend (Nginx) ──
+  frontend:
+    build:
+      context: ./frontend/myapp
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
+  redis_data:

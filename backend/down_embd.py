@@ -13,9 +13,7 @@ print(f"📂 目标路径: {target_dir}")
 # 2. 开始下载
 try:
     # model_id 是魔搭社区对应的 ID
-    model_path = snapshot_download(
-        "AI-ModelScope/bge-large-zh-v1.5", local_dir=target_dir
-    )
+    model_path = snapshot_download("AI-ModelScope/bge-large-zh-v1.5", local_dir=target_dir)
     print("\n✅ 下载成功！")
     print(f"文件已保存在: {model_path}")
 

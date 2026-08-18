@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+models/hf_cache/
+models/docling_cache/
+static/uploads/
+static/results/
+knowledge_from/
+read_port/
+tests/
+*.md
