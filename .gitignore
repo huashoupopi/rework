@@ -22,22 +22,40 @@ build/
 Thumbs.db
 
 # 上传与推理结果（运行时生成）
+# 旧路径（历史）；实际目录是 static/ 下
 backend/uploads/*
 backend/results/*
 !backend/uploads/.gitkeep
 !backend/results/.gitkeep
+backend/static/uploads/
+backend/static/results/
+!backend/static/uploads/.gitkeep
+!backend/static/results/.gitkeep
 
-# 模型文件
+# 模型文件与缓存
 *.pt
 *.onnx
 *.bin
+*.gguf
+models/
+backend/models/
+ultralytics1/
 
-# uv
+# 运行时知识库副本（源文件在 knowledge_base/）
+backend/knowledge_from/
+backend/managed_versions/
+
+# 一次性本地脚本 / 含密钥的草稿，禁止入库
+test.py
+LMSTUDIO_CHAT_THINKING_FIX_PLAN.md
+
+# 前端
+frontend/myapp/node_modules/
+frontend/myapp/dist/
+
+# uv / ruff
 *.lock
-# ruff
+!frontend/myapp/pnpm-lock.yaml
 .ruff_cache/
 
 .vscode/
-*.gguf
-models/
-ultralytics1/
