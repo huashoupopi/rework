@@ -5,6 +5,9 @@ import { Bot, RefreshCw } from "lucide-react"
 import { TaskImagePreview } from "@/features/task-center/components/TaskImagePreview"
 import { TaskResultSummary } from "@/features/task-center/components/TaskResultSummary"
 import { useTaskDetail } from "@/features/task-center/hooks/useTaskDetail"
+import { AnimatedShinyText } from "@/shared/ui/magicui/animated-shiny-text"
+import { RippleButton } from "@/shared/ui/magicui/ripple-button"
+import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 import { PageWorkbandInfoCard } from "@/shared/ui/PageWorkbandInfoCard"
@@ -54,21 +57,23 @@ export function TaskDetailPage() {
         </GlassPanel>
 
         <GlassPanel className="task-detail-analysis">
-          {loading && !activeTask ? <p>加载中...</p> : null}
+          {loading && !activeTask ? <AnimatedShinyText>加载中...</AnimatedShinyText> : null}
           {error ? (
             <div className="task-detail-error" role="alert">
               <p>{getErrorMessage(error)}</p>
-              <button className="secondary-action" onClick={refresh} type="button">
+              <RippleButton className="secondary-action border-0" onClick={refresh} rippleColor="rgba(77,141,255,0.28)" type="button">
                 <RefreshCw size={14} />
                 重试
-              </button>
+              </RippleButton>
             </div>
           ) : null}
           {activeTask ? (
-            <TaskResultSummary
-              onDownload={activeTask.status === "completed" ? download : undefined}
-              task={activeTask}
-            />
+            <InView once>
+              <TaskResultSummary
+                onDownload={activeTask.status === "completed" ? download : undefined}
+                task={activeTask}
+              />
+            </InView>
           ) : null}
         </GlassPanel>
       </div>

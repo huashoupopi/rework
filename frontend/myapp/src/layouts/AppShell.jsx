@@ -82,7 +82,7 @@ export function AppShell() {
 
   return (
     <div className="app-shell" data-sidebar-collapsed={sidebarCollapsed}>
-      <DotPattern className="app-shell__dots" cr={0.65} glow={false} height={24} width={24} />
+      <DotPattern className="app-shell__dots" cr={1.1} glow={false} height={22} width={22} />
       <aside className="app-sidebar" data-collapsed={sidebarCollapsed} role="complementary">
         <div className="app-sidebar__brand">
           <button

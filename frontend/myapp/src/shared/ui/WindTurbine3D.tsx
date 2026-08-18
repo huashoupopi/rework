@@ -53,9 +53,9 @@ export function WindTurbine3D({ boost = false, spinning = true, stopped = false 
         const width = host.clientWidth || 520
         const height = host.clientHeight || 520
         const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 40)
-        camera.position.set(2.15, 1.25, 3.35)
-        camera.lookAt(0, 1.05, 0)
+        const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 40)
+        camera.position.set(3.8, 1.05, 6.1)
+        camera.lookAt(0, 0.55, 0)
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
@@ -63,20 +63,20 @@ export function WindTurbine3D({ boost = false, spinning = true, stopped = false 
         host.appendChild(renderer.domElement)
 
         const metal = new THREE.MeshStandardMaterial({
-          color: 0x8596ab,
-          emissive: 0x182233,
-          emissiveIntensity: 0.2,
-          metalness: 0.7,
-          roughness: 0.36,
-        })
-        const bladeMetal = new THREE.MeshStandardMaterial({
-          color: 0x8ea0b4,
-          emissive: 0x151e2d,
-          emissiveIntensity: 0.16,
-          metalness: 0.66,
+          color: 0xa8b8cc,
+          emissive: 0x24344c,
+          emissiveIntensity: 0.28,
+          metalness: 0.52,
           roughness: 0.4,
         })
-        const edge = new THREE.LineBasicMaterial({ color: 0xb4c6da, opacity: 0.42, transparent: true })
+        const bladeMetal = new THREE.MeshStandardMaterial({
+          color: 0xb4c4d6,
+          emissive: 0x1c2b40,
+          emissiveIntensity: 0.22,
+          metalness: 0.48,
+          roughness: 0.44,
+        })
+        const edge = new THREE.LineBasicMaterial({ color: 0xd5e3f2, opacity: 0.7, transparent: true })
         const addRim = (mesh: THREE.Mesh) => {
           mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, 22), edge))
         }
@@ -90,8 +90,8 @@ export function WindTurbine3D({ boost = false, spinning = true, stopped = false 
 
         const hub = new THREE.Group()
         hub.position.set(0.4, 1.38, 0)
-        const bladeGeometry = new THREE.CylinderGeometry(0.018, 0.08, 1.55, 8)
-        bladeGeometry.translate(0, 0.78, 0)
+        const bladeGeometry = new THREE.CylinderGeometry(0.018, 0.08, 1.28, 8)
+        bladeGeometry.translate(0, 0.64, 0)
         bladeGeometry.scale(1, 1, 0.28)
         for (let index = 0; index < 3; index += 1) {
           const blade = new THREE.Mesh(bladeGeometry, bladeMetal)
@@ -103,11 +103,17 @@ export function WindTurbine3D({ boost = false, spinning = true, stopped = false 
         addRim(cap)
         hub.add(cap)
 
-        const key = new THREE.DirectionalLight(0xe4edf7, 1.25)
+        const key = new THREE.DirectionalLight(0xf2f6fb, 1.55)
         key.position.set(3.2, 4.6, 3.4)
-        const rimLight = new THREE.DirectionalLight(0x9db6d2, 0.55)
-        rimLight.position.set(-2.8, 1.8, -2.2)
-        scene.add(new THREE.AmbientLight(0x6d7f96, 0.55), key, rimLight, tower, nacelle, hub)
+        const fill = new THREE.DirectionalLight(0xc5d4e6, 0.7)
+        fill.position.set(-1.2, 2.4, 4.2)
+        const rimLight = new THREE.DirectionalLight(0xcfe0f2, 0.95)
+        rimLight.position.set(-3.2, 1.6, -2.4)
+        const rig = new THREE.Group()
+        rig.add(tower, nacelle, hub)
+        rig.scale.setScalar(0.82)
+        rig.position.y = 0.12
+        scene.add(new THREE.AmbientLight(0x8a9bb0, 0.78), key, fill, rimLight, rig)
 
         const resize = () => {
           if (!hostRef.current) {

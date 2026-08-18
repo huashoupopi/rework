@@ -12,7 +12,7 @@ test("renders the 404 maintenance easter egg", () => {
     </MemoryRouter>,
   )
 
-  expect(screen.getByRole("heading", { name: "停机检修中" })).toBeInTheDocument()
+  expect(screen.getByRole("heading", { name: "线路不通" })).toBeInTheDocument()
   expect(screen.getByRole("link", { name: "返回首页" })).toHaveAttribute("href", "/")
   expect(screen.getByRole("img", { name: "停机检修中" })).toBeInTheDocument()
 })

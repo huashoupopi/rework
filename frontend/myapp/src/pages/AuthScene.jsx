@@ -39,7 +39,7 @@ export function AuthScene({
 }) {
   return (
     <div className="auth-page">
-      <DotPattern className="auth-page__dots" cr={0.7} glow={false} height={22} width={22} />
+      <DotPattern className="auth-page__dots" cr={1.15} glow={false} height={20} width={20} />
       <div className="auth-stage">
         <section className="auth-hero">
           <p className="auth-hero__eyebrow">REWORK</p>
@@ -72,7 +72,7 @@ export function AuthScene({
             </div>
           </InView>
           <div className="auth-hero__turbine">
-            <Ripple className="auth-hero__ripple" mainCircleOpacity={0.08} mainCircleSize={180} numCircles={4} />
+            <Ripple className="auth-hero__ripple" mainCircleOpacity={0.24} mainCircleSize={220} numCircles={6} />
             <React.Suspense fallback={<WindTurbineSvg boost={boost} spinning={spinning} stopped={stopped} />}>
               <WindTurbine3D boost={boost} spinning={spinning} stopped={stopped} />
             </React.Suspense>

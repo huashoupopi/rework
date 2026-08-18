@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Button, Space, Table, Tag } from "antd"
+import { ProgressiveBlur } from "@/shared/ui/motion-primitives/progressive-blur"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 export function UserTable({ currentUserId, onDeleteUser, users = [] }) {
@@ -51,7 +52,9 @@ export function UserTable({ currentUserId, onDeleteUser, users = [] }) {
           <h2>系统用户</h2>
         </div>
       </div>
-      <Table
+      <div className="table-fade">
+        <ProgressiveBlur blurIntensity={0.2} className="table-fade__blur table-fade__blur--bottom" direction="bottom" />
+        <Table
         columns={columns}
         dataSource={users.map((user) => ({
           ...user,
@@ -64,6 +67,7 @@ export function UserTable({ currentUserId, onDeleteUser, users = [] }) {
         rowKey="id"
         size="middle"
       />
+      </div>
     </GlassPanel>
   )
 }

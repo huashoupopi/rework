@@ -3,6 +3,11 @@ import { Download, ListChecks } from "lucide-react"
 
 import { downloadTaskBatch, downloadTaskImage } from "../api/task-api"
 import { TaskStatusTag } from "./TaskStatusTag"
+import { EmptyState } from "@/shared/ui/EmptyState"
+import { Meteors } from "@/shared/ui/magicui/meteors"
+import { Ripple } from "@/shared/ui/magicui/ripple"
+import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
+import { ProgressiveBlur } from "@/shared/ui/motion-primitives/progressive-blur"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 function isCompleted(task) {
@@ -158,7 +163,9 @@ export function TaskTable({
         </div>
       </div>
 
-      <div className="table-wrap">
+      <div className="table-wrap table-fade">
+        <ProgressiveBlur blurIntensity={0.2} className="table-fade__blur table-fade__blur--top" direction="top" />
+        <ProgressiveBlur blurIntensity={0.2} className="table-fade__blur table-fade__blur--bottom" direction="bottom" />
         <table className="data-table">
           <thead>
             <tr>
@@ -172,11 +179,19 @@ export function TaskTable({
             </tr>
           </thead>
           <tbody>
+            {tasks.length === 0 ? (
+              <tr>
+                <td colSpan={7}>
+                  <EmptyState action={<Meteors number={3} />} description="上传叶片图片后，检测任务会出现在这里。" title="还没有任务" />
+                </td>
+              </tr>
+            ) : null}
             {tasks.map((task) => {
               const completed = isCompleted(task)
+              const detecting = task.status === "progressing" || task.status === "pending"
 
               return (
-                <tr key={task.id}>
+                <tr data-status={task.status} key={task.id}>
                   <td>
                     <input
                       aria-label={`选择 ${task.file_name ?? task.id}`}
@@ -188,7 +203,11 @@ export function TaskTable({
                   <td>{task.file_name ?? "-"}</td>
                   <td>{task.owner?.username ?? "-"}</td>
                   <td>
-                    <TaskStatusTag status={task.status} />
+                    <div className="status-cell">
+                      {detecting ? <BorderTrail className="bg-[var(--accent)]" size={18} transition={{ duration: 8, ease: "linear", repeat: Number.POSITIVE_INFINITY }} /> : null}
+                      {completed ? <Ripple className="opacity-80" mainCircleOpacity={0.16} mainCircleSize={48} numCircles={3} /> : null}
+                      <TaskStatusTag status={task.status} />
+                    </div>
                   </td>
                   <td>{formatCreatedAt(task.created_at)}</td>
                   <td><DetectSummary task={task} /></td>
