@@ -5,6 +5,7 @@ import { ChatComposer } from "@/features/chat/components/ChatComposer"
 import { ChatContextBanner } from "@/features/chat/components/ChatContextBanner"
 import { ChatMessageList } from "@/features/chat/components/ChatMessageList"
 import { useChatSession } from "@/features/chat/hooks/useChatSession"
+import { AnimatedShinyText } from "@/shared/ui/magicui/animated-shiny-text"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 
@@ -66,7 +67,7 @@ export function ChatPage() {
           {error ? <p role="alert" className="chat-error">{error.message}</p> : null}
           {loadingHistory ? (
             <div className="chat-loading">
-              <p>加载历史消息...</p>
+              <AnimatedShinyText>加载历史消息...</AnimatedShinyText>
             </div>
           ) : null}
           <ChatMessageList messages={messages} />

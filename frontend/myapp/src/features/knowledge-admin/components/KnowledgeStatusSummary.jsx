@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Button, Card, List, Space, Statistic, Tag, Typography } from "antd"
+import { Meteors } from "@/shared/ui/magicui/meteors"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 export function KnowledgeStatusSummary({
@@ -14,7 +15,9 @@ export function KnowledgeStatusSummary({
   const documents = Array.isArray(status?.documents) ? status.documents : []
 
   return (
-    <GlassPanel aria-label="知识库重建状态" className="data-surface">
+    <GlassPanel aria-label="知识库重建状态" className="data-surface" style={{ position: "relative" }}>
+      <div className="rebuild-progress" data-running={status?.rebuild_running ? "true" : "false"} />
+      {actionMessage ? <Meteors number={5} /> : null}
       <Space direction="vertical" size={16} style={{ width: "100%" }}>
         <Space direction="vertical" size={8} style={{ width: "100%" }}>
           <Typography.Text type="secondary">索引状态与重建任务的实时概览。</Typography.Text>

@@ -2,6 +2,7 @@ import * as React from "react"
 import { ChunkConfigFormModal } from "@/features/knowledge-admin/components/ChunkConfigFormModal"
 import { ChunkConfigTable } from "@/features/knowledge-admin/components/ChunkConfigTable"
 import { useChunkConfigs } from "@/features/knowledge-admin/hooks/useChunkConfigs"
+import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 import { PageWorkbandInfoCard } from "@/shared/ui/PageWorkbandInfoCard"
 
@@ -52,7 +53,9 @@ export function KnowledgeChunkConfigsPage() {
         title="分块配置"
       />
       {error ? <p role="alert">{error.message}</p> : null}
-      <ChunkConfigTable configs={configs} onCreate={handleCreate} onDelete={deleteConfig} onEdit={handleEdit} />
+      <InView once>
+        <ChunkConfigTable configs={configs} onCreate={handleCreate} onDelete={deleteConfig} onEdit={handleEdit} />
+      </InView>
       <ChunkConfigFormModal
         initialValues={editingConfig}
         mode={dialogMode}

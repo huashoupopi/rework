@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Button, Popconfirm, Space, Table, Tag, Typography } from "antd"
+import { ProgressiveBlur } from "@/shared/ui/motion-primitives/progressive-blur"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 function formatVersion(document) {
@@ -91,6 +92,8 @@ export function KnowledgeDocumentTable({
           <Typography.Text type="secondary">按文档状态、版本和文件名快速定位入库结果。</Typography.Text>
         </div>
       </div>
+      <div className="table-fade">
+        <ProgressiveBlur blurIntensity={0.2} className="table-fade__blur table-fade__blur--bottom" direction="bottom" />
       <Table
         columns={columns}
         dataSource={documents.map((document) => ({
@@ -121,6 +124,7 @@ export function KnowledgeDocumentTable({
         rowKey="doc_key"
         size="middle"
       />
+      </div>
     </GlassPanel>
   )
 }

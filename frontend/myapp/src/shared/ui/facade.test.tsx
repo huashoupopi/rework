@@ -4,6 +4,8 @@ import { expect, test, vi } from "vitest"
 import { DotPattern } from "./magicui/dot-pattern"
 import { InteractiveHoverButton } from "./magicui/interactive-hover-button"
 import { Ripple } from "./magicui/ripple"
+import { SlidingNumber } from "./motion-primitives/sliding-number"
+import { TextShimmerWave } from "./motion-primitives/text-shimmer-wave"
 import { BackgroundPaths } from "./BackgroundPaths"
 import { WindTurbineSvg } from "./WindTurbineSvg"
 
@@ -43,4 +45,16 @@ test("round 2R facade primitives render", () => {
 
   expect(document.querySelector(".animate-ripple, [class*='ripple']")).toBeTruthy()
   expect(screen.getByRole("button", { name: "登录" })).toBeInTheDocument()
+})
+
+test("round 3 motion primitives render", () => {
+  render(
+    <>
+      <SlidingNumber value={12} />
+      <TextShimmerWave>生成中</TextShimmerWave>
+    </>,
+  )
+
+  expect(document.querySelector(".tabular-nums, [class*='tabular']") || document.body.textContent?.includes("1")).toBeTruthy()
+  expect(screen.getByText((_, node) => node?.textContent === "生成中")).toBeInTheDocument()
 })

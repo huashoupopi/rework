@@ -2,6 +2,9 @@ import * as React from "react"
 import Markdown from "react-markdown"
 import { BrainCircuit, ChevronDown, ChevronRight, FileText, LoaderCircle } from "lucide-react"
 
+import { AnimatedShinyText } from "@/shared/ui/magicui/animated-shiny-text"
+import { TextShimmerWave } from "@/shared/ui/motion-primitives/text-shimmer-wave"
+
 import { extractAssistantThink } from "../utils/extractAssistantThink"
 
 function getRoleLabel(role) {
@@ -192,7 +195,14 @@ export function ChatMessageCard({ message }) {
       {displayContent ? (
         <div className="message-card__content prose">
           <Markdown>{displayContent}</Markdown>
+          {isStreaming ? (
+            <AnimatedShinyText className="mx-0 max-w-none">正在写入答复</AnimatedShinyText>
+          ) : null}
         </div>
+      ) : isStreaming ? (
+        <TextShimmerWave className="[--base-color:var(--surface-muted)] [--base-gradient-color:var(--accent-strong)]">
+          正在生成答复
+        </TextShimmerWave>
       ) : null}
       <SourcesPanel sources={sources} />
     </article>

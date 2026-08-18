@@ -5,6 +5,8 @@ import { TaskUploadCard } from "@/features/task-center/components/TaskUploadCard
 import { useTaskList } from "@/features/task-center/hooks/useTaskList"
 import { Bug, CircleCheckBig, Filter, Layers3, TrendingUp, Users } from "lucide-react"
 
+import { RippleButton } from "@/shared/ui/magicui/ripple-button"
+import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { MetricCard } from "@/shared/ui/MetricCard"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 import { PageWorkbandInfoCard } from "@/shared/ui/PageWorkbandInfoCard"
@@ -80,9 +82,9 @@ export function TaskCenterPage() {
     <div className="page-stack">
       <PageWorkband
         actions={
-          <button className="secondary-action" type="button" onClick={refresh}>
+          <RippleButton className="secondary-action border-0" rippleColor="rgba(77,141,255,0.28)" type="button" onClick={refresh}>
             刷新任务列表
-          </button>
+          </RippleButton>
         }
         aside={
           <PageWorkbandInfoCard
@@ -98,6 +100,7 @@ export function TaskCenterPage() {
         description={`已加载 ${tasks.length} 条任务，当前页完成 ${completedCount} 条。`}
         eyebrow="检测任务"
         footer={
+          <InView once>
           <section className="metrics-grid metrics-grid--5" aria-label="任务概览">
             <MetricCard
               eyebrow="当前页"
@@ -130,6 +133,7 @@ export function TaskCenterPage() {
               value={defectStats.ownerCount}
             />
           </section>
+          </InView>
         }
         title="任务中心"
       />

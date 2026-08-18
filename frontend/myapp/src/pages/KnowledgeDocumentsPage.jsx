@@ -1,5 +1,7 @@
 import * as React from "react"
 import { RefreshCw } from "lucide-react"
+import { RippleButton } from "@/shared/ui/magicui/ripple-button"
+import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { KnowledgeDocumentTable } from "@/features/knowledge-admin/components/KnowledgeDocumentTable"
 import { KnowledgeUploadCard } from "@/features/knowledge-admin/components/KnowledgeUploadCard"
 import { useKnowledgeDocuments } from "@/features/knowledge-admin/hooks/useKnowledgeDocuments"
@@ -28,10 +30,10 @@ export function KnowledgeDocumentsPage() {
     <div className="page-stack">
       <PageWorkband
         actions={
-          <button className="secondary-action" disabled={loading} type="button" onClick={refresh}>
+          <RippleButton className="secondary-action border-0" disabled={loading} rippleColor="rgba(77,141,255,0.28)" type="button" onClick={refresh}>
             <RefreshCw size={16} />
             刷新文档列表
-          </button>
+          </RippleButton>
         }
         aside={
           <PageWorkbandInfoCard
@@ -86,6 +88,7 @@ export function KnowledgeDocumentsPage() {
         </section>
       </GlassPanel>
       {error ? <p role="alert">{error.message}</p> : null}
+      <InView once>
       <KnowledgeDocumentTable
         documents={documents}
         onDeleteDocument={deleteDocument}
@@ -98,6 +101,7 @@ export function KnowledgeDocumentsPage() {
         pageSize={pageSize}
         total={total}
       />
+      </InView>
     </div>
   )
 }
