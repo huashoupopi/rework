@@ -26,6 +26,11 @@ test("renders task fields, detail entry, and gated download actions", async () =
     {
       id: 1,
       detect_result: {
+        objects: [
+          { class: "craze" },
+          { class: "craze" },
+          { class: "corrosion" },
+        ],
         total: 3,
       },
       file_name: "ready.png",
@@ -58,8 +63,9 @@ test("renders task fields, detail entry, and gated download actions", async () =
   expect(screen.getByText("running.png")).toBeInTheDocument()
   expect(screen.getByText("completed")).toBeInTheDocument()
   expect(screen.getByText("progressing")).toBeInTheDocument()
-  expect(screen.getByText("发现 3 处目标")).toBeInTheDocument()
-  expect(screen.getAllByText("-")).toHaveLength(1)
+  expect(screen.getByText("裂纹 2")).toBeInTheDocument()
+  expect(screen.getByText("腐蚀 1")).toBeInTheDocument()
+  expect(screen.getAllByText("-")).toHaveLength(3)
   expect(screen.getAllByRole("link", { name: "查看详情" })).toHaveLength(2)
 
   const readyRow = screen.getByText("ready.png").closest("tr")
