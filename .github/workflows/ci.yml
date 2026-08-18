@@ -26,3 +26,18 @@ jobs:
       - run: uv run --no-sources ruff check app/utils/stream_parser.py tests/test_stream_parser.py tests/test_rag_eval.py evals/run_rag_eval.py
       # --ignore：这两份测试模块级 import 会拉起 RAG/DB，marker 挡不住收集
       - run: uv run --no-sources pytest -m "not needs_model and not needs_db" --ignore=tests/test_rag_prompt_constraints.py --ignore=tests/test_request_observability.py -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/myapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:run
+      - run: pnpm build
