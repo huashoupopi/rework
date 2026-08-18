@@ -38,6 +38,7 @@ backend/static/results/*
 
 # uv
 *.lock
+!uv.lock
 # ruff
 .ruff_cache/
 

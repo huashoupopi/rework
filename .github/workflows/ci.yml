@@ -43,23 +43,22 @@ jobs:
       DB_NAME: wind_db
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: ci-not-a-secret
-      # 不解析 [tool.uv.sources] 的本地 ultralytics1
-      UV_NO_SOURCES: "1"
+      UV_FROZEN: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      # GitHub runner 在海外，不用 pyproject 里的清华源
-      # --no-sources：不解析 [tool.uv.sources] 里的本地 ultralytics1 路径
-      - run: uv sync --dev --no-sources --default-index https://pypi.org/simple
-      - run: uv run --no-sources ruff check app/utils/stream_parser.py tests/test_stream_parser.py tests/test_rag_eval.py evals/run_rag_eval.py
-      - run: uv run --no-sources alembic upgrade head
+      # GitHub runner 访问清华源 403；锁已按官方 PyPI 生成。
+      # 无 fork 实测：UV_FROZEN=1 uv sync --dev --frozen 可通过（不装 yolo extra）。
+      - run: uv sync --dev --frozen --default-index https://pypi.org/simple
+      - run: uv run ruff check app/utils/stream_parser.py tests/test_stream_parser.py tests/test_rag_eval.py evals/run_rag_eval.py
+      - run: uv run alembic upgrade head
       # 试过摘掉 --ignore。摘不掉的原因：
       # test_rag_prompt_constraints / test_request_observability 都在模块级
       # import RagService / app.main，收集阶段就拉起 llama-index +
       # sentence_transformers，与 datasets 的 IterableDataset 冲突
       # （CI 实测 ImportError）。marker 与 PG/Redis services 挡不住收集。
       # needs_db 用例要等收集不再 import RAG 栈才能摘 ignore。
-      - run: uv run --no-sources pytest -m "not needs_model" --ignore=tests/test_rag_prompt_constraints.py --ignore=tests/test_request_observability.py -q
+      - run: uv run pytest -m "not needs_model" --ignore=tests/test_rag_prompt_constraints.py --ignore=tests/test_request_observability.py -q
 
   frontend:
     runs-on: ubuntu-latest
