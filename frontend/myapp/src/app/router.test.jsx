@@ -6,6 +6,7 @@ test("declares the expected public, protected, and admin routes", () => {
     expect.arrayContaining([
       expect.objectContaining({ path: "/login" }),
       expect.objectContaining({ path: "/register" }),
+      expect.objectContaining({ path: "*" }),
     ]),
   )
 

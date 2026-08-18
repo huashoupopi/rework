@@ -114,7 +114,7 @@ test("logs out and returns to the login page", async () => {
     renderAppShell()
   })
 
-  await user.click(screen.getByRole("button", { name: "" }))
+  await user.click(screen.getByRole("button", { name: "退出登录" }))
 
   expect(await screen.findByRole("heading", { name: "登录" })).toBeInTheDocument()
   expect(useAuthStore.getState()).toMatchObject({
@@ -122,4 +122,28 @@ test("logs out and returns to the login page", async () => {
     token: null,
     userInfo: null,
   })
+})
+
+test("spins the logo after five clicks without changing auth state", async () => {
+  const user = userEvent.setup()
+
+  await act(async () => {
+    useAuthStore.setState({
+      hydrated: true,
+      token: "token-123",
+      userInfo: { is_superuser: false, username: "demo" },
+    })
+
+    renderAppShell()
+  })
+
+  const logo = screen.getByRole("button", { name: "REWORK 标志" })
+  await user.click(logo)
+  await user.click(logo)
+  await user.click(logo)
+  await user.click(logo)
+  await user.click(logo)
+
+  expect(logo).toHaveAttribute("data-spinning", "true")
+  expect(useAuthStore.getState().token).toBe("token-123")
 })

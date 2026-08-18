@@ -1,10 +1,15 @@
 import * as React from "react"
-import { Alert, Button, Form, Input, Typography } from "antd"
+import { Alert, Form, Input, Typography } from "antd"
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom"
+import { useReducedMotion } from "motion/react"
 
 import { getCurrentUser, login } from "@/features/auth/api/auth-api"
 import { useAuthStore } from "@/features/auth/store/auth-store"
-import { GlassPanel } from "@/shared/ui/GlassPanel"
+import { tokenDurationSeconds } from "@/shared/lib/utils"
+import { GlassButton } from "@/shared/ui/GlassButton"
+import { GlassCard } from "@/shared/ui/GlassCard"
+
+import { AuthScene } from "./AuthScene"
 
 export function LoginPage() {
   const hydrated = useAuthStore((state) => state.hydrated)
@@ -13,14 +18,22 @@ export function LoginPage() {
   const clearAuth = useAuthStore((state) => state.clearAuth)
   const [errorMessage, setErrorMessage] = React.useState("")
   const [submitting, setSubmitting] = React.useState(false)
+  const [failCount, setFailCount] = React.useState(0)
+  const [boost, setBoost] = React.useState(false)
   const location = useLocation()
   const navigate = useNavigate()
+  const reduceMotion = useReducedMotion()
+  const locked = failCount >= 3
 
   if (hydrated && token) {
     return <Navigate replace to="/" />
   }
 
   async function handleFinish(values) {
+    if (locked) {
+      return
+    }
+
     setSubmitting(true)
     setErrorMessage("")
 
@@ -39,66 +52,59 @@ export function LoginPage() {
         userInfo: currentUser,
       })
 
+      setBoost(true)
+      const delayMs = reduceMotion ? 0 : tokenDurationSeconds("--motion-slow", 220) * 3000
+      if (delayMs > 0) {
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, delayMs)
+        })
+      }
+
       navigate(location.state?.from?.pathname ?? "/", { replace: true })
     } catch (error) {
       clearAuth()
-      setErrorMessage(error?.response?.data?.detail ?? "登录失败，请稍后重试")
+      const nextFails = failCount + 1
+      setFailCount(nextFails)
+      setErrorMessage(
+        nextFails >= 3
+          ? "叶片检修中，请稍后再试"
+          : (error?.response?.data?.detail ?? "登录失败，请稍后重试"),
+      )
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <main className="auth-page">
-      <div className="auth-stage">
-        <section className="auth-hero">
-          <p className="auth-hero__eyebrow">REWORK</p>
-          <h1>风机叶片智能检测</h1>
-          <p className="auth-hero__description">基于深度学习的缺陷检测、知识管理与智能问答平台。</p>
-          <div className="auth-hero__panel">
-            <div className="auth-hero__metric">
-              <span>检测</span>
-              <strong>智能缺陷识别</strong>
-              <p>上传图片即可获得自动化检测结果与结构化分析。</p>
-            </div>
-            <div className="auth-hero__metric">
-              <span>问答</span>
-              <strong>上下文对话</strong>
-              <p>围绕检测任务展开深度分析，获得精准回答。</p>
-            </div>
-            <div className="auth-hero__metric">
-              <span>知识</span>
-              <strong>知识库治理</strong>
-              <p>统一管理文档资产、索引构建与检索策略。</p>
-            </div>
-          </div>
-        </section>
-
-        <GlassPanel className="auth-card">
-          <div className="auth-card__copy">
-            <p className="auth-card__eyebrow">登录</p>
-            <Typography.Title level={2}>欢迎回来</Typography.Title>
-            <Typography.Paragraph type="secondary">
-              登录以访问你的工作台。
-            </Typography.Paragraph>
-          </div>
-          {errorMessage ? <Alert message={errorMessage} showIcon type="error" /> : null}
-          <Form className="auth-form" layout="vertical" onFinish={handleFinish}>
-            <Form.Item label="用户名" name="username" rules={[{ required: true, message: "请输入用户名" }]}>
-              <Input placeholder="请输入用户名" />
-            </Form.Item>
-            <Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码" }]}>
-              <Input.Password placeholder="请输入密码" />
-            </Form.Item>
-            <Button block htmlType="submit" loading={submitting} type="primary">
-              登录
-            </Button>
-          </Form>
-          <Typography.Paragraph>
-            <Link to="/register">没有账号？立即注册</Link>
-          </Typography.Paragraph>
-        </GlassPanel>
-      </div>
-    </main>
+    <AuthScene
+      boost={boost}
+      description="基于深度学习的缺陷检测、知识管理与智能问答平台。"
+      spinning={!locked}
+      stopped={locked}
+      titleLines={["风机叶片", "智能检测"]}
+    >
+      <GlassCard className="auth-card">
+        <div className="auth-card__copy">
+          <p className="auth-card__eyebrow">登录</p>
+          <Typography.Title level={2}>欢迎回来</Typography.Title>
+          <Typography.Paragraph type="secondary">登录以访问你的工作台。</Typography.Paragraph>
+        </div>
+        {errorMessage ? <Alert message={errorMessage} showIcon type="error" /> : null}
+        <Form className="auth-form" layout="vertical" onFinish={handleFinish}>
+          <Form.Item label="用户名" name="username" rules={[{ required: true, message: "请输入用户名" }]}>
+            <Input disabled={locked} placeholder="请输入用户名" />
+          </Form.Item>
+          <Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码" }]}>
+            <Input.Password disabled={locked} placeholder="请输入密码" />
+          </Form.Item>
+          <GlassButton className="glass-button--block" disabled={locked || submitting} type="submit">
+            {submitting ? "叶片加速中" : "登录"}
+          </GlassButton>
+        </Form>
+        <Typography.Paragraph>
+          <Link to="/register">没有账号？立即注册</Link>
+        </Typography.Paragraph>
+      </GlassCard>
+    </AuthScene>
   )
 }
