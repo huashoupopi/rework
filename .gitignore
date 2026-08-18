@@ -55,6 +55,7 @@ frontend/myapp/dist/
 # uv / ruff
 *.lock
 !frontend/myapp/pnpm-lock.yaml
+!backend/uv.lock
 .ruff_cache/
 
 .vscode/
