@@ -27,8 +27,8 @@ backend/uploads/*
 backend/results/*
 !backend/uploads/.gitkeep
 !backend/results/.gitkeep
-backend/static/uploads/
-backend/static/results/
+backend/static/uploads/*
+backend/static/results/*
 !backend/static/uploads/.gitkeep
 !backend/static/results/.gitkeep
 
