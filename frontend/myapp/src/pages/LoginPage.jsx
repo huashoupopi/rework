@@ -97,7 +97,7 @@ export function LoginPage() {
           <Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码" }]}>
             <Input.Password disabled={locked} placeholder="请输入密码" />
           </Form.Item>
-          <GlassButton className="glass-button--block" disabled={locked || submitting} type="submit">
+          <GlassButton className="glass-button--block glass-button--primary" disabled={locked || submitting} type="submit">
             {submitting ? "叶片加速中" : "登录"}
           </GlassButton>
         </Form>
