@@ -1,31 +1,50 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 :root {
-  color: #102038;
+  color: var(--surface-strong);
   font-family: "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
   font-synthesis: none;
   line-height: 1.5;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
+  /* 底色:深蓝黑 + 两处辉光 */
   --app-bg:
-    radial-gradient(circle at top left, rgba(117, 187, 255, 0.22), transparent 30%),
-    radial-gradient(circle at top right, rgba(255, 210, 167, 0.26), transparent 26%),
-    linear-gradient(180deg, #f5f8fc 0%, #eef3f9 48%, #f8fbff 100%);
-  --glass-bg: rgba(255, 255, 255, 0.62);
-  --glass-border: rgba(255, 255, 255, 0.68);
-  --glass-shadow: 0 8px 32px rgba(32, 63, 110, 0.08);
-  --glass-shadow-strong: 0 16px 48px rgba(24, 51, 96, 0.12);
-  --surface-border: rgba(16, 32, 56, 0.08);
-  --surface-muted: rgba(16, 32, 56, 0.55);
-  --surface-soft: rgba(255, 255, 255, 0.82);
-  --surface-strong: #102038;
-  --accent: #2667ff;
-  --accent-soft: rgba(38, 103, 255, 0.1);
-  --accent-strong: #1446b8;
-  --success-soft: rgba(43, 163, 112, 0.1);
-  --warning-soft: rgba(255, 180, 77, 0.12);
-  --danger-soft: rgba(255, 102, 102, 0.1);
+    radial-gradient(circle at top left, rgba(77, 141, 255, 0.16), transparent 34%),
+    radial-gradient(circle at top right, rgba(34, 211, 238, 0.10), transparent 30%),
+    linear-gradient(180deg, #070b14 0%, #0b1220 52%, #070d18 100%);
+
+  /* 文字与实色面 */
+  --surface-strong: #e8eefc;
+  --surface-muted: rgba(232, 238, 252, 0.62);
+  --surface-solid: #0f1626;
+  --surface-border: rgba(255, 255, 255, 0.10);
+
+  /* 玻璃 */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --glass-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.55);
+
+  /* 强调色 */
+  --accent: #4d8dff;
+  --accent-strong: #7aa9ff;
+  --accent-soft: rgba(77, 141, 255, 0.14);
+  --glow-accent: 0 0 24px rgba(77, 141, 255, 0.45);
+  --glow-cyan: 0 0 32px rgba(34, 211, 238, 0.35);
+
+  /* 动效 */
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 220ms;
+  --stagger-step: 50ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --success-soft: rgba(43, 163, 112, 0.16);
+  --warning-soft: rgba(255, 180, 77, 0.16);
+  --danger-soft: rgba(255, 102, 102, 0.16);
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 24px;
@@ -69,7 +88,7 @@ select {
 }
 
 button {
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--glass-bg-strong);
   color: var(--surface-strong);
   cursor: pointer;
   transition:
@@ -95,7 +114,7 @@ button:disabled {
 input,
 textarea,
 select {
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-bg-strong);
   color: var(--surface-strong);
   padding: 10px 14px;
 }
@@ -147,8 +166,8 @@ textarea {
 }
 
 .secondary-action {
-  background: rgba(255, 255, 255, 0.76);
-  border: 1px solid rgba(255, 255, 255, 0.84);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
 }
 
 /* ─── Glass panel ─── */
@@ -204,8 +223,8 @@ textarea {
 
 .app-sidebar {
   backdrop-filter: blur(24px) saturate(180%);
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--glass-shadow-strong);
   display: flex;
@@ -265,7 +284,7 @@ textarea {
 
 .app-sidebar__toggle {
   align-items: center;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--glass-bg);
   border-radius: var(--radius-sm);
   display: flex;
   gap: 8px;
@@ -310,19 +329,19 @@ textarea {
 }
 
 .app-sidebar__link:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--glass-bg);
 }
 
 .app-sidebar__link--active {
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-bg-strong);
   box-shadow: 0 2px 8px rgba(24, 51, 96, 0.06);
   font-weight: 500;
 }
 
 .app-sidebar__footnote {
   align-items: flex-start;
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   display: grid;
   gap: 8px;
@@ -473,14 +492,14 @@ textarea {
 .page-workband {
   backdrop-filter: blur(30px) saturate(170%);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.5)),
+    linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg)),
     radial-gradient(circle at 12% 12%, rgba(63, 123, 255, 0.11), transparent 30%),
     radial-gradient(circle at 88% 8%, rgba(255, 188, 117, 0.14), transparent 28%);
-  border: 1px solid rgba(255, 255, 255, 0.76);
+  border: 1px solid var(--glass-border);
   border-radius: 34px;
   box-shadow:
     0 18px 54px rgba(24, 51, 96, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.46);
+    inset 0 1px 0 var(--glass-border);
   display: grid;
   gap: 26px;
   grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.8fr);
@@ -503,8 +522,8 @@ textarea {
 
 .page-workband::after {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 40%),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.38), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.2));
+    linear-gradient(180deg, var(--glass-border), transparent 40%),
+    linear-gradient(90deg, var(--glass-border), transparent 18%, transparent 82%, var(--glass-bg));
   content: "";
   inset: 0;
   pointer-events: none;
@@ -612,8 +631,8 @@ textarea {
 
 .workband-info-card {
   align-content: start;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.18));
-  border: 1px solid rgba(255, 255, 255, 0.58);
+  background: linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg));
+  border: 1px solid var(--glass-border);
   border-radius: 26px;
   display: grid;
   gap: 14px;
@@ -705,9 +724,9 @@ textarea {
 .home-hero-scene__signal {
   align-items: center;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.14)),
+    linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg)),
     radial-gradient(circle at 20% 20%, rgba(38, 103, 255, 0.14), transparent 40%);
-  border: 1px solid rgba(255, 255, 255, 0.56);
+  border: 1px solid var(--glass-border);
   border-radius: 26px;
   display: grid;
   min-height: 170px;
@@ -736,8 +755,8 @@ textarea {
 .home-hero-scene__node {
   align-items: center;
   backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.58);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
   color: var(--surface-strong);
   display: inline-flex;
@@ -808,9 +827,9 @@ textarea {
 
 .chat-hero-scene__threads {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.12)),
+    linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg)),
     radial-gradient(circle at top right, rgba(93, 107, 255, 0.16), transparent 36%);
-  border: 1px solid rgba(255, 255, 255, 0.56);
+  border: 1px solid var(--glass-border);
   border-radius: 26px;
   display: grid;
   gap: 12px;
@@ -825,22 +844,22 @@ textarea {
 
 .chat-hero-scene__thread--assistant {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(237, 244, 255, 0.72)),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+    linear-gradient(90deg, var(--glass-bg-strong), var(--glass-bg)),
+    linear-gradient(135deg, var(--glass-border), transparent);
   width: 82%;
 }
 
 .chat-hero-scene__thread--user {
   background:
     linear-gradient(135deg, rgba(38, 103, 255, 0.18), rgba(38, 103, 255, 0.08)),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
+    linear-gradient(135deg, var(--glass-border), transparent);
   justify-self: end;
   width: 62%;
 }
 
 .chat-hero-scene__thread--assistant-soft {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.48)),
+    linear-gradient(90deg, var(--glass-bg-strong), var(--glass-bg)),
     linear-gradient(135deg, rgba(93, 107, 255, 0.08), rgba(93, 107, 255, 0));
   width: 72%;
 }
@@ -1096,8 +1115,8 @@ textarea {
 .quick-entry-card {
   align-items: center;
   backdrop-filter: blur(14px) saturate(140%);
-  background: rgba(255, 255, 255, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.62);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 22px;
   color: inherit;
   display: flex;
@@ -1129,7 +1148,7 @@ textarea {
 
 .quick-entry-card__icon--blue {
   background: rgba(38, 103, 255, 0.1);
-  color: #2667ff;
+  color: var(--accent);
 }
 
 .quick-entry-card__icon--purple {
@@ -1195,8 +1214,8 @@ textarea {
 
 .admin-link-card {
   align-items: center;
-  background: rgba(255, 255, 255, 0.58);
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   color: var(--surface-strong);
   display: inline-flex;
@@ -1211,7 +1230,7 @@ textarea {
 }
 
 .admin-link-card:hover {
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-bg-strong);
   box-shadow: 0 4px 16px rgba(24, 51, 96, 0.06);
 }
 
@@ -1264,7 +1283,7 @@ textarea {
 
 .upload-dropzone {
   align-items: center;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-bg-strong);
   border: 1px dashed rgba(38, 103, 255, 0.22);
   border-radius: var(--radius-md);
   display: flex;
@@ -1301,8 +1320,8 @@ textarea {
 
 .upload-panel__count,
 .selection-pill {
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.82);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
   color: var(--surface-muted);
   display: inline-flex;
@@ -1321,8 +1340,8 @@ textarea {
 }
 
 .upload-panel__note {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   display: grid;
   gap: 4px;
@@ -1350,7 +1369,7 @@ textarea {
 
 .data-table th,
 .data-table td {
-  border-bottom: 1px solid rgba(16, 32, 56, 0.06);
+  border-bottom: 1px solid var(--surface-border);
   padding: 12px 14px;
   text-align: left;
 }
@@ -1362,11 +1381,12 @@ textarea {
 }
 
 .data-table tbody tr {
-  transition: background 140ms ease;
+  background: var(--surface-solid);
+  transition: background var(--motion-fast) var(--ease-out);
 }
 
 .data-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.38);
+  background: var(--accent-soft);
 }
 
 .table-actions {
@@ -1437,8 +1457,8 @@ textarea {
 
 .task-image-preview__badge {
   align-self: center;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.82);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
   color: var(--surface-muted);
   font-size: 0.78rem;
@@ -1452,7 +1472,7 @@ textarea {
   background:
     linear-gradient(180deg, rgba(244, 248, 255, 0.96), rgba(237, 244, 255, 0.86)),
     radial-gradient(circle at top left, rgba(64, 115, 255, 0.12), transparent 38%);
-  border: 1px solid rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--glass-border);
   border-radius: 28px;
   display: flex;
   justify-content: center;
@@ -1479,7 +1499,7 @@ textarea {
 .task-image-preview__overlay {
   align-items: flex-end;
   background: linear-gradient(180deg, rgba(12, 21, 38, 0.02), rgba(12, 21, 38, 0.44));
-  color: #ffffff;
+  color: var(--surface-strong);
   display: flex;
   inset: 0;
   justify-content: flex-start;
@@ -1490,7 +1510,7 @@ textarea {
 .task-image-preview__overlay span {
   backdrop-filter: blur(16px);
   background: rgba(15, 23, 42, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 500;
@@ -1507,7 +1527,7 @@ textarea {
 
 .task-image-preview__empty {
   align-items: center;
-  background: rgba(255, 255, 255, 0.52);
+  background: var(--glass-bg);
   border: 1px dashed rgba(129, 144, 174, 0.32);
   border-radius: 24px;
   display: flex;
@@ -1572,8 +1592,8 @@ textarea {
 }
 
 .task-summary__metric {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   display: grid;
   gap: 4px;
@@ -1601,8 +1621,8 @@ textarea {
 }
 
 .task-summary__objects li {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
   padding: 10px 14px;
@@ -1617,8 +1637,8 @@ textarea {
 
 .context-banner {
   align-items: center;
-  background: rgba(255, 255, 255, 0.56);
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
   display: inline-flex;
   font-size: 0.84rem;
@@ -1646,7 +1666,7 @@ textarea {
 
 .chat-workspace {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.54)),
+    linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg)),
     radial-gradient(circle at top right, rgba(93, 107, 255, 0.08), transparent 28%);
   display: grid;
   gap: 14px;
@@ -1682,8 +1702,8 @@ textarea {
 
 .chat-stream {
   align-content: start;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12));
-  border: 1px solid rgba(255, 255, 255, 0.58);
+  background: linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg));
+  border: 1px solid var(--glass-border);
   border-radius: 28px;
   display: grid;
   gap: 14px;
@@ -1737,8 +1757,8 @@ textarea {
 }
 
 .message-card--assistant {
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.82);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
 }
 
 .message-card--user {
@@ -1946,7 +1966,7 @@ textarea {
 /* ─── Source items ─── */
 
 .source-item {
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--glass-bg);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
@@ -2020,13 +2040,13 @@ textarea {
 .chat-composer {
   backdrop-filter: blur(22px) saturate(160%);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.64)),
+    linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg)),
     radial-gradient(circle at top center, rgba(38, 103, 255, 0.08), transparent 44%);
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--glass-border);
   border-radius: 28px;
   box-shadow:
     0 14px 34px rgba(24, 51, 96, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    inset 0 1px 0 var(--glass-border);
   display: grid;
   gap: 12px;
   padding: 16px 18px 18px;
@@ -2039,9 +2059,9 @@ textarea {
 }
 
 .chat-composer__field textarea {
-  background: rgba(255, 255, 255, 0.74);
+  background: var(--glass-bg-strong);
   border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--glass-border);
   min-height: 56px;
   padding: 14px 16px;
   resize: none;
@@ -2066,8 +2086,8 @@ textarea {
 
 .file-chip {
   align-items: center;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.82);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
   cursor: pointer;
   display: flex;
@@ -2088,7 +2108,7 @@ textarea {
 
 .status-grid p,
 .status-list p {
-  background: rgba(255, 255, 255, 0.56);
+  background: var(--glass-bg);
   border-radius: var(--radius-sm);
   margin: 0;
   padding: 12px 14px;
@@ -2171,6 +2191,7 @@ textarea {
 }
 
 .auth-hero h1 {
+  color: var(--surface-strong);
   font-size: clamp(2.6rem, 5vw, 4.2rem);
   letter-spacing: -0.04em;
   line-height: 0.98;
@@ -2194,8 +2215,8 @@ textarea {
 
 .auth-hero__metric {
   backdrop-filter: blur(16px) saturate(170%);
-  background: rgba(255, 255, 255, 0.48);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: 0 8px 32px rgba(30, 58, 104, 0.08);
   display: grid;
@@ -2323,5 +2344,114 @@ textarea {
 
   .auth-card {
     padding: 20px;
+  }
+}
+
+/* ─── Round 1 foundation components ─── */
+
+.glass-button {
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  box-shadow: var(--glass-shadow);
+  color: var(--surface-strong);
+  min-height: 40px;
+  padding: 10px 18px;
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    background var(--motion-fast) var(--ease-out);
+}
+
+.glass-button:hover:not(:disabled) {
+  background: var(--accent-soft);
+  box-shadow: var(--glow-accent);
+}
+
+.aurora-background {
+  isolation: isolate;
+  min-height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.aurora-background__blob,
+.aurora-background__blob--static {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(77, 141, 255, 0.28), transparent 42%),
+    radial-gradient(circle at 80% 0%, rgba(34, 211, 238, 0.18), transparent 36%);
+  filter: blur(48px);
+  inset: -20%;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.aurora-background__content {
+  position: relative;
+  z-index: 1;
+}
+
+.spotlight-card {
+  --spot-x: 50%;
+  --spot-y: 0%;
+  position: relative;
+}
+
+.spotlight-card::after {
+  background: radial-gradient(220px circle at var(--spot-x) var(--spot-y), rgba(77, 141, 255, 0.18), transparent 55%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, var(--surface-strong) 0%, var(--accent-strong) 45%, var(--surface-strong) 90%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-shift 2.4s var(--ease-out) infinite;
+}
+
+@keyframes shimmer-shift {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.empty-state {
+  align-items: center;
+  color: var(--surface-strong);
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 36px 20px;
+  text-align: center;
+}
+
+.empty-state__art {
+  height: 96px;
+  width: 96px;
+}
+
+.empty-state p {
+  color: var(--surface-muted);
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-text,
+  .aurora-background__blob {
+    animation: none;
+  }
+
+  .shimmer-text {
+    background: none;
+    color: var(--surface-strong);
   }
 }

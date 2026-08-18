@@ -25,11 +25,11 @@ function formatCreatedAt(value) {
 }
 
 export const DEFECT_COLORS = {
-  corrosion: "#d35400",
-  craze: "#ff4d4f",
-  hide_craze: "#722ed1",
+  corrosion: "#f0803c",
+  craze: "#ff6b6e",
+  hide_craze: "#9d6bff",
   surface_attach: "#1890ff",
-  surface_corrosion: "#fa8c16",
+  surface_corrosion: "#ffa940",
   surface_eye: "#13c2c2",
   surface_injure: "#eb2f96",
   surface_oil: "#52c41a",
