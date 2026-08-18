@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
       # GitHub runner 在海外，不用 pyproject 里的清华源
-      - run: uv sync --dev --default-index https://pypi.org/simple
+      # --no-sources：不解析 [tool.uv.sources] 里的本地 ultralytics1 路径
+      - run: uv sync --dev --no-sources --default-index https://pypi.org/simple
       - run: uv run ruff check app/utils/stream_parser.py tests/test_stream_parser.py tests/test_rag_eval.py evals/run_rag_eval.py
       - run: uv run pytest -m "not needs_model and not needs_db" -q
