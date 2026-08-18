@@ -37,7 +37,6 @@ backend/static/results/*
 *.onnx
 *.bin
 *.gguf
-models/
 backend/models/
 ultralytics1/
 
