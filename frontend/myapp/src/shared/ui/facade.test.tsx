@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react"
 import { expect, test, vi } from "vitest"
 
-import { AuroraBackground } from "./AuroraBackground"
+import { DotPattern } from "./magicui/dot-pattern"
+import { InteractiveHoverButton } from "./magicui/interactive-hover-button"
+import { Ripple } from "./magicui/ripple"
 import { BackgroundPaths } from "./BackgroundPaths"
 import { WindTurbineSvg } from "./WindTurbineSvg"
 
@@ -28,7 +30,17 @@ test("background paths and turbine svg render", () => {
   expect(screen.getByRole("img", { name: "停机检修中" })).toHaveAttribute("data-stopped", "true")
 })
 
-test("night aurora sets data-night", () => {
-  render(<AuroraBackground night>夜空</AuroraBackground>)
-  expect(screen.getByText("夜空").closest("[data-night]")).toHaveAttribute("data-night", "true")
+test("round 2R facade primitives render", () => {
+  render(
+    <>
+      <div style={{ height: 80, position: "relative", width: 80 }}>
+        <DotPattern />
+        <Ripple numCircles={2} />
+      </div>
+      <InteractiveHoverButton>登录</InteractiveHoverButton>
+    </>,
+  )
+
+  expect(document.querySelector(".animate-ripple, [class*='ripple']")).toBeTruthy()
+  expect(screen.getByRole("button", { name: "登录" })).toBeInTheDocument()
 })

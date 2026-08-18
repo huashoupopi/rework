@@ -7,10 +7,10 @@ export const antdTheme = {
   token: {
     borderRadius: 18,
     colorPrimary: "#4d8dff",
-    colorBgContainer: "#0f1626",
-    colorBgElevated: "#0f1626",
+    colorBgContainer: "#141d33",
+    colorBgElevated: "#141d33",
     colorBgLayout: "transparent",
-    colorBorder: "rgba(255, 255, 255, 0.10)",
+    colorBorder: "rgba(148,180,255,0.14)",
     controlHeight: 40,
     fontFamily: '"SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif',
   },
