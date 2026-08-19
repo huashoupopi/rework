@@ -1,25 +1,24 @@
 import asyncio
-import io
 import logging
 import re
 import time
-import uuid
-from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import StreamingResponse
-from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.chat_lock import release_chat_lock
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal, get_db
 from app.core.rate_limit import rate_limit
 from app.core.redis import get_redis
 from app.crud import chat as chat_crud
-from app.models import task, user
+from app.models import user
 from app.routers.auth import get_current_user
 from app.schemas.chat import ChatHistoryResponse, ChatMessageSchema
+from app.services.chat_guard import authorize_then_lock
+from app.services.image_guard import persist_chat_images, prepare_upload_images
 from app.services.rag_service import RagService
 from app.utils.stream_parser import ThinkStreamParser
 
@@ -50,32 +49,7 @@ def _deduplicate_content(content: str) -> str:
 
 router = APIRouter(tags=["chat"])
 
-_ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
-_MAX_IMAGE_SIZE_MB = 10
 _USER_IMAGE_QUOTA = 100  # 每个用户最多保留 100 张聊天图片
-
-
-def _strip_and_reencode(image_bytes: bytes, suffix: str) -> bytes:
-    """
-    剥离 EXIF 元数据 + 重编码图片。
-
-    为什么需要这一步？
-    - EXIF 字段可以嵌入任意文本（ImageDescription、UserComment 等）
-    - Pillow 重新保存时会自动丢弃 EXIF 和隐藏数据
-    - 重编码还能消除某些图片格式的隐写术载荷
-
-    为什么不只用 piexif.remove()？
-    - piexif 只处理 EXIF，不处理其他元数据（XMP、IPTC）
-    - 重编码是更彻底的方案：所有非像素数据都丢弃
-    """
-    img = Image.open(io.BytesIO(image_bytes))
-    # 转为 RGB（去除 alpha 通道中可能的隐藏数据）
-    if img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
-    buf = io.BytesIO()
-    fmt = "PNG" if suffix.lower() == ".png" else "JPEG"
-    img.save(buf, format=fmt, quality=90)
-    return buf.getvalue()
 
 
 @router.post("/chat/stream")
@@ -106,119 +80,78 @@ async def chat_stream(
         requested_image_count,
     )
 
-    # 限流
+    # 限流、图片校验必须在加锁前完成
     await rate_limit(current_user.id, "chat_stream", limit=10, window=60)
-    # 分布式锁
+    prepared_images = await prepare_upload_images(images)
+
     r = get_redis()
-    lock_key = f"lock:chat:{current_user.id}"
-    acquired = await r.set(lock_key, "1", ex=120, nx=True)
-    if not acquired:
-        logger.warning(
-            "chat event=lock_conflict user_id=%d task_id=%s",
-            current_user.id,
-            task_id,
-        )
-        raise HTTPException(status_code=409, detail="上一条消息还在生成中，请稍后")
+    owned_task, lock_token = await authorize_then_lock(db, r, current_user, task_id)
 
-    # 1. 处理上传图片 - 按用户分目录存储
-    uploaded_image_paths: list[tuple[str, str | None]] = []
-    if images:
-        # 用户专属目录：static/uploads/chat/{user_id}/
-        user_chat_dir = Path(settings.UPLOAD_DIR) / "chat" / str(current_user.id)
-        user_chat_dir.mkdir(parents=True, exist_ok=True)
-
-        for img_file in images:
-            if not img_file.filename:
-                continue
-            if img_file.content_type not in _ALLOWED_IMAGE_TYPES:
-                raise HTTPException(
-                    status_code=400, detail=f"不支持的图片类型: {img_file.content_type}"
+    try:
+        uploaded_image_paths: list[tuple[str, str | None]] = []
+        if prepared_images:
+            uploaded_image_paths = persist_chat_images(current_user.id, prepared_images)
+            for relative_path, _original in uploaded_image_paths:
+                logger.info(
+                    "用户上传聊天图片 user_id=%d path=%s",
+                    current_user.id,
+                    relative_path,
                 )
 
-            # 生成唯一文件名：时间戳 + UUID
-            suffix = Path(img_file.filename).suffix or ".jpg"
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            unique_name = f"{timestamp}_{uuid.uuid4().hex[:8]}{suffix}"
-            file_path = user_chat_dir / unique_name
-
-            # 读取并保存
-            content = await img_file.read()
-            if len(content) > _MAX_IMAGE_SIZE_MB * 1024 * 1024:
-                raise HTTPException(
-                    status_code=400, detail=f"图片大小超过 {_MAX_IMAGE_SIZE_MB} MB"
-                )
-
-            # 剥离 EXIF + 重编码
-            content = _strip_and_reencode(content, suffix)
-
-            file_path.write_bytes(content)
-
-            # 存储相对路径（相对于 static/）
-            relative_path = f"uploads/chat/{current_user.id}/{unique_name}"
-            uploaded_image_paths.append((relative_path, img_file.filename))
-
-            logger.info(
-                "用户上传聊天图片 user_id=%d path=%s size_kb=%d",
-                current_user.id,
-                relative_path,
-                len(content) // 1024,
-            )
-
-    # 2. 存user消息 + 关联图片
-    user_message = await chat_crud.create_message(
-        db=db,
-        user_id=current_user.id,
-        role="user",
-        content=question,
-        task_id=task_id,
-        image_paths=uploaded_image_paths if uploaded_image_paths else None,
-    )
-
-    # 3. 清理超出配额的旧图片
-    if uploaded_image_paths:
-        await _enforce_user_image_quota(db, current_user.id)
-
-    # 4. 获取会话窗口
-    session_messages: list[dict[str, str]] = []
-    if settings.RAG_SESSION_MEMORY_ENABLED:
-        history = await chat_crud.get_recent_chat_windows(
+        # 2. 存user消息 + 关联图片
+        user_message = await chat_crud.create_message(
             db=db,
             user_id=current_user.id,
+            role="user",
+            content=question,
             task_id=task_id,
-            turns=settings.RAG_SESSION_WINDOW_TURNS,
-            before_message_id=user_message.id,
+            image_paths=uploaded_image_paths if uploaded_image_paths else None,
         )
-        for msg in history:
-            if msg.role in ("user", "assistant"):
-                session_messages.append({"role": msg.role, "content": msg.content})
 
-    # 5. 获取图片上下文
-    image_context: dict | None = None
-    if task_id:
-        task_ = await db.get(task.Task, task_id)
-        if task_ and task_.detect_result:
-            image_context = task_.detect_result
-
-    # 6. 准备视觉模型图片路径
-    vision_image_paths: list[str] = []
-    if settings.LLM_IS_VISION_MODEL:
+        # 3. 清理超出配额的旧图片
         if uploaded_image_paths:
-            # 用户上传的图片（转回绝对路径给视觉模型）
-            static_dir = Path(settings.BASE_DIR).parent / "static"
-            vision_image_paths = [
-                str(static_dir / rel_path) for rel_path, _ in uploaded_image_paths
-            ]
-        elif task_id and task_:
-            # 引用任务图片
-            if task_.original_path:
-                task_img_path = Path(settings.BASE_DIR).parent / "static" / task_.original_path
+            await _enforce_user_image_quota(db, current_user.id)
+
+        # 4. 获取会话窗口
+        session_messages: list[dict[str, str]] = []
+        if settings.RAG_SESSION_MEMORY_ENABLED:
+            history = await chat_crud.get_recent_chat_windows(
+                db=db,
+                user_id=current_user.id,
+                task_id=task_id,
+                turns=settings.RAG_SESSION_WINDOW_TURNS,
+                before_message_id=user_message.id,
+            )
+            for msg in history:
+                if msg.role in ("user", "assistant"):
+                    session_messages.append({"role": msg.role, "content": msg.content})
+
+        # 5. 获取图片上下文（只信鉴权过的任务）
+        image_context: dict | None = None
+        if owned_task and owned_task.detect_result:
+            image_context = owned_task.detect_result
+
+        # 6. 准备视觉模型图片路径
+        vision_image_paths: list[str] = []
+        if settings.LLM_IS_VISION_MODEL:
+            if uploaded_image_paths:
+                static_dir = Path(settings.BASE_DIR).parent / "static"
+                vision_image_paths = [
+                    str(static_dir / rel_path) for rel_path, _ in uploaded_image_paths
+                ]
+            elif owned_task and owned_task.original_path:
+                task_img_path = Path(settings.BASE_DIR).parent / "static" / owned_task.original_path
                 if task_img_path.exists():
                     vision_image_paths = [str(task_img_path)]
 
-    if vision_image_paths:
-        logger.info("视觉模型将使用 %d 张图片", len(vision_image_paths))
+        if vision_image_paths:
+            logger.info("视觉模型将使用 %d 张图片", len(vision_image_paths))
 
-    # 8. 流式生成器
+    except BaseException:
+        await release_chat_lock(r, current_user.id, lock_token)
+        raise
+
+    # 8. 流式生成器。锁只在 generator.finally 释放，不能包在路由外层 finally
     async def event_generator():
         full_response = ""
         parser = ThinkStreamParser()
@@ -440,7 +373,7 @@ async def chat_stream(
                     len(full_response),
                     total_ms,
                 )
-                await r.delete(lock_key)
+                await release_chat_lock(r, current_user.id, lock_token)
 
     return StreamingResponse(
         event_generator(),

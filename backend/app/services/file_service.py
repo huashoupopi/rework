@@ -1,6 +1,5 @@
 import io
 import logging
-import shutil
 import uuid
 import zipfile
 from pathlib import Path
@@ -8,6 +7,7 @@ from pathlib import Path
 from fastapi import HTTPException, UploadFile
 
 from app.models.task import Task
+from app.services.image_guard import prepare_image_bytes
 
 logger = logging.getLogger(__name__)
 UPLOAD_DIR = Path("static/uploads")
@@ -21,12 +21,12 @@ class FileService:
         file_name = file.filename
         if not file_name:
             raise HTTPException(status_code=400, detail="文件名不能为空")
-        file_extension = Path(str(file_name)).suffix
-        save_name = f"{task_uuid}{file_extension}"
+        content = await file.read()
+        prepared = prepare_image_bytes(content, file_name)
+        save_name = f"{task_uuid}{prepared.suffix}"
         save_path = UPLOAD_DIR / save_name
         UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        with open(save_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        save_path.write_bytes(prepared.content)
         return task_uuid, file_name, str(save_path)
 
     @staticmethod

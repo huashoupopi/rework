@@ -71,7 +71,8 @@ async def run_knowledge_rebuild(
             stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
         except TimeoutError:
             process.kill()
-            raise RuntimeError(f"知识库重建超时，超过 {timeout} 秒") from TimeoutError
+            await process.wait()
+            raise RuntimeError(f"知识库重建超时，超过 {timeout} 秒") from None
         elapsed = round(time.perf_counter() - start, 1)
 
         if process.returncode != 0:

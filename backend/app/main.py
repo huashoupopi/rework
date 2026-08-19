@@ -1,7 +1,6 @@
 import logging
 import os
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import AsyncGenerator
 
 from app.core.config import settings
@@ -16,10 +15,9 @@ os.environ["HUGGINGFACE_HUB_CACHE"] = settings.HUGGINGFACE_HUB_CACHE
 os.environ["LLAMA_INDEX_CACHE_DIR"] = settings.HF_HOME
 
 from fastapi import FastAPI, HTTPException  # noqa: E402
-from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-from fastapi.staticfiles import StaticFiles  # noqa: E402
 from sqlalchemy import text as sa_text  # noqa: E402
 
+from app.core.cors import apply_cors  # noqa: E402
 from app.core.database import engine, init_models  # noqa: E402
 from app.core.logging import setup_logging  # noqa: E402
 from app.core.redis import (  # noqa: E402
@@ -28,18 +26,12 @@ from app.core.redis import (  # noqa: E402
     init_redis,
 )
 from app.core.request_context import RequestContextMiddleware  # noqa: E402
-from app.routers import auth, chat, knowledge, task, user  # noqa: E402
+from app.core.static_paths import ensure_static_dir, mount_public_static  # noqa: E402
+from app.routers import auth, chat, knowledge, media, task, user  # noqa: E402
 from app.services.rag_service import RagService  # noqa: E402
 
 # 给每一个文件一个独立的logger，方便定位来源
 logger = logging.getLogger(__name__)
-
-APP_DIR = Path(__file__).resolve().parent
-
-if (APP_DIR.parent / "static").exists():
-    STATIC_DIR = APP_DIR.parent / "static"
-else:
-    STATIC_DIR = Path("app/static").resolve()
 
 
 @asynccontextmanager
@@ -66,19 +58,11 @@ app.include_router(user.router, prefix="/api")
 app.include_router(task.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
 app.include_router(knowledge.router, prefix="/api")
-# 挂载静态文件
-if not STATIC_DIR.exists():
-    os.makedirs(STATIC_DIR)
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-# 配置跨域
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.include_router(media.router, prefix="/api")
+# 只挂公开目录。uploads/results 必须走鉴权 FileResponse
+ensure_static_dir()
+mount_public_static(app)
+apply_cors(app)
 app.add_middleware(RequestContextMiddleware)
 
 

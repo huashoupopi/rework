@@ -121,16 +121,22 @@ async def get_current_version(
     db: AsyncSession, document_id: int
 ) -> KnowledgeDocumentVersion | None:
     """获取文档的当前版本（is_current=True）。"""
-    stmt = (
-        select(KnowledgeDocumentVersion)
-        .where(
-            KnowledgeDocumentVersion.document_id == document_id,
-            KnowledgeDocumentVersion.is_current == True,  # noqa: E712
-        )
-        .limit(1)
+    versions = await get_current_versions_map(db, [document_id])
+    return versions.get(document_id)
+
+
+async def get_current_versions_map(
+    db: AsyncSession, document_ids: list[int]
+) -> dict[int, KnowledgeDocumentVersion]:
+    """一次查出多个文档的当前版本，避免列表接口 N+1。"""
+    if not document_ids:
+        return {}
+    stmt = select(KnowledgeDocumentVersion).where(
+        KnowledgeDocumentVersion.document_id.in_(document_ids),
+        KnowledgeDocumentVersion.is_current == True,  # noqa: E712
     )
     result = await db.execute(stmt)
-    return result.scalar_one_or_none()
+    return {row.document_id: row for row in result.scalars().all()}
 
 
 async def mark_old_versions_not_current(db: AsyncSession, document_id: int) -> int:
