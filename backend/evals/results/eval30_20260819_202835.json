@@ -1,0 +1,68 @@
+{
+  "summary": {
+    "total_cases": 4,
+    "passed_cases": 4,
+    "pass_rate": 1.0
+  },
+  "layers": {
+    "multi_turn": {
+      "total": 4,
+      "passed": 4,
+      "errors": 0
+    }
+  },
+  "results": [
+    {
+      "case_id": "RW01",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 20078.4,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "叶片腐蚀（尤其前缘雨蚀/腐蚀）的修复，应先按严重程度判定，再按工艺处理。\n\n**严重等级（上下文）：**\n- **轻度**：面积 &lt; 0.1 m²，深度 &lt; 1 mm  \n- **中度**：面积 0.1～0.5 m²，深度 1～3 mm  \n- **重度**：面积 &gt; 0.5 m² 或深度 &gt; "
+    },
+    {
+      "case_id": "RW02",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 20252.2,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "隐裂（Hide Craze）肉眼通常不可见，需依赖专业设备检测。上下文中的主要方法如下：\n\n**常用检测方法：**\n- **敲击法**：听空鼓音\n- **相控阵超声波检测（PAUT）**：可生成截面（B-scan）图像，精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一\n- **超声波扫描**\n- **"
+    },
+    {
+      "case_id": "RW03",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 19237.8,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片修复质量验收标准如下：\n\n| 检查项目 | 合格标准 |\n|---|---|\n| 表面平整度 | 与原叶片轮廓偏差 < 1 mm/m |\n| 涂层附着力 | 划格测试 0 级（无脱落） |\n| 修复区硬度 | 邵氏 D 硬度 ≥ 75 |\n| 超声检测 | 无内部空洞或分层 |\n| 导雷系统 | 接地电"
+    },
+    {
+      "case_id": "RW04",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 16577.2,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，风机叶片**腐蚀（Corrosion）**的轻度划分标准为：\n\n- **轻度**：面积 < 0.1 m²，深度 < 1 mm\n\n补充对应信息：中度为面积 0.1~0.5 m²、深度 1~3 mm；重度为面积 > 0.5 m² 或深度 > 3 mm（需停机修复）。\n\n另在前缘侵蚀（Erosion）分类中，**"
+    }
+  ]
+}
