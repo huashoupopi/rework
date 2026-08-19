@@ -199,11 +199,190 @@ antd 5 开 `theme.darkAlgorithm`,并通过 `ConfigProvider` 把 `colorPrimary` /
 | 轮次 | 内容 | 出口 |
 |---|---|---|
 | **轮次 1 地基** | tsconfig + shadcn init + 深色 token + antd 同源 + 组件库 9 件 + `GlassPanel` 转发 | 129/129 绿、build 过、全站「变暗但不崩」 |
-| **轮次 2 门面** | 登录 / 注册 / 404 / AppShell + 对应彩蛋 | 🚩 **检查点 ①:所有者看图定方向**(此时返工最便宜) |
+| **轮次 2 门面** | 登录 / 注册 / 404 / AppShell + 对应彩蛋 | 🚩 检查点 ①——**2026-08-19 已执行:技术验收过(138/138、build 过、three 真懒加载、主包增量 39KB gzip),观感判定「太朴素」,退回** |
+| ~~轮次 2.5 风格实验~~ | ~~`/style-lab` 实验页~~ | ❌ **已作废**——所有者在 21st.dev 现场否掉了 shader 方向,无需再做实验页 |
+| **轮次 2R 视觉返工**(08-19,见 §九-c) | 换配色 + 装 Magic UI / Motion Primitives + 用新组件重做门面页 | 🚩 检查点 ①-b:所有者看图定案 |
 | 轮次 3 业务页 | 首页 / 任务中心 / 任务详情 / 知识库三页 / 用户管理 + 彩蛋 | 每页截图 |
-| 轮次 4 聊天页 | Agent Elements 零件接入 | 🚩 **检查点 ②:全站截图终审** |
+| ~~轮次 4 聊天页~~ | ~~Agent Elements 零件接入~~ | ❌ **2026-08-19 作废**:聊天页已在轮次 3 用批准组件完成;且 Agent Elements 属**第三个组件库**,与 §九-c「只用 Magic UI + Motion Primitives」的一致性约束冲突。**风格一致优先于单个组件**,故不引入。前端至此收工。 |
 
 **每轮一 commit 组,轮末跑全量测试 + build。轮次 1 未过出口条件,不得进入轮次 2。**
+
+---
+
+## 九-b、轮次 2 退回的根因诊断与轮次 2.5 规格(2026-08-19)
+
+### 根因(实测,非主观判断)
+
+轮次 2 观感被判「太朴素、像纯黑、没有特效」。查代码,原因是**参数过于保守**,不是实现缺失:
+
+1. **底色实为近黑**:`--app-bg` 基色 `#070b14` = RGB(7,11,20),亮度约 4%,肉眼即纯黑。
+2. **辉光透明度仅 0.16 / 0.10**:叠在 4% 亮度的底上几乎不可见——这解释了「轮次 1 和轮次 2 背景看着一样」。
+3. **`AuroraBackground` 仅 31 行、单个色块**:一个 `motion.div` 在 ±8% 内做约 4 秒循环位移,是缓慢光斑,不是极光。
+4. **完全缺三层**:噪点颗粒层、粒子层、真正的着色器背景。
+
+> 🪝 **教训**:token 化把「改起来容易」解决了,没解决「该调到多少」。**视觉强度必须看真实渲染定,不能在文档里拍数值。**
+
+### 轮次 2.5:`/style-lab` 实验页规格
+
+**目的**:止住「AI 猜 → 所有者说不对 → 再猜」的循环。所有者从**真实运行的效果**里选,而不是从文字描述里选。
+
+**硬要求**:
+
+- **路由仅开发环境可见**(`import.meta.env.DEV` 条件注册),不得进入生产构建,不得挂在 `ProtectedRoute` 下。
+- **4 套背景方案必须实质不同**,不得是同一方案调参:
+  - **A 纯 CSS/Canvas**:有色深靛蓝底 + 三色相强辉光(alpha ≥0.35)+ 噪点颗粒层。零新依赖。
+  - **B 真着色器**:流动渐变(参考 21st.dev shader 分类,如 Stripe-like gradient / Grain Gradient)+ 噪点。
+  - **C 粒子星野**:canvas 缓慢漂浮粒子 + 极光带。
+  - **D 工业科技风**:动态线条/网格 + 辉光节点(Background Paths 一路)。
+- ⛔ **四套的底色一律不许用近黑**(基色亮度须明显高于 `#070b14`,要有可辨识的色相)。
+- **3 套玻璃卡片样式**:①现状(1px 白边)②渐变描边 + 内发光 ③光斑跟随 + 强模糊 + 高光角。
+- **每套背景上必须压真实内容**(一张登录表单卡 + 中文标题 + 中文正文),以便**在真实对比度下判断可读性**,不许只看空背景。
+- 提供实时开关:粒子密度、噪点强度、动效总开关(用于预览 `prefers-reduced-motion` 效果)。
+- 每套背景各截一张图存 `screenshots/lab-bg-{a,b,c,d}.png`。
+
+**出口**:测试与 build 保持绿;所有者选定「背景 X + 卡片 Y」后写回本文档,再开轮次 2.6(把选定组合铺到门面页)。
+
+---
+
+## 九-c、视觉方案定案(2026-08-19,取代 §九-b 的实验页方案)
+
+### 决策变更
+
+§九-b 的 `/style-lab` 实验页**作废,不再执行**。原因:所有者在 21st.dev 现场看过 shader 候选后,判定那一路(高饱和流动渐变、粒子星野)**"太浮夸、颜色诡异"**,方向本身被否,再做四套实验页是浪费。
+
+同时**放弃自研 shader 背景**,改为**复用成熟开源组件库**。
+
+### 定调:两条否决线(本节最高优先级,后续所有视觉决策以此为准)
+
+> **❌ 否决**:大面积高饱和炫彩(紫/粉/荧光绿/霓虹)、静止画面动个不停、颜色诡异。
+> **✅ 要的**:低饱和深蓝灰底 + **动效藏在交互里**——静止时安静克制,鼠标悬停、点击、滚动进场时才有反馈。
+
+**这条统一了所有者前后两次看似矛盾的反馈**:说轮次 2「太朴素」是因为**细节密度不够**;说 shader 候选「太浮夸」是因为**静止时颜色太满**。两者不冲突,目标是**静时克制、动时有惊喜**。
+
+参考物是 DeepSeek Harness 官网(`deepseek.com/harness`,实测其实现为 WebGL2 着色器 + 2D canvas 点阵叠层)。⚠️ **参考的是"低饱和 + 交互光影"的调性,不是照抄**——所有者明确说过不必做成那样。
+
+### 选定组件库(只用这两个,保证风格一致)
+
+| 库 | 装机量 | 选它的理由 |
+|---|---|---|
+| **Magic UI** (`@dillionverma`) | 4.4M 浏览 / 22.3K 收藏 | 组件**自身不带颜色**(中性黑白灰 + 调用方指定强调色),不会引入"诡异颜色" |
+| **Motion Primitives** (`@ibelick`) | 2.6M 浏览 / 13.5K 收藏 | 以克制、精致的动效原语著称,正是"低调有内涵" |
+
+⛔ **禁止从第三个库引入组件**,除非先更新本节。风格一致性优先于单个组件的好看程度。
+
+两者都建在 Tailwind + `motion` 之上,而 `motion` 轮次 1 已装,**新增运行时依赖预期为 0**。
+
+### 配色定案(直接替换 `src/index.css` 的 `:root`)
+
+根因诊断(§九-b)已确认旧底色 `#070b14` 亮度仅 4%、等同纯黑。新方案**抬亮底色 + 温和辉光**:
+
+```css
+--app-bg:
+  radial-gradient(1200px 600px at 15% -10%, rgba(77,141,255,0.20), transparent 60%),
+  radial-gradient(900px 500px at 85% 0%,   rgba(56,189,248,0.12), transparent 55%),
+  linear-gradient(180deg, #101a30 0%, #0f172a 55%, #0b1220 100%);
+
+--surface-strong: #e6edfb;
+--surface-muted:  rgba(230,237,251,0.60);
+--surface-solid:  #141d33;                  /* 表格行实底,比底色略亮以分层 */
+--surface-border: rgba(148,180,255,0.14);   /* 边框带蓝相,不用纯白 */
+
+--glass-bg:     rgba(140,175,255,0.07);     /* 玻璃带蓝相,不是纯白蒙版 */
+--glass-border: rgba(160,195,255,0.16);
+
+--accent:       #4d8dff;                     /* 保留不动:theme.js 与 theme-tokens.test.js 已锁 */
+--accent-cyan:  #38bdf8;                     /* 由 #22d3ee 降下来,去荧光感 */
+--glow-accent:  0 0 24px rgba(77,141,255,0.35);
+
+--noise-opacity: 0.025;                      /* 全局噪点层,极淡,消色带 */
+```
+
+> 🪝 **关键判断**:辉光透明度取 0.20 / 0.12,**没有采用 §九-b 提的 0.35**。那个数值的前提是黑底;现在底色抬到 `#0f172a`(L\*≈15),再叠强辉光就会滑向"浮夸"。**抬底色 + 温和辉光**才是高级深色 UI 的做法,黑底 + 强辉光反而显脏。
+
+### 选定组件与页面映射
+
+| 用途 | 组件 | 来源 | 落点 |
+|---|---|---|---|
+| 鼠标光影 | `Spotlight`(导出 `BorderGlowSpotlight`) | Motion Primitives | 登录卡、首页快捷入口卡、任务卡 |
+| 水波 | `Ripple` | Magic UI | 登录页风机背后、检测完成态 |
+| 底纹 | `Dot Pattern` | Magic UI | 全站底层,极淡 |
+| 边框流光 | `Border Trail` | Motion Primitives | 登录表单、**"检测中"状态**(兼作状态指示) |
+| 主按钮 | `Interactive Hover Button` | Magic UI | 全站主行动按钮 |
+| 点击反馈 | `Ripple Button` | Magic UI | 次级按钮 |
+| 卡片氛围 | `Meteors` | Magic UI | 首页/空状态卡(稀疏、慢速,仅卡片范围内) |
+| 光标 | `Smooth Cursor` / `Pointer` | Magic UI | 全站 / 局部彩蛋 |
+| 文字微光 | `Animated Shiny Text` | Magic UI | 加载态、强调文案 |
+| 流式文字 | `Text Shimmer Wave` | Motion Primitives | 问诊页流式输出 |
+| 标题 | `Line Shadow Text` | Magic UI | 页面主标题 |
+| 数字 | `Sliding Number` | Motion Primitives | **替换现有 `AnimatedNumber`**,首页指标 |
+| 滚动入场 | `In view` | Motion Primitives | 列表、卡片组 |
+| 面板切换 | `Transition Panel` | Motion Primitives | 标签页 |
+| 边缘渐隐 | `Progressive Blur` | Motion Primitives | 长列表上下边缘 |
+| 彩蛋 | `Scratch To Reveal` / `Comic Text` / `Morphing Text` / `Pixel Image` | Magic UI | 见彩蛋清单 |
+| 工业底纹备选 | `Flickering Grid` / `Animated Grid Pattern` | Magic UI | 仅备选,默认不用 |
+
+### 既有组件处置
+
+- **`AuroraBackground`**:废弃。由新 `--app-bg` + `Dot Pattern` + `Spotlight` 取代。删除组件与其引用。
+- **`WindTurbine3D`**:**保留并放大**。理由:风机是产品身份,不是炫技。要求——填满登录页左侧视觉区、材质改**低饱和深蓝灰金属 + 细边缘光**(不要高亮塑料感)、转速放慢、维持 `React.lazy` 懒加载不变。
+
+### 安装方式与两个已知坑
+
+```bash
+# Magic UI(命名空间形式)
+pnpm dlx shadcn@latest add @magicui/ripple
+# Motion Primitives(完整 URL 形式)
+npx shadcn@latest add "https://motion-primitives.com/c/spotlight.json"
+```
+
+> ⚠️ **坑 1:Tailwind 4 与 shadcn CLI**。motion-primitives 有已知 issue(ibelick/motion-primitives#112),在 Tailwind v4 项目下 CLI 可能报 `Cannot read properties of undefined (reading 'resolvedPaths')`。我们正是 Tailwind 4。**允许手动复制源码兜底**(组件均为单文件 MIT 开源),不必卡在 CLI 上。
+
+> ⚠️ **坑 2:Magic UI 文档要求改 `tailwind.config.js`**(如 `Ripple` 需要注册 `ripple` keyframes)。**我们是 Tailwind 4,没有这个文件**,配置在 CSS 里。必须把文档给的 keyframes/animation **翻译成 CSS `@theme` / `@keyframes` 写进 `index.css`**,不要凭空创建 `tailwind.config.js`。
+
+### 验收
+
+- 138 个既有测试保持绿;新增组件补基础渲染测试。
+- `theme-tokens.test.js` 必须同步更新并通过(改了 CSS 变量就要对齐 `theme.js`)。
+- `pnpm build` 通过;主包 gzip 增量仍在 80KB 预算内。
+- **观感自检(交付前 Grok 自己先过一遍)**:截图静止态,若画面"颜色很满、到处在动",就是踩了否决线,自行回收强度再交。
+
+### ✅ 轮次 2R 验收通过(2026-08-19 01:30 架构台实测)
+
+**技术面全项通过**:138/138 测试绿;`pnpm build` 过;**运行时依赖零新增**(仍只有 `motion` + `three`);未创建影子 `tailwind.config`(坑 2 避开);`AuroraBackground` 已删且无残留引用;`:root` 各变量与 §九-c 定案逐项一致;组件 21 个(Magic UI 14 + Motion Primitives 7)全部来自批准的两个库。
+
+**一处优于本规格**:§九-c 只要求保留并放大 3D 风机,实现改为**渐进增强**——`WindTurbineSvg` 作 Suspense 兜底先秒出,`three.js` 加载完再升级为 3D;404 与侧栏 logo 直接用 SVG,避免为小图标拉入 ~700KB 的 three。**采纳,后续以此为准。**
+
+**观感通过**:底色为有层次的深蓝灰而非纯黑,标题断行已修,门面页构图平衡,符合 §九-c 两条否决线。
+
+### 📌 轮次 3 必须一并修掉的四项(架构台 2026-08-19 实测)
+
+1. **404「停机检修中」重复**:`NotFoundPage.tsx` 第 17 行 `sign="停机检修中"` 与第 19 行标题重复。⚠️ **此项在轮次 2 已提出但未修**,本轮必须闭环。
+2. **两个效果被压到阈值以下,装了等于没装**:
+   - `DotPattern`:`--auth-page__dots` 颜色 alpha 0.22 × opacity 0.4 = **有效 0.088**
+   - `Ripple`:`mainCircleOpacity = 0.08`
+   - 二者在截图中完全不可见。
+   > 🪝 **教训**:工单强调"不浮夸"导致实现方**把所有效果一律压到看不见**,又滑回"太朴素"一侧。否决线是**禁止大面积高饱和**,不是"一切从淡"。**交互态与底纹应当可辨识**,判据是:静止截图上肉眼能看出底纹存在,但不抢注意力。
+3. **登录页风机上下被裁切**,且呈近黑剪影,§九-c 要求的"细边缘光"未实现,失去金属质感。
+4. **AppShell「当前账号」卡**内"上传/复核/追问"三标签排布仍不规整,竖线与"复核"的关系不明确。
+
+### 轮次 3:业务页(经所有者裁定,不再设检查点)
+
+剩余 8 页,一次做完:`HomePage`、`TaskCenterPage`、`TaskDetailPage`、`ChatPage`、`KnowledgeDocumentsPage`、`KnowledgeChunkConfigsPage`、`KnowledgeRebuildPage`、`UsersPage`。组件落点见 §九-c 映射表。
+
+### ✅ 轮次 3 验收通过 —— 前端批次 1 收工(2026-08-19 01:56 架构台实测)
+
+提交 `a5c4d5b`。**139/139 测试绿;`pnpm build` 过;主包 gzip 127.00KB**(较轮次 2R 的 126.60KB 仅增 0.4KB——8 个页面几乎未进主包,路由拆分生效)。10 张 `round3-*.png` 截图齐备。
+
+**四项待修全部闭环**:
+
+1. 404 重复文案已去(仅保留牌子上一处)。
+2. 效果强度已提到可辨识:`DotPattern` 有效透明度 0.088 → **0.31**(0.5 × 0.62);`Ripple` `mainCircleOpacity` 0.08 → **0.24**,尺寸 180→220,圈数 4→6。截图中底纹肉眼可见且不抢注意力,符合判据。
+3. `WindTurbine3D` 材质已改(diff 46 行)。
+4. 「当前账号」三标签重排为整齐的竖向时间线。
+
+**一处记录**:`KnowledgeRebuildPage.jsx` 本轮未直接改动,其视觉由共享的 `PageWorkband` 与 `index.css`(本轮改 204 行)承接。经查截图 `round3-rebuild.png` 风格与其余页一致,**判定合规**——页面级一致性可由共享层达成,不强求每页都直接 import 新组件。
+
+**前端至此收工**,轮次 4 已作废(见总览表)。后续进入批次 2(后端安全)。
 
 ---
 
