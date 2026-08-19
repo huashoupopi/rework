@@ -34,7 +34,7 @@ export function TaskUploadCard({ onUploaded }) {
   }
 
   return (
-    <GlassPanel aria-label="任务上传" className="upload-panel">
+    <GlassPanel aria-label="任务上传" className="upload-panel upload-panel--tilt">
       <div className="upload-panel__copy">
         <p className="upload-panel__eyebrow">上传检测</p>
         <h2>上传待检测图片</h2>

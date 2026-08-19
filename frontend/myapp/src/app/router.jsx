@@ -30,6 +30,7 @@ const LazyKnowledgeChunkConfigsPage = lazyPage(
   "KnowledgeChunkConfigsPage",
 )
 const LazyUsersPage = lazyPage(() => import("../pages/UsersPage.jsx"), "UsersPage")
+const LazyNotFoundPage = lazyPage(() => import("../pages/NotFoundPage.tsx"), "NotFoundPage")
 
 export const routes = [
   {
@@ -86,6 +87,10 @@ export const routes = [
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: withPageFallback(<LazyNotFoundPage />),
   },
 ]
 

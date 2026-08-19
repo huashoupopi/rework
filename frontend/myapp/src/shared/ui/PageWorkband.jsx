@@ -1,5 +1,7 @@
 import * as React from "react"
 
+import { LineShadowText } from "@/shared/ui/magicui/line-shadow-text"
+
 export function PageWorkband({
   actions,
   aside,
@@ -20,7 +22,15 @@ export function PageWorkband({
       <div className="page-workband__main">
         <div className="page-workband__copy">
           {eyebrow ? <p className="page-workband__eyebrow">{eyebrow}</p> : null}
-          <h1>{title}</h1>
+          <h1>
+            {typeof title === "string" ? (
+              <LineShadowText as="span" shadowColor="rgba(77,141,255,0.28)">
+                {title}
+              </LineShadowText>
+            ) : (
+              title
+            )}
+          </h1>
           {description ? <p className="page-workband__description">{description}</p> : null}
           {supporting ? <p className="page-workband__supporting">{supporting}</p> : null}
         </div>

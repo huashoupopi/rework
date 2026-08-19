@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 # 为什么做输出分离？ UserCreate含密码，UserPublic不含密码，避免泄露敏感信息
 # from_attributes=True 让pydantic模型可以直接从ORM对象创建实例，避免手动转换
@@ -13,7 +13,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(min_length=8, max_length=128)
     model_config = ConfigDict(extra="forbid")
 
 

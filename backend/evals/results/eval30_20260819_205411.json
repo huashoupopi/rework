@@ -1,0 +1,572 @@
+{
+  "summary": {
+    "total_cases": 36,
+    "passed_cases": 35,
+    "pass_rate": 0.97
+  },
+  "layers": {
+    "retrieval": {
+      "total": 10,
+      "passed": 9,
+      "errors": 0,
+      "mean_hit_at_10": 0.967,
+      "mean_hit_at_5": 0.967,
+      "mean_mrr": 0.747
+    },
+    "generation": {
+      "total": 8,
+      "passed": 8,
+      "errors": 0
+    },
+    "guardrail": {
+      "total": 10,
+      "passed": 10,
+      "errors": 0
+    },
+    "multi_turn": {
+      "total": 4,
+      "passed": 4,
+      "errors": 0
+    },
+    "routing": {
+      "total": 4,
+      "passed": 4,
+      "errors": 0
+    }
+  },
+  "results": [
+    {
+      "case_id": "R01",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 24036.3,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.5,
+        "term_ranks": {
+          "敲击法": 2,
+          "超声波": 2,
+          "热像仪": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "隐裂（Hide Craze）肉眼不可见，需依赖专业设备检测。根据上下文，常用检测方法如下：\n\n**主要检测方法**\n- **敲击法（空鼓音）**\n- **超声波扫描**\n- **相控阵超声波检测（PAUT）**：可生成截面（B-scan），精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一\n- **热像"
+    },
+    {
+      "case_id": "R02",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 22090.5,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.5,
+        "term_ranks": {
+          "V 型开槽": 2,
+          "环氧树脂": 2,
+          "玻璃纤维布": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片裂纹修复可按下列关键步骤进行：\n\n**修复前准备**\n1. 停机并锁定叶轮（机械制动 + 变桨锁定）\n2. 检查天气：风速 &lt; 8 m/s，温度 5~35°C，相对湿度 &lt; 80%\n3. 安全防护：高处作业绳索系统，至少 2 人协作\n4. 准备材料：环氧树脂、玻璃纤维布、砂纸（80/120/"
+    },
+    {
+      "case_id": "R03",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 21335.8,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.3,
+        "term_ranks": {
+          "环氧腻子": 5,
+          "底漆": 5,
+          "丙酮": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，风机叶片腐蚀可按下列方式修复：\n\n**修复前准备**\n1. 停机并锁定叶轮（机械制动 + 变桨锁定）\n2. 检查天气：风速 &lt; 8 m/s，温度 5~35°C，相对湿度 &lt; 80%\n3. 安全防护：高处作业绳索系统，至少 2 人协作\n4. 准备材料：环氧树脂、玻璃纤维布、砂纸（80/120/24"
+    },
+    {
+      "case_id": "R04",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 22219.9,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.67,
+        "term_ranks": {
+          "停机": 1,
+          "导雷系统": 2,
+          "炭化": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片雷击损伤后的关键处理步骤如下：\n\n**紧急响应与评估**\n1. **立即停机（Immediate Shutdown）**：一旦 SCADA 系统显示雷击事件或巡检发现损伤，立即停机并锁定风机。  \n2. **初步安全评估（Preliminary Safety Assessment）**：远程评估损伤的视"
+    },
+    {
+      "case_id": "R05",
+      "layer": "retrieval",
+      "status": "FAIL",
+      "elapsed_ms": 17987.6,
+      "scores": {
+        "pass": false,
+        "hit_at_10": 0.67,
+        "hit_at_5": 0.67,
+        "mrr": 0.67,
+        "term_ranks": {
+          "0.1 m²": null,
+          "3 mm": 1,
+          "停机": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片腐蚀（Corrosion）按面积和深度划分严重等级如下：\n\n**轻度腐蚀**\n- 面积 &lt; 0.1 m²\n- 深度 &lt; 1 mm\n\n**中度腐蚀**\n- 面积 0.1～0.5 m²\n- 深度 1～3 mm\n\n**重度腐蚀**\n- 面积 &gt; 0.5 m²，**或**深度 &gt; 3 m"
+    },
+    {
+      "case_id": "R06",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 16435.4,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "齿轮箱": 1,
+          "液压油": 1,
+          "气动": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片**表面油污（Surface Oil）**的来源与危害如下：\n\n**来源**\n- 齿轮箱（Gearbox）渗漏  \n- 液压变桨系统（Hydraulic Pitch System）的液压油滴落/泄漏  \n- 轴承等部位的润滑油、液压油泄漏并附着在叶片上  \n\n**危害**\n- **化学攻击**：许多润滑"
+    },
+    {
+      "case_id": "R07",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 17616.3,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "8 m/s": 1,
+          "80%": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，修复前准备中的天气限制为：\n\n- **风速**：&lt; 8 m/s  \n- **相对湿度**：&lt; 80%  \n- （同时温度要求为 5~35°C）\n\n补充：表面裂纹修复等工艺中，有的规范要求修补区域相对湿度 **&lt; 70%**；若湿度过高，需搭建保温棚并使用热风枪。登塔/维护作业另有风速 &l"
+    },
+    {
+      "case_id": "R08",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 15249.9,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "10 Ω": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**导雷系统**修复质量验收时的合格标准为：\n\n- **接地电阻 &lt; 10 Ω**\n\n补充：雷击损伤检测中，接闪器到叶根引下线的电阻标准值为 **&lt; 200 mΩ**，属于 LPS 完整性/导通性测试要求，与上表验收项对应使用。"
+    },
+    {
+      "case_id": "R09",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 13093.9,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "起泡": 1,
+          "脱落": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**不能在湿润环境下施工**的原因是：\n\n- **错误做法**：在湿润环境下施工  \n- **后果**：会导致**涂层起泡脱落**\n\n修复前准备也要求相对湿度 **&lt; 80%**（温度 5~35°C），以降低这类质量风险。"
+    },
+    {
+      "case_id": "R10",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 22720.7,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.83,
+        "term_ranks": {
+          "层间": 1,
+          "肉眼": 1,
+          "空鼓音": 1,
+          "线状": 3
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**隐裂**和**表面裂纹（裂纹）**的主要区别如下：\n\n### 隐裂（Hide Craze）\n- **特征**：表面**无明显裂缝**，但**内部层间已分离**\n- **可见性**：**肉眼不可见**，需依赖专业设备定期检测\n- **检测方法**：敲击法（空鼓音）、超声波扫描、热像仪  \n  （另有主动/"
+    },
+    {
+      "case_id": "G01",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 19861.3,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**隐裂（Hide Craze）**肉眼不可见，需依赖专业设备检测，常用方法包括：\n\n- **敲击法（空鼓音）**\n- **超声波扫描** / **相控阵超声波检测（PAUT）**：可生成截面（B-scan），精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一\n- **热像仪** / **红"
+    },
+    {
+      "case_id": "G02",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 20554.5,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**叶片裂纹**一般按下列流程修复；核心是先处理到玻璃纤维层并开槽，再用环氧与玻纤布恢复结构，最后做涂层。\n\n### 关键修复步骤（3.3 裂纹修复）\n1. **沿裂纹两侧各 20 mm 范围打磨至玻璃纤维层**\n2. **V 型开槽**（槽深需超过裂纹深度 2 mm）\n3. **丙酮清洗，吹干**\n4. "
+    },
+    {
+      "case_id": "G03",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 20331.9,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**风机叶片腐蚀**按下列流程修复：\n\n### 腐蚀修复步骤（3.2）\n1. **用 80 目砂纸打磨腐蚀区域**，去除松散材料  \n2. **丙酮清洗**，待干燥（**≥ 30 分钟**）  \n3. **填充环氧腻子**，刮平，**固化 4 小时**  \n4. **120 目砂纸**打磨至平整  \n5. "
+    },
+    {
+      "case_id": "G04",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 15153.8,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "**第一步：立即停机并锁定风机。**\n\n一旦 SCADA 系统显示雷击事件，或巡检发现雷击损伤，须马上停机并锁定风机，不得继续运行。\n\n随后应做**初步安全评估**（远程评估损伤的视觉严重程度），再由专业人员登机进行详细工程评估（含爆裂口尺寸与位置、对主承力结构的影响、LPS 导通性/接地电阻测试，以及超声波或 X 射"
+    },
+    {
+      "case_id": "G05",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 10772.4,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**修复区硬度**的合格标准为：\n\n**邵氏 D 硬度 ≥ 75**"
+    },
+    {
+      "case_id": "G06",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 15108.1,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文：**环氧树脂混合比例必须严格按产品说明，误差 > 5% 将导致固化不完全。**"
+    },
+    {
+      "case_id": "G07",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 10457.9,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**雷击损伤面积 > 200 cm² 时，建议更换叶片。**\n\n处理原则还包括：必须先停机，并评估叶片完整性。"
+    },
+    {
+      "case_id": "G08",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 10932.2,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，修复后维护建议如下：\n\n1. **修复后 72 小时内避免满发运行**，并观察振动数据。  \n2. **下次定检时重点检查修复区域边缘**。"
+    },
+    {
+      "case_id": "GR01",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 86.5,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR02",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 65.2,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR03",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 72.1,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR04",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 67.2,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR05",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 70.2,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR06",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 22894.8,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "fallback",
+      "answer_preview": "我是风电运维技术助手，基于通用语言模型，专门协助回答风机运维、故障排查、参数解读等相关问题。\n\n我没有对外公布的固定“软件版本号”。如果你有具体的风电运维问题（比如叶片、齿轮箱、变流器、振动、定检等），直接问我就行。"
+    },
+    {
+      "case_id": "GR07",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 33452.1,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "fallback",
+      "answer_preview": "如果你忘记了密码，可以按下面的常规方式处理（适用于电脑、系统账号或风电场相关业务系统）：\n\n1. **优先走官方找回/重置**  \n   看登录页是否有“忘记密码”“重置密码”，按提示用绑定的手机号、邮箱或工号验证后重置。\n\n2. **联系管理员或运维/IT 人员**  \n   风电场常见系统（SCADA、远程监控、巡"
+    },
+    {
+      "case_id": "GR08",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 29132.2,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "rag",
+      "answer_preview": "根据检索到的上下文，常见故障代码与处理如下：\n\n| 代码/标识 | 故障名称 | 触发条件 | 处理方案 |\n|-----------|----------|----------|----------|\n| **Err_001** | 叶片变桨卡涩 | 变桨电机电流 > 80A 持续 3s | 1. 检查变桨轴承润滑情"
+    },
+    {
+      "case_id": "GR09",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 29881.1,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "fallback",
+      "answer_preview": "根据你给出的日志片段，问题可以这样理解：\n\n## 日志在说什么\n\n**「齿轮箱温度超限」** 表示：风机传动链里的**齿轮箱油温（或齿轮箱相关测点温度）已经超过设定的报警/停机阈值**，监控或主控判定为温度类故障，并在日志里留下这条记录。\n\n这和此前常见的 **齿轮箱油温高（如 Err_023，油温 > 75°C 一类"
+    },
+    {
+      "case_id": "GR10",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 12513.9,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "rag",
+      "answer_preview": "根据检索上下文，**`error 105` / `Err_105`** 含义如下：\n\n## 故障名称\n**振动过大停机**\n\n## 触发条件\n**机舱加速度 > 0.3g**\n\n## 处理方案\n1. **检查叶片是否结冰或断裂**  \n2. **检查塔筒螺栓是否松动**  \n3. **检查偏航阻尼器压力**\n\n---\n"
+    },
+    {
+      "case_id": "RW01",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 23548.9,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "叶片**腐蚀**（多见于前缘/后缘，材料剥落、坑蚀、粗糙度增大）可按严重等级判断，并按下列流程修复。\n\n**严重等级：**\n- **轻度**：面积 &lt; 0.1 m²，深度 &lt; 1 mm  \n- **中度**：面积 0.1~0.5 m²，深度 1~3 mm  \n- **重度**：面积 &gt; 0.5 m² "
+    },
+    {
+      "case_id": "RW02",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 15420.5,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "隐裂（隐性裂纹）的检测方法主要有：\n\n1. **敲击法**：听空鼓音  \n2. **超声波扫描** / **相控阵超声波检测（PAUT）**：可生成截面（B-scan）图像，精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一  \n3. **热像仪 / 红外热像检测（IRT）**  \n   - **主动式"
+    },
+    {
+      "case_id": "RW03",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 16257.8,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "根据检索上下文，叶片修复质量验收标准如下：\n\n| 检查项目 | 合格标准 |\n|---|---|\n| 表面平整度 | 与原叶片轮廓偏差 < 1 mm/m |\n| 涂层附着力 | 划格测试 0 级（无脱落） |\n| 修复区硬度 | 邵氏 D 硬度 ≥ 75 |\n| 超声检测 | 无内部空洞或分层 |\n| 导雷系统 | 接"
+    },
+    {
+      "case_id": "RW04",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 13774.2,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片腐蚀（Corrosion）的**轻度**划分标准为：\n\n- **面积** < 0.1 m²  \n- **深度** < 1 mm  \n\n特征一般是叶片前缘或后缘出现材料剥落、坑蚀，表面粗糙度增大。  \n\n另外，针对前缘腐蚀/雨蚀，也有 **LE-1（轻微）** 的表述：表面涂层粗糙、失去光泽，建议清洗并观"
+    },
+    {
+      "case_id": "RT01",
+      "layer": "routing",
+      "status": "PASS",
+      "elapsed_ms": 13850.0,
+      "scores": {
+        "pass": true,
+        "expected": "fallback",
+        "actual": "fallback"
+      },
+      "route": "fallback",
+      "answer_preview": "你好，我是风电运维技术助手。\n\n我可以帮你处理这类问题，例如：\n\n- **故障代码**：含义、常见触发条件、一般处理思路  \n- **运行日志/报警**：如齿轮箱温度超限、振动停机等，协助判断可能原因和排查顺序  \n- **设备异常**：变桨、齿轮箱、偏航、冷却、传感器等常见现象说明  \n- **日常运维**：巡检关注"
+    },
+    {
+      "case_id": "RT02",
+      "layer": "routing",
+      "status": "PASS",
+      "elapsed_ms": 12899.4,
+      "scores": {
+        "pass": true,
+        "expected": "fallback",
+        "actual": "fallback"
+      },
+      "route": "fallback",
+      "answer_preview": "我这边查不了实时天气，也没有你所在地的气象数据。\n\n查天气可以用手机天气应用、中国天气网，或当地气象台。若你关心的是**风电场是否适合上塔/作业**（风速、雷电、能见度等），可以说一下场站位置或把当地天气预报/SCADA气象数据发我，我可以按运维角度帮你看注意事项。\n\n需要风电故障代码、日志或设备异常方面的帮助，直接发"
+    },
+    {
+      "case_id": "RT03",
+      "layer": "routing",
+      "status": "PASS",
+      "elapsed_ms": 26865.8,
+      "scores": {
+        "pass": true,
+        "expected": "rag",
+        "actual": "rag"
+      },
+      "route": "rag",
+      "answer_preview": "隐裂表面往往看不出明显裂缝，内部层间可能已分离，**肉眼不可见**，需要依赖专业手段定期检测。根据资料，常用检测方法如下：\n\n## 常用检测方法\n1. **敲击法（空鼓音）**  \n2. **超声波扫描**  \n3. **热像仪 / 热像检测（Infrared Thermography, IRT）**  \n4. **相"
+    },
+    {
+      "case_id": "RT04",
+      "layer": "routing",
+      "status": "PASS",
+      "elapsed_ms": 23853.6,
+      "scores": {
+        "pass": true,
+        "expected": "rag",
+        "actual": "rag"
+      },
+      "route": "rag",
+      "answer_preview": "根据检索上下文，**导雷系统接地电阻**的合格标准为：\n\n## 合格标准\n**接地电阻 < 10 Ω**\n\n该指标列在修复质量验收标准中，与表面平整度、涂层附着力、修复区硬度、超声检测等一并作为验收项目。\n\n---\n\n## 相关电阻要求（勿混淆）\n上下文中还有针对 LPS 导通/回路的不同测点标准，测的不是同一项：\n\n"
+    }
+  ]
+}

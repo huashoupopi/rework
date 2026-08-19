@@ -20,7 +20,7 @@ function formatStatus(status) {
   return status ?? "未知状态"
 }
 
-export function TaskResultSummary({ onDownload, task }) {
+export function TaskResultSummary({ onDownload, onExportJson, onExportCsv, task }) {
   if (!task) {
     return null
   }
@@ -64,11 +64,23 @@ export function TaskResultSummary({ onDownload, task }) {
               ))}
             </ul>
           ) : null}
-          {onDownload ? (
+          {onDownload || onExportJson || onExportCsv ? (
             <div className="task-summary__actions">
-              <button type="button" onClick={onDownload}>
-                下载单张
-              </button>
+              {onDownload ? (
+                <button type="button" onClick={onDownload}>
+                  下载单张
+                </button>
+              ) : null}
+              {onExportJson ? (
+                <button type="button" onClick={onExportJson}>
+                  导出 JSON
+                </button>
+              ) : null}
+              {onExportCsv ? (
+                <button type="button" onClick={onExportCsv}>
+                  导出 CSV
+                </button>
+              ) : null}
             </div>
           ) : null}
         </div>

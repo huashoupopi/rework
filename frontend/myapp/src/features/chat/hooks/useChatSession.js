@@ -71,7 +71,7 @@ function mergeHistoryWithLocalMessages(historyMessages, currentMessages) {
   return [...historyMessages, ...localMessages]
 }
 
-export function useChatSession({ taskId } = {}) {
+export function useChatSession({ conversationId, taskId } = {}) {
   const [messages, setMessages] = useState([])
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [sending, setSending] = useState(false)
@@ -93,6 +93,7 @@ export function useChatSession({ taskId } = {}) {
 
     try {
       const history = await getChatHistory({
+        conversationId,
         limit: 50,
         order: "asc",
         taskId,
@@ -129,7 +130,7 @@ export function useChatSession({ taskId } = {}) {
         setLoadingHistory(false)
       }
     }
-  }, [taskId])
+  }, [conversationId, taskId])
 
   useEffect(() => {
     loadHistory()
@@ -184,6 +185,7 @@ export function useChatSession({ taskId } = {}) {
               ),
             )
           },
+          conversationId,
           question,
           signal: controller.signal,
           taskId,
@@ -226,7 +228,7 @@ export function useChatSession({ taskId } = {}) {
         setSending(false)
       }
     },
-    [taskId],
+    [conversationId, taskId],
   )
 
   const stopChat = useCallback(() => {

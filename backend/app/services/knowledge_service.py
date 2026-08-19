@@ -270,8 +270,8 @@ async def trigger_build_knowledge(
 
 async def set_rebuild_running(running: bool) -> None:
     """设置重建任务运行状态到 Redis。"""
-    from app.core.redis import get_redis
     from app.core.config import settings
+    from app.core.redis import get_redis
     from app.tasks.knowledge_task import REBUILD_RUNNING_KEY
 
     r = get_redis()
@@ -279,7 +279,6 @@ async def set_rebuild_running(running: bool) -> None:
         await r.set(REBUILD_RUNNING_KEY, "1", ex=settings.KNOWLEDGE_BUILD_TIMEOUT_S + 60)
     else:
         await r.delete(REBUILD_RUNNING_KEY)
-    await r.aclose()
 
 
 async def is_rebuild_running() -> bool:
@@ -296,7 +295,6 @@ async def is_rebuild_running() -> bool:
 
     r = get_redis()
     result = await r.exists(REBUILD_RUNNING_KEY)
-    await r.aclose()
     return bool(result)
 
 

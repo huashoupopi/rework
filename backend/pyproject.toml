@@ -29,6 +29,7 @@
       "peft>=0.18.1",
       "redis>=5.3.1",
       "arq>=0.27.0",
+      "jieba>=0.42.1",
 ]
 
 [project.optional-dependencies]
@@ -43,13 +44,13 @@ yolo = [
       "pytest-asyncio>=0.25",
       "httpx>=0.28",
   ]
-[tool.ruff]
-  target-version = "py312"
-  line-length = 99
 
 [[tool.uv.index]]
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true
+[tool.ruff]
+  target-version = "py312"
+  line-length = 99
 
   [tool.ruff.lint]
   select = [
