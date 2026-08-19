@@ -15,6 +15,7 @@ vi.mock("@/shared/api/http", () => ({
 const {
   downloadTaskBatch,
   downloadTaskImage,
+  exportTask,
   getTaskDetail,
   getTasks,
   uploadTasks,
@@ -98,6 +99,25 @@ test("downloadTaskImage uses the shared blob helper for the image endpoint", asy
   await downloadTaskImage(9)
 
   expect(downloadFileMock).toHaveBeenCalledWith("/tasks/9/download/image")
+})
+
+test("exportTask hits the existing export endpoint with format", async () => {
+  downloadFileMock.mockResolvedValueOnce({
+    data: new Blob(["{}"]),
+  })
+
+  await exportTask(7, "json")
+  expect(downloadFileMock).toHaveBeenCalledWith("/tasks/7/export", {
+    params: { format: "json" },
+  })
+
+  downloadFileMock.mockResolvedValueOnce({
+    data: new Blob(["csv"]),
+  })
+  await exportTask(7, "csv")
+  expect(downloadFileMock).toHaveBeenCalledWith("/tasks/7/export", {
+    params: { format: "csv" },
+  })
 })
 
 test("downloadTaskBatch uses the shared blob helper for the batch endpoint", async () => {
