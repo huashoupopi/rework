@@ -22,6 +22,18 @@ afterEach(() => {
   })
 })
 
+test("getChatHistory prefers conversation_id over task_id", async () => {
+  getMock.mockResolvedValueOnce({ data: { items: [], total: 0 } })
+  await getChatHistory({ conversationId: 4, taskId: 7, limit: 50, order: "asc" })
+  expect(getMock).toHaveBeenCalledWith("/chat/history", {
+    params: {
+      conversation_id: 4,
+      limit: 50,
+      order: "asc",
+    },
+  })
+})
+
 test("getChatHistory maps task scope and pagination params to /chat/history", async () => {
   getMock.mockResolvedValueOnce({
     data: {
@@ -106,6 +118,7 @@ test("streamChat sends multipart form data with auth and streams plain text chun
   expect(payload).toBeInstanceOf(FormData)
   expect(payload.get("question")).toBe("请分析这张图")
   expect(payload.get("task_id")).toBe("7")
+  expect(payload.get("conversation_id")).toBeNull()
   expect(payload.getAll("images")).toEqual([image])
   expect(onChunk).toHaveBeenNthCalledWith(1, "你好，")
   expect(onChunk).toHaveBeenNthCalledWith(2, "世界")
