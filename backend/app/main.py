@@ -27,7 +27,7 @@ from app.core.redis import (  # noqa: E402
 )
 from app.core.request_context import RequestContextMiddleware  # noqa: E402
 from app.core.static_paths import ensure_static_dir, mount_public_static  # noqa: E402
-from app.routers import auth, chat, knowledge, media, task, user  # noqa: E402
+from app.routers import auth, chat, conversation, knowledge, media, task, user  # noqa: E402
 from app.services.rag_service import RagService  # noqa: E402
 
 # 给每一个文件一个独立的logger，方便定位来源
@@ -57,6 +57,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
 app.include_router(task.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
+app.include_router(conversation.router, prefix="/api")
 app.include_router(knowledge.router, prefix="/api")
 app.include_router(media.router, prefix="/api")
 # 只挂公开目录。uploads/results 必须走鉴权 FileResponse

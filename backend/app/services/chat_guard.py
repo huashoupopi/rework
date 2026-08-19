@@ -8,6 +8,7 @@ from fastapi import HTTPException
 
 from app.core.chat_lock import acquire_chat_lock
 from app.crud import chat as chat_crud
+from app.crud import conversation as conversation_crud
 from app.models.task import Task
 
 if TYPE_CHECKING:
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from app.models.chat import ChatMessage
+    from app.models.conversation import Conversation
     from app.models.user import User
 
 
@@ -30,6 +32,24 @@ async def ensure_task_owned(
     if task_row.user_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(status_code=404, detail="任务不存在")
     return task_row
+
+
+async def resolve_chat_conversation(
+    db: AsyncSession,
+    current_user: User,
+    conversation_id: int | None,
+    task_id: int | None,
+) -> Conversation:
+    """conversation_id 优先；否则按旧前端的 task_id / 自由问答找或建隐式会话。"""
+    if conversation_id is not None:
+        conv = await conversation_crud.get_owned(db, current_user.id, conversation_id)
+        if conv is None:
+            raise HTTPException(status_code=404, detail="会话不存在")
+        return conv
+    if task_id is not None:
+        await ensure_task_owned(db, current_user, task_id)
+        return await conversation_crud.get_or_create_for_task(db, current_user.id, task_id)
+    return await conversation_crud.get_or_create_free(db, current_user.id)
 
 
 async def authorize_then_lock(

@@ -12,7 +12,6 @@ from sqlalchemy import delete, func, select
 
 from app.core.chat_lock import chat_lock_key
 from app.core.config import settings
-from app.core.database import AsyncSessionLocal
 from app.crud import chat as chat_crud
 from app.models.chat import ChatMessage
 from app.models.task import Task, TaskStatus
@@ -22,6 +21,7 @@ from app.services.chat_guard import (
     create_user_message_if_authorized,
     ensure_task_owned,
 )
+from tests.dbutil import isolated_session
 
 pytestmark = pytest.mark.needs_db
 
@@ -92,7 +92,7 @@ async def test_idor_does_not_acquire_lock_or_write_on_real_db():
     r = redis.from_url(settings.REDIS_URL, decode_responses=True)
     owner_id = attacker_id = task_id = None
     try:
-        async with AsyncSessionLocal() as db:
+        async with isolated_session() as db:
             owner = User(
                 username=f"sec_own_{suffix}",
                 hashed_password="x",
@@ -143,7 +143,7 @@ async def test_idor_does_not_acquire_lock_or_write_on_real_db():
             assert leftover.scalar_one() == 0
     finally:
         await r.aclose()
-        async with AsyncSessionLocal() as db:
+        async with isolated_session() as db:
             ids = [i for i in (owner_id, attacker_id) if i is not None]
             if ids:
                 await db.execute(delete(User).where(User.id.in_(ids)))
@@ -157,8 +157,9 @@ def test_chat_stream_checks_ownership_before_lock_and_write():
     )
     body = src[src.index("async def chat_stream") :]
     validate_at = body.index("prepare_upload_images")
-    auth_at = body.index("authorize_then_lock")
+    auth_at = body.index("resolve_chat_conversation")
+    lock_at = body.index("acquire_chat_lock")
     write_at = body.index("chat_crud.create_message")
-    assert validate_at < auth_at < write_at
+    assert validate_at < auth_at < lock_at < write_at
     assert 'set(lock_key, "1"' not in src
     assert "await r.delete(lock_key)" not in src
