@@ -2,6 +2,7 @@ import * as React from "react"
 import { Link, useParams } from "react-router-dom"
 import { Bot, RefreshCw } from "lucide-react"
 
+import { exportTask } from "@/features/task-center/api/task-api"
 import { TaskImagePreview } from "@/features/task-center/components/TaskImagePreview"
 import { TaskResultSummary } from "@/features/task-center/components/TaskResultSummary"
 import { useTaskDetail } from "@/features/task-center/hooks/useTaskDetail"
@@ -71,6 +72,16 @@ export function TaskDetailPage() {
             <InView once>
               <TaskResultSummary
                 onDownload={activeTask.status === "completed" ? download : undefined}
+                onExportCsv={
+                  activeTask.status === "completed"
+                    ? () => exportTask(activeTask.id, "csv")
+                    : undefined
+                }
+                onExportJson={
+                  activeTask.status === "completed"
+                    ? () => exportTask(activeTask.id, "json")
+                    : undefined
+                }
                 task={activeTask}
               />
             </InView>
