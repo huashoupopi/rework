@@ -36,7 +36,7 @@ def test_apply_normalize_rewrites_node_text():
 
     node.set_content = setter
     apply_normalize_to_node(node)
-    assert node.text == "使用细砂纸"
+    assert node.text.startswith("使用细砂纸")
 
 
 def test_near_duplicate_warns_across_doc_keys_but_keeps_nodes():

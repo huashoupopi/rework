@@ -9,6 +9,7 @@ from typing import Any, AsyncGenerator
 
 from app.core.config import settings
 from app.security import GUARDRAIL_RESPONSE, check_context_node, check_user_input
+from app.services.cjk_fts import tokenize_for_fts
 from app.services.query_rewrite import needs_rewrite
 
 os.environ["HF_HOME"] = settings.HF_HOME
@@ -425,12 +426,13 @@ class RagService:
                         if result_meta is not None:
                             result_meta["rewritten_query"] = retrieval_query
                     augmented_question = build_augmented_query(retrieval_query, image_context)
+                    hybrid_query = tokenize_for_fts(augmented_question) or augmented_question
                     logger.info("rag stage=query len=%d", len(augmented_question))
 
                     retriever = cls._index.as_retriever(
                         similarity_top_k=cls.RETRIEVAL_TOP_K, vector_store_query_mode="hybrid"
                     )
-                    nodes = await retriever.aretrieve(augmented_question)
+                    nodes = await retriever.aretrieve(hybrid_query)
                     retriever_ms = (time.perf_counter() - t0) * 1000
                     logger.info("rag stage=retriever ms=%.1f node=%d", retriever_ms, len(nodes))
 
