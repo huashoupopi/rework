@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import (
@@ -12,7 +13,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, Response, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -26,6 +27,7 @@ from app.routers.auth import get_current_user
 from app.schemas.task import TaskPaginationSchema, TaskSchema
 from app.services.file_service import FileService
 from app.services.image_guard import prepare_image_bytes
+from app.services.task_export import export_csv_text, export_json_body
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +132,34 @@ async def batch_download_tasks(
         content=zip_path,
         media_type="application/zip",
         headers={"Content-Disposition": 'attachment; filename="tasks.zip"'},
+    )
+
+
+@router.get("/tasks/{task_id}/export")
+async def export_task(
+    task_id: int,
+    format: str = Query(..., pattern="^(json|csv)$"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    task = await db.get(Task, task_id)
+    if not task or (task.user_id != current_user.id and not current_user.is_superuser):
+        raise HTTPException(status_code=404, detail="任务不存在")
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    if format == "json":
+        body = export_json_body(task)
+        return Response(
+            content=json.dumps(body, ensure_ascii=False),
+            media_type="application/json",
+            headers={
+                "Content-Disposition": f'attachment; filename="task_{task.id}_{stamp}.json"'
+            },
+        )
+    csv_text = export_csv_text(task)
+    return Response(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="task_{task.id}_{stamp}.csv"'},
     )
 
 

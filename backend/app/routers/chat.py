@@ -8,16 +8,18 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Reques
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.chat_lock import release_chat_lock
+from app.core.chat_lock import acquire_chat_lock, release_chat_lock
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal, get_db
 from app.core.rate_limit import rate_limit
 from app.core.redis import get_redis
 from app.crud import chat as chat_crud
+from app.crud import conversation as conversation_crud
+from app.models import task as task_model
 from app.models import user
 from app.routers.auth import get_current_user
 from app.schemas.chat import ChatHistoryResponse, ChatMessageSchema
-from app.services.chat_guard import authorize_then_lock
+from app.services.chat_guard import resolve_chat_conversation
 from app.services.image_guard import persist_chat_images, prepare_upload_images
 from app.services.rag_service import RagService
 from app.utils.stream_parser import ThinkStreamParser
@@ -57,6 +59,7 @@ async def chat_stream(
     request: Request,
     question: str = Form(...),
     task_id: int | None = Form(None),
+    conversation_id: int | None = Form(None),
     images: list[UploadFile] = File(default=[]),
     current_user: user.User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -85,7 +88,19 @@ async def chat_stream(
     prepared_images = await prepare_upload_images(images)
 
     r = get_redis()
-    owned_task, lock_token = await authorize_then_lock(db, r, current_user, task_id)
+    conv = await resolve_chat_conversation(db, current_user, conversation_id, task_id)
+    owned_task = None
+    if conv.task_id is not None:
+        owned_task = await db.get(task_model.Task, conv.task_id)
+    lock_token = await acquire_chat_lock(r, current_user.id)
+    if lock_token is None:
+        logger.warning(
+            "chat event=lock_conflict user_id=%d conversation_id=%s task_id=%s",
+            current_user.id,
+            conv.id,
+            conv.task_id,
+        )
+        raise HTTPException(status_code=409, detail="上一条消息还在生成中，请稍后")
 
     try:
         uploaded_image_paths: list[tuple[str, str | None]] = []
@@ -104,9 +119,11 @@ async def chat_stream(
             user_id=current_user.id,
             role="user",
             content=question,
-            task_id=task_id,
+            task_id=None,
+            conversation_id=conv.id,
             image_paths=uploaded_image_paths if uploaded_image_paths else None,
         )
+        await conversation_crud.maybe_set_title_from_first_message(db, conv, question)
 
         # 3. 清理超出配额的旧图片
         if uploaded_image_paths:
@@ -118,7 +135,7 @@ async def chat_stream(
             history = await chat_crud.get_recent_chat_windows(
                 db=db,
                 user_id=current_user.id,
-                task_id=task_id,
+                conversation_id=conv.id,
                 turns=settings.RAG_SESSION_WINDOW_TURNS,
                 before_message_id=user_message.id,
             )
@@ -318,7 +335,8 @@ async def chat_stream(
                     user_id=current_user.id,
                     role="assistant",
                     content=content_only,
-                    task_id=task_id,
+                    task_id=None,
+                    conversation_id=conv.id,
                     meta=meta or None,
                 )
             except asyncio.CancelledError:
@@ -351,7 +369,8 @@ async def chat_stream(
                             user_id=current_user.id,
                             role="assistant",
                             content=partial,
-                            task_id=task_id,
+                            task_id=None,
+                            conversation_id=conv.id,
                             meta=meta_cancel or None,
                         )
                 raise
@@ -389,6 +408,7 @@ async def chat_stream(
 @router.get("/chat/history", response_model=ChatHistoryResponse)
 async def get_history(
     task_id: int | None = Query(None),
+    conversation_id: int | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     order: str = Query(default="asc", pattern="^(asc|desc)$"),
     before: int | None = Query(None),
@@ -396,16 +416,29 @@ async def get_history(
     current_user: user.User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ChatHistoryResponse:
+    scoped_conversation_id = conversation_id
+    if conversation_id is not None:
+        owned = await conversation_crud.get_owned(db, current_user.id, conversation_id)
+        if owned is None:
+            raise HTTPException(status_code=404, detail="会话不存在")
+    elif task_id is not None:
+        implicit = await conversation_crud.find_for_task(db, current_user.id, task_id)
+        scoped_conversation_id = implicit.id if implicit else -1
+    else:
+        implicit = await conversation_crud.find_free(db, current_user.id)
+        scoped_conversation_id = implicit.id if implicit else -1
     history = await chat_crud.get_chat_history(
         db=db,
         user_id=current_user.id,
-        task_id=task_id,
+        conversation_id=scoped_conversation_id,
         limit=limit,
         order=order,
         before=before,
         after=after,
     )
-    total = await chat_crud.count_chat_messages(db, user_id=current_user.id, task_id=task_id)
+    total = await chat_crud.count_chat_messages(
+        db, user_id=current_user.id, conversation_id=scoped_conversation_id
+    )
     items = [ChatMessageSchema.model_validate(msg) for msg in history]
 
     oldest_id = items[0].id if items else None
