@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import io
 import uuid
 from dataclasses import dataclass
@@ -85,7 +86,9 @@ async def prepare_upload_images(images: list[UploadFile]) -> list[PreparedImage]
         if not img_file.filename:
             continue
         content = await img_file.read()
-        prepared.append(prepare_image_bytes(content, img_file.filename))
+        prepared.append(
+            await asyncio.to_thread(prepare_image_bytes, content, img_file.filename)
+        )
     return prepared
 
 

@@ -1,0 +1,20 @@
+{
+  "phase": "after",
+  "measured_at": "2026-08-19T19:45:34.399795+00:00",
+  "f4_health": {
+    "target": "f4_health",
+    "url": "http://127.0.0.1:55301/health",
+    "port": 55301,
+    "timeout_s": 180.0,
+    "first_200_s": 17.682,
+    "first_200_body": "{\"status\":\"ok\"}",
+    "refused_or_unconnected": 308,
+    "timed_out": 0,
+    "other_errors": 0,
+    "post_up_n": 8,
+    "post_up_max_s": 0.004,
+    "post_up_p50_s": 0.0016,
+    "log_path": "/var/folders/qz/4zf_522n35z4bqqzbww98vnc0000gn/T/uvicorn_health_55301_rg8p0hg3.log",
+    "startup_complete": true
+  }
+}
