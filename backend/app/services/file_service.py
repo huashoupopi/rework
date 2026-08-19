@@ -1,3 +1,4 @@
+import asyncio
 import io
 import logging
 import uuid
@@ -22,11 +23,15 @@ class FileService:
         if not file_name:
             raise HTTPException(status_code=400, detail="文件名不能为空")
         content = await file.read()
-        prepared = prepare_image_bytes(content, file_name)
+        prepared = await asyncio.to_thread(prepare_image_bytes, content, file_name)
         save_name = f"{task_uuid}{prepared.suffix}"
         save_path = UPLOAD_DIR / save_name
-        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        save_path.write_bytes(prepared.content)
+
+        def _write() -> None:
+            UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+            save_path.write_bytes(prepared.content)
+
+        await asyncio.to_thread(_write)
         return task_uuid, file_name, str(save_path)
 
     @staticmethod

@@ -276,6 +276,98 @@ class RagService:
     SOURCE_THRESHOLD: float = -6.0
 
     @classmethod
+    def _load_models_sync(cls) -> None:
+        """同步加载 embedding / LLM / 向量索引 / reranker。必须在线程里跑。"""
+        LlamaSettings.embed_model = HuggingFaceEmbedding(
+            model_name="BAAI/bge-m3",
+            model_kwargs={"dtype": "float16"},
+        )
+
+        if settings.LLM_PROVIDER == "openai":
+            from llama_index.llms.openai_like import OpenAILike
+
+            extra_kwargs = {"max_tokens": 8192}
+            if settings.LLM_ENABLE_THINKING:
+                extra_kwargs["extra_body"] = {
+                    "chat_template_kwargs": {"enable_thinking": True},
+                }
+                extra_kwargs["temperature"] = 0.2
+
+            LlamaSettings.llm = OpenAILike(
+                model=settings.LLM_MODEL_NAME,
+                api_base=settings.LLM_API_BASE,
+                api_key=settings.LLM_API_KEY,
+                is_chat_model=True,
+                timeout=settings.RAG_OLLAMA_REQUEST_TIMEOUT_S,
+                additional_kwargs=extra_kwargs,
+                # 自建网关前的 Cloudflare WAF 会拦 openai 客户端默认 UA
+                # （"OpenAI/Python ..."→ 403 Your request was blocked），故显式换 UA。
+                default_headers={"User-Agent": "rework-backend/1.0"},
+            )
+            logger.info(
+                "LLM 初始化完成: provider=openai api_base=%s model=%s",
+                settings.LLM_API_BASE,
+                settings.LLM_MODEL_NAME,
+            )
+        else:
+            LlamaSettings.llm = Ollama(
+                model=settings.LLM_MODEL_NAME,
+                base_url=settings.OLLAMA_BASE_URL,
+                request_timeout=settings.RAG_OLLAMA_REQUEST_TIMEOUT_S,
+                keep_alive=settings.OLLAMA_KEEP_ALIVE,
+                additional_kwargs={"num_ctx": 8192},
+            )
+        # PGVectorStore 连接说明：
+        # 1. pgvector 不是独立数据库，而是 PostgreSQL 扩展；向量检索/写入仍然占用 PostgreSQL 连接。
+        # 2. 这里不会复用 app.core.database 里的 ORM engine。
+        #    PGVectorStore 内部会自己创建独立的 SQLAlchemy engine。
+        # 3. 按当前依赖版本，它会创建 sync + async 两套 engine，因此这里等价于 2 套独立 pool。
+        # 4. 如果没有传 create_engine_kwargs，这两套 pool 也会继续使用 SQLAlchemy 默认值：
+        #    pool_size=5, max_overflow=10。
+        # 5. 如果以后 PostgreSQL 连接预算紧张，这里要和 database.py 一起显式传
+        #    create_engine_kwargs，不能只改 ORM 那一套。
+
+        #     vector_store = PGVectorStore.from_params(
+        #     database=settings.DB_NAME,
+        #     host=settings.DB_HOST,
+        #     port=str(settings.DB_PORT),
+        #     password=settings.DB_PASSWORD,
+        #     user=settings.DB_USER,
+        #     table_name=settings.DB_TABLE,
+        #     embed_dim=1024,
+        #     hybrid_search=True,
+        #     text_search_config="simple",
+        #     create_engine_kwargs={
+        #         "pool_size": 3,
+        #         "max_overflow": 2,
+        #         "pool_timeout": 30,
+        #         "pool_pre_ping": True,
+        #     },
+        # )
+
+        vector_store = PGVectorStore.from_params(
+            database=settings.DB_NAME,
+            host=settings.DB_HOST,
+            port=str(settings.DB_PORT),
+            password=settings.DB_PASSWORD,
+            user=settings.DB_USER,
+            table_name=settings.DB_TABLE,
+            embed_dim=1024,
+            hybrid_search=True,
+            text_search_config="simple",
+        )
+        cls._index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
+
+        use_fp16 = torch.cuda.is_available() or (
+            torch.backends.mps.is_available() if hasattr(torch.backends, "mps") else False
+        )
+        cls._reranker = FlagEmbeddingReranker(
+            model="BAAI/bge-reranker-v2-m3",
+            top_n=cls.RERANK_TOP_N,
+            use_fp16=use_fp16,
+        )
+
+    @classmethod
     async def initialize(cls) -> None:
         if cls._initialized:
             return
@@ -285,94 +377,10 @@ class RagService:
 
             logger.info("初始化RAG服务...")
             try:
-                LlamaSettings.embed_model = HuggingFaceEmbedding(
-                    model_name="BAAI/bge-m3",
-                    model_kwargs={"dtype": "float16"},
-                )
-
-                if settings.LLM_PROVIDER == "openai":
-                    from llama_index.llms.openai_like import OpenAILike
-
-                    extra_kwargs = {"max_tokens": 8192}
-                    if settings.LLM_ENABLE_THINKING:
-                        extra_kwargs["extra_body"] = {
-                            "chat_template_kwargs": {"enable_thinking": True},
-                        }
-                        extra_kwargs["temperature"] = 0.2
-
-                    LlamaSettings.llm = OpenAILike(
-                        model=settings.LLM_MODEL_NAME,
-                        api_base=settings.LLM_API_BASE,
-                        api_key=settings.LLM_API_KEY,
-                        is_chat_model=True,
-                        timeout=settings.RAG_OLLAMA_REQUEST_TIMEOUT_S,
-                        additional_kwargs=extra_kwargs,
-                        # 自建网关前的 Cloudflare WAF 会拦 openai 客户端默认 UA
-                        # （"OpenAI/Python ..."→ 403 Your request was blocked），故显式换 UA。
-                        default_headers={"User-Agent": "rework-backend/1.0"},
-                    )
-                    logger.info(
-                        "LLM 初始化完成: provider=openai api_base=%s model=%s",
-                        settings.LLM_API_BASE,
-                        settings.LLM_MODEL_NAME,
-                    )
-                else:
-                    LlamaSettings.llm = Ollama(
-                        model=settings.LLM_MODEL_NAME,
-                        base_url=settings.OLLAMA_BASE_URL,
-                        request_timeout=settings.RAG_OLLAMA_REQUEST_TIMEOUT_S,
-                        keep_alive=settings.OLLAMA_KEEP_ALIVE,
-                        additional_kwargs={"num_ctx": 8192},
-                    )
-                # PGVectorStore 连接说明：
-                # 1. pgvector 不是独立数据库，而是 PostgreSQL 扩展；向量检索/写入仍然占用 PostgreSQL 连接。
-                # 2. 这里不会复用 app.core.database 里的 ORM engine。
-                #    PGVectorStore 内部会自己创建独立的 SQLAlchemy engine。
-                # 3. 按当前依赖版本，它会创建 sync + async 两套 engine，因此这里等价于 2 套独立 pool。
-                # 4. 如果没有传 create_engine_kwargs，这两套 pool 也会继续使用 SQLAlchemy 默认值：
-                #    pool_size=5, max_overflow=10。
-                # 5. 如果以后 PostgreSQL 连接预算紧张，这里要和 database.py 一起显式传
-                #    create_engine_kwargs，不能只改 ORM 那一套。
-
-                #     vector_store = PGVectorStore.from_params(
-                #     database=settings.DB_NAME,
-                #     host=settings.DB_HOST,
-                #     port=str(settings.DB_PORT),
-                #     password=settings.DB_PASSWORD,
-                #     user=settings.DB_USER,
-                #     table_name=settings.DB_TABLE,
-                #     embed_dim=1024,
-                #     hybrid_search=True,
-                #     text_search_config="simple",
-                #     create_engine_kwargs={
-                #         "pool_size": 3,
-                #         "max_overflow": 2,
-                #         "pool_timeout": 30,
-                #         "pool_pre_ping": True,
-                #     },
-                # )
-
-                vector_store = PGVectorStore.from_params(
-                    database=settings.DB_NAME,
-                    host=settings.DB_HOST,
-                    port=str(settings.DB_PORT),
-                    password=settings.DB_PASSWORD,
-                    user=settings.DB_USER,
-                    table_name=settings.DB_TABLE,
-                    embed_dim=1024,
-                    hybrid_search=True,
-                    text_search_config="simple",
-                )
-                cls._index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-
-                use_fp16 = torch.cuda.is_available() or (
-                    torch.backends.mps.is_available() if hasattr(torch.backends, "mps") else False
-                )
-                cls._reranker = FlagEmbeddingReranker(
-                    model="BAAI/bge-reranker-v2-m3",
-                    top_n=cls.RERANK_TOP_N,
-                    use_fp16=use_fp16,
-                )
+                # HuggingFace / reranker 加载是同步 CPU。放进线程，避免卡住事件循环。
+                # 仍由 lifespan 预热：RAG 没就绪就不要对外服务。
+                # 不改成懒加载：首个聊天请求会把整段模型加载转嫁给用户。
+                await asyncio.to_thread(cls._load_models_sync)
                 cls._initialized = True
                 logger.info("RAG服务初始化完成")
             except Exception:

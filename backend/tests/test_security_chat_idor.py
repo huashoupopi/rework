@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
@@ -163,3 +164,50 @@ def test_chat_stream_checks_ownership_before_lock_and_write():
     assert validate_at < auth_at < lock_at < write_at
     assert 'set(lock_key, "1"' not in src
     assert "await r.delete(lock_key)" not in src
+
+
+def _async_fn(tree: ast.AST, name: str) -> ast.AsyncFunctionDef:
+    for node in tree.body:
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == name:
+            return node
+    raise AssertionError(f"{name} not found")
+
+
+def _mentions_release(node: ast.AST) -> bool:
+    for child in ast.walk(node):
+        if isinstance(child, ast.Name) and child.id == "release_chat_lock":
+            return True
+        if isinstance(child, ast.Attribute) and child.attr == "release_chat_lock":
+            return True
+    return False
+
+
+def test_chat_stream_does_not_wrap_stream_return_in_lock_finally():
+    """路由外层 try 只覆盖加锁后的准备。StreamingResponse 必须在 try 外面返回。"""
+    src = (Path(__file__).resolve().parents[1] / "app" / "routers" / "chat.py").read_text(
+        encoding="utf-8"
+    )
+    fn = _async_fn(ast.parse(src), "chat_stream")
+    for node in fn.body:
+        if isinstance(node, ast.Try):
+            for child in ast.walk(node):
+                if isinstance(child, ast.Return):
+                    raise AssertionError("chat_stream 的 try 里有 return，锁会在流开始前被丢掉")
+    assert any(isinstance(node, ast.Return) for node in fn.body)
+
+
+def test_event_generator_releases_lock_in_finally():
+    src = (Path(__file__).resolve().parents[1] / "app" / "routers" / "chat.py").read_text(
+        encoding="utf-8"
+    )
+    fn = _async_fn(ast.parse(src), "_chat_event_generator")
+    found = False
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Try):
+            for stmt in node.finalbody:
+                if _mentions_release(stmt):
+                    found = True
+    assert found
+    # 准备失败那条释放仍在 chat_stream 的 except BaseException，不在 generator
+    route = _async_fn(ast.parse(src), "chat_stream")
+    assert _mentions_release(route)

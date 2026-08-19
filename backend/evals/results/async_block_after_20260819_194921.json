@@ -1,0 +1,41 @@
+{
+  "phase": "after",
+  "measured_at": "2026-08-19T19:49:20.215052+00:00",
+  "interval_s": 0.05,
+  "f5": {
+    "target": "f5_upload",
+    "image_bytes": 5589278,
+    "encoded_bytes": 4816487,
+    "pillow": {
+      "n": 2,
+      "expected_ticks": 1,
+      "tick_ratio": 2.0,
+      "max_interval_s": 0.1382,
+      "p50_interval_s": 0.1382,
+      "p95_interval_s": 0.1382,
+      "max_stall_s": 0.0882,
+      "wall_s": 0.092
+    },
+    "save_file": {
+      "n": 4,
+      "expected_ticks": 1,
+      "tick_ratio": 4.0,
+      "max_interval_s": 0.0521,
+      "p50_interval_s": 0.0521,
+      "p95_interval_s": 0.0521,
+      "max_stall_s": 0.0021,
+      "wall_s": 0.099
+    },
+    "burst3_save_file": {
+      "n": 7,
+      "expected_ticks": 4,
+      "tick_ratio": 1.75,
+      "max_interval_s": 0.0669,
+      "p50_interval_s": 0.0521,
+      "p95_interval_s": 0.0669,
+      "max_stall_s": 0.0169,
+      "wall_s": 0.244
+    },
+    "upload_dir": "static/uploads"
+  }
+}

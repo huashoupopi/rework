@@ -1,0 +1,29 @@
+{
+  "phase": "after",
+  "measured_at": "2026-08-19T19:44:58.674339+00:00",
+  "interval_s": 0.05,
+  "f4_loop": {
+    "target": "f4_initialize",
+    "baseline": {
+      "n": 4,
+      "expected_ticks": 5,
+      "tick_ratio": 0.8,
+      "max_interval_s": 0.0521,
+      "p50_interval_s": 0.0521,
+      "p95_interval_s": 0.0521,
+      "max_stall_s": 0.0021,
+      "wall_s": 0.25
+    },
+    "during": {
+      "n": 237,
+      "expected_ticks": 259,
+      "tick_ratio": 0.915,
+      "max_interval_s": 0.4612,
+      "p50_interval_s": 0.0521,
+      "p95_interval_s": 0.0541,
+      "max_stall_s": 0.4112,
+      "wall_s": 12.962
+    },
+    "initialized": true
+  }
+}
