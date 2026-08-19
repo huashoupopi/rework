@@ -32,9 +32,16 @@ def normalize_ingest_text(text: str) -> str:
     return restore_unit_superscripts(_normalize(text or ""))
 
 
+def prepare_index_text(text: str) -> str:
+    """归一化 + 面积单位 + 中文预分词（原文仍在，FTS 另附一行）。"""
+    from app.services.cjk_fts import index_text_with_fts
+
+    return index_text_with_fts(normalize_ingest_text(text or ""))
+
+
 def apply_normalize_to_node(node: Any) -> None:
     raw = getattr(node, "text", "") or ""
-    normalized = normalize_ingest_text(raw)
+    normalized = prepare_index_text(raw)
     if normalized == raw:
         return
     if hasattr(node, "set_content"):

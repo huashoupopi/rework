@@ -1,0 +1,206 @@
+{
+  "summary": {
+    "total_cases": 10,
+    "passed_cases": 10,
+    "pass_rate": 1.0
+  },
+  "layers": {
+    "retrieval": {
+      "total": 10,
+      "passed": 10,
+      "errors": 0,
+      "mean_hit_at_10": 1.0,
+      "mean_hit_at_5": 1.0,
+      "mean_mrr": 0.824
+    }
+  },
+  "results": [
+    {
+      "case_id": "R01",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 13535.3,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.39,
+        "term_ranks": {
+          "敲击法": 3,
+          "超声波": 2,
+          "热像仪": 3
+        }
+      },
+      "route": "rag",
+      "answer_preview": "隐裂（Hide Craze）肉眼通常不可见，需依赖专业设备检测。常见方法如下：\n\n1. **敲击法**：听空鼓音，判断内部层间是否已分离。  \n2. **相控阵超声波检测（PAUT）/超声波扫描**：可生成截面（B-scan）图像，精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一。  \n3. **热像"
+    },
+    {
+      "case_id": "R02",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 27481.8,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "V 型开槽": 1,
+          "环氧树脂": 1,
+          "玻璃纤维布": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "叶片裂纹修复可按下列关键步骤进行（依据现场修复规范中的裂纹修复流程）：\n\n1. **沿裂纹两侧各 20 mm 范围打磨至玻璃纤维层**  \n2. **V 型开槽**（槽深需超过裂纹深度 2 mm）  \n3. **丙酮清洗，吹干**  \n4. **注入低黏度环氧树脂**（真空注入效果更佳）  \n5. **铺 2~4 层玻"
+    },
+    {
+      "case_id": "R03",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 21831.2,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.3,
+        "term_ranks": {
+          "环氧腻子": 5,
+          "底漆": 5,
+          "丙酮": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "风机叶片腐蚀可按下列流程修复（依据现场修复规范）：\n\n**修复前准备**\n1. 停机并锁定叶轮（机械制动 + 变桨锁定）\n2. 检查天气：风速 < 8 m/s，温度 5~35°C，相对湿度 < 80%\n3. 安全防护：高处作业绳索系统，至少 2 人协作\n4. 准备材料：环氧树脂、玻璃纤维布、砂纸（80/120/240 "
+    },
+    {
+      "case_id": "R04",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 23592.5,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.67,
+        "term_ranks": {
+          "停机": 1,
+          "导雷系统": 2,
+          "炭化": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "叶片雷击损伤后的关键处理步骤如下（必须停机处理）：\n\n**一、紧急响应与评估**\n1. **立即停机（Immediate Shutdown）**：一旦 SCADA 系统显示雷击事件或巡检发现损伤，立即停机并锁定风机。  \n2. **初步安全评估（Preliminary Safety Assessment）**：远程评估"
+    },
+    {
+      "case_id": "R05",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 19581.3,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "0.1 m²": 1,
+          "3 mm": 1,
+          "停机": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据检索到的修复指南，叶片**腐蚀（Corrosion）**按面积与深度划分如下：\n\n**轻度腐蚀**\n- 面积 < 0.1 m²\n- 深度 < 1 mm\n\n**重度腐蚀**\n- 面积 > 0.5 m²，**或**深度 > 3 mm\n- 需停机修复\n\n（中间还有中度：面积 0.1~0.5 m²，深度 1~3 mm。）\n"
+    },
+    {
+      "case_id": "R06",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 18960.5,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "齿轮箱": 1,
+          "液压油": 1,
+          "气动": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据检索到的修复指南，**表面油污（Surface Oil）**的来源与危害如下：\n\n**来源**\n- 齿轮箱（Gearbox）渗漏\n- 液压变桨系统（Hydraulic Pitch System）液压油滴落/泄漏\n- 轴承的润滑油、液压油泄漏并附着在叶片上\n\n**危害**\n- **化学攻击**：许多润滑油和液压油含有"
+    },
+    {
+      "case_id": "R07",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 21902.5,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "8 m/s": 1,
+          "80%": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据检索到的修复指南，**修复前准备**中的天气限制为：\n\n- **风速**：< 8 m/s  \n- **相对湿度**：< 80%  \n（同时温度要求为 5~35°C）\n\n补充：表面裂纹修复标准流程（SOP-BL-05）中，修补区域相对湿度要求更严，为 **RH < 70%**；若湿度过高，需搭建保温棚并使用热风枪。 "
+    },
+    {
+      "case_id": "R08",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 17098.8,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "10 Ω": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据检索到的修复质量验收标准，**导雷系统**验收时：\n\n- **接地电阻合格标准：< 10 Ω**\n\n补充：雷击损伤检测中，还需测量**接闪器到叶根引下线**的电阻，标准值应 **< 200 mΩ**。验收时两者均应按对应标准执行。"
+    },
+    {
+      "case_id": "R09",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 15905.6,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "起泡": 1,
+          "脱落": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据检索到的修复指南，**不能在湿润环境下施工**的原因是：\n\n- **错误做法**：在湿润环境下施工  \n- **后果**：会导致**涂层起泡脱落**\n\n补充相关要求：修复前相对湿度一般应 **< 80%**；表面裂纹修复等工序更严，修补区域相对湿度宜 **RH < 70%**。湿度过高时需搭建保温棚并使用热风枪等措"
+    },
+    {
+      "case_id": "R10",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 28490.0,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.88,
+        "term_ranks": {
+          "层间": 1,
+          "肉眼": 1,
+          "空鼓音": 1,
+          "线状": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据检索上下文，**隐裂（Hide Craze）**和**表面裂纹（裂纹/Craze）**的主要区别如下：\n\n### 1. 特征\n- **裂纹（表面裂纹）**：叶片表面或结构层出现**可见**线状裂缝。\n- **隐裂**：表面**无明显裂缝**，但内部层间已分离；或存在于复合材料内部（层间、芯材界面），或表面开口极其微"
+    }
+  ]
+}
