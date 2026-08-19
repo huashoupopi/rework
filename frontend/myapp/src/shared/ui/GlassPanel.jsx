@@ -1,8 +1,8 @@
 import * as React from "react"
 
-export const GlassPanel = React.forwardRef(function GlassPanel(
-  { as = "section", children, className = "", ...props },
-  ref,
-) {
-  return React.createElement(as, { ...props, ref, className: `glass-panel ${className}`.trim() }, children)
+import { GlassCard } from "./GlassCard"
+
+/** @deprecated Use GlassCard. Kept as a forwarding shell so existing pages stay stable. */
+export const GlassPanel = React.forwardRef(function GlassPanel(props, ref) {
+  return <GlassCard ref={ref} {...props} />
 })

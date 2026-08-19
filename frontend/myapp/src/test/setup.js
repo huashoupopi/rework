@@ -79,6 +79,25 @@ Object.defineProperty(globalThis, "ResizeObserver", {
   value: ResizeObserverMock,
 })
 
+class IntersectionObserverMock {
+  constructor(callback) {
+    this.callback = callback
+  }
+
+  disconnect() {}
+
+  observe(element) {
+    this.callback([{ isIntersecting: true, target: element }], this)
+  }
+
+  unobserve() {}
+}
+
+Object.defineProperty(globalThis, "IntersectionObserver", {
+  configurable: true,
+  value: IntersectionObserverMock,
+})
+
 Object.defineProperty(window.HTMLElement.prototype, "scrollIntoView", {
   configurable: true,
   value: () => {},

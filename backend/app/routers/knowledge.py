@@ -208,11 +208,11 @@ async def list_documents(
         limit=limit,
     )
 
-    # 填充 current_version
+    versions = await knowledge_crud.get_current_versions_map(db, [d.id for d in docs])
     items = []
     for d in docs:
         schema = KnowledgeDocumentSchema.model_validate(d)
-        current_ver = await knowledge_crud.get_current_version(db, d.id)
+        current_ver = versions.get(d.id)
         if current_ver:
             schema.current_version = KnowledgeVersionSchema.model_validate(current_ver)
         items.append(schema)

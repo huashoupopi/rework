@@ -37,6 +37,20 @@ logger = logging.getLogger(__name__)
 MAX_INPUT_LENGTH = 4096
 
 
+# NFKC 管不到的简化部首 → 对应汉字。只列库里实测出现、且 NFKC 不变的那些。
+_CJK_RADICAL_SUPPLEMENT = str.maketrans(
+    {
+        "\u2ec5": "见",
+        "\u2ec6": "角",
+        "\u2ecb": "车",
+        "\u2ed3": "长",
+        "\u2edb": "风",
+        "\u2ee6": "鸟",
+        "\u2eee": "齿",
+    }
+)
+
+
 def _normalize(text: str) -> str:
     """
     Unicode 预处理：归一化 + 去除零宽字符。
@@ -52,6 +66,9 @@ def _normalize(text: str) -> str:
     - NFKC 更适合安全场景：分解后重组，避免分解产生的字符序列误匹配
     """
     text = unicodedata.normalize("NFKC", text)
+    # CJK Radicals Supplement（U+2E80–2EFF）多数没有 NFKC 兼容分解。
+    # 实测 ⻮(U+2EEE) 归一后仍是 ⻮，齿轮箱 ≠ ⻮轮箱。入库与门卫共用这一张表。
+    text = text.translate(_CJK_RADICAL_SUPPLEMENT)
     # 去除零宽空格、零宽非连接符、零宽连接符、左右标记等
     text = re.sub(r"[\u200b-\u200f\u2028-\u202f\u2060\ufeff]", "", text)
     return text

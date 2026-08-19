@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import (
@@ -12,18 +13,21 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, Response, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.rate_limit import rate_limit
 from app.core.redis import get_arq_redis, get_redis
+from app.core.static_paths import resolve_existing_file
 from app.crud.task import get_tasks_paginated
 from app.models.task import Task, TaskStatus
 from app.models.user import User
 from app.routers.auth import get_current_user
 from app.schemas.task import TaskPaginationSchema, TaskSchema
 from app.services.file_service import FileService
+from app.services.image_guard import prepare_image_bytes
+from app.services.task_export import export_csv_text, export_json_body
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +47,9 @@ async def upload_tasks(
     arq = get_arq_redis()  # 获取Arq Redis连接
 
     for file in files:
-        # 先过滤非图片文件
-        if not file.content_type.startswith("image/"):  # type: ignore
-            continue
-
-        # 读取文件内容用于计算 hash
         content = await file.read()
-        await file.seek(0)  # 重置文件指针，后续还要读
+        prepare_image_bytes(content, file.filename)
+        await file.seek(0)
 
         # 分布式锁：防重复提交
         file_hash = hashlib.md5(content).hexdigest()
@@ -65,7 +65,7 @@ async def upload_tasks(
             )
             continue
         uuid_str, file_name, save_path = await FileService.save_file(file)
-        result_path = FileService.get_result_path(uuid_str, file_name)  # type: ignore
+        result_path = FileService.get_result_path(uuid_str, Path(save_path).name)
         new_task = Task(
             user_id=current_user.id,
             uuid=uuid_str,
@@ -133,6 +133,51 @@ async def batch_download_tasks(
         media_type="application/zip",
         headers={"Content-Disposition": 'attachment; filename="tasks.zip"'},
     )
+
+
+@router.get("/tasks/{task_id}/export")
+async def export_task(
+    task_id: int,
+    format: str = Query(..., pattern="^(json|csv)$"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    task = await db.get(Task, task_id)
+    if not task or (task.user_id != current_user.id and not current_user.is_superuser):
+        raise HTTPException(status_code=404, detail="任务不存在")
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    if format == "json":
+        body = export_json_body(task)
+        return Response(
+            content=json.dumps(body, ensure_ascii=False),
+            media_type="application/json",
+            headers={
+                "Content-Disposition": f'attachment; filename="task_{task.id}_{stamp}.json"'
+            },
+        )
+    csv_text = export_csv_text(task)
+    return Response(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="task_{task.id}_{stamp}.csv"'},
+    )
+
+
+@router.get("/tasks/{task_id}/image")
+async def get_task_image(
+    task_id: int,
+    kind: str = Query(..., pattern="^(original|result)$"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> FileResponse:
+    task = await db.get(Task, task_id)
+    if not task or (task.user_id != current_user.id and not current_user.is_superuser):
+        raise HTTPException(status_code=404, detail="任务不存在")
+    stored = task.original_path if kind == "original" else task.result_path
+    path = resolve_existing_file(stored)
+    if path is None:
+        raise HTTPException(status_code=404, detail="图片不存在")
+    return FileResponse(path)
 
 
 @router.get("/tasks/{task_id}", response_model=TaskSchema)

@@ -14,9 +14,17 @@ import {
   Users,
 } from "lucide-react"
 
+import { useReducedMotion } from "motion/react"
+
 import { useAuthStore } from "@/features/auth/store/auth-store"
-import { http } from "@/shared/api/http"
 import { useShellStore } from "@/features/app-shell/store/useShellStore"
+import { http } from "@/shared/api/http"
+import { tokenDurationSeconds } from "@/shared/lib/utils"
+import { DotPattern } from "@/shared/ui/magicui/dot-pattern"
+import { LineShadowText } from "@/shared/ui/magicui/line-shadow-text"
+import { RippleButton } from "@/shared/ui/magicui/ripple-button"
+import { PageTransition } from "@/shared/ui/PageTransition"
+import { WindTurbineSvg } from "@/shared/ui/WindTurbineSvg"
 
 const navigationItems = [
   { label: "工作台", path: "/", icon: Home },
@@ -38,12 +46,29 @@ export function AppShell() {
   const adminItems = visibleItems.filter((item) => item.adminOnly)
   const location = useLocation()
   const navigate = useNavigate()
+  const reduceMotion = useReducedMotion()
+  const [logoSpinning, setLogoSpinning] = React.useState(false)
+  const logoClicksRef = React.useRef(0)
 
   const activeItem = visibleItems.find((item) =>
     item.path === "/"
       ? location.pathname === "/"
       : location.pathname === item.path || location.pathname.startsWith(`${item.path}/`),
   )
+
+  function handleLogoClick() {
+    logoClicksRef.current += 1
+    if (logoClicksRef.current < 5) {
+      return
+    }
+
+    logoClicksRef.current = 0
+    setLogoSpinning(true)
+    const spinMs = reduceMotion ? 0 : tokenDurationSeconds("--easter-logo-spin", 3000) * 1000
+    window.setTimeout(() => {
+      setLogoSpinning(false)
+    }, spinMs)
+  }
 
   async function handleLogout() {
     try {
@@ -57,11 +82,18 @@ export function AppShell() {
 
   return (
     <div className="app-shell" data-sidebar-collapsed={sidebarCollapsed}>
-      <div aria-hidden="true" className="app-shell__aurora app-shell__aurora--one" />
-      <div aria-hidden="true" className="app-shell__aurora app-shell__aurora--two" />
+      <DotPattern className="app-shell__dots" cr={1.1} glow={false} height={22} width={22} />
       <aside className="app-sidebar" data-collapsed={sidebarCollapsed} role="complementary">
         <div className="app-sidebar__brand">
-          <div className="app-sidebar__brand-mark">R</div>
+          <button
+            aria-label="REWORK 标志"
+            className="app-sidebar__brand-mark"
+            data-spinning={logoSpinning ? "true" : "false"}
+            onClick={handleLogoClick}
+            type="button"
+          >
+            {logoSpinning ? <WindTurbineSvg boost spinning /> : "R"}
+          </button>
           {!sidebarCollapsed && (
             <div className="app-sidebar__brand-copy">
               <p>REWORK</p>
@@ -70,15 +102,16 @@ export function AppShell() {
           )}
         </div>
 
-        <button
+        <RippleButton
           aria-pressed={sidebarCollapsed}
-          className="app-sidebar__toggle"
+          className="app-sidebar__toggle border-0 bg-transparent"
           onClick={toggleSidebar}
+          rippleColor="rgba(77,141,255,0.28)"
           type="button"
         >
           {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
           {!sidebarCollapsed && <span>收起</span>}
-        </button>
+        </RippleButton>
 
         <nav aria-label="主导航" className="app-sidebar__nav">
           <div className="app-sidebar__group">
@@ -134,22 +167,28 @@ export function AppShell() {
         <header className="app-topbar">
           <div className="app-topbar__intro">
             <p className="app-topbar__eyebrow">REWORK OPERATIONS</p>
-            <h1 className="app-topbar__title">{activeItem?.label ?? "工作台"}</h1>
+            <h1 className="app-topbar__title">
+              <LineShadowText as="span" shadowColor="rgba(77,141,255,0.28)">
+                {activeItem?.label ?? "工作台"}
+              </LineShadowText>
+            </h1>
           </div>
           <div className="app-topbar__actions">
             <div className="user-badge" title={userInfo?.is_superuser ? "管理员" : "成员"}>
               <span className="user-badge__avatar">{String(userInfo?.username ?? "访客").slice(0, 1).toUpperCase()}</span>
               <strong>{userInfo?.username ?? "访客"}</strong>
             </div>
-            <button className="app-topbar__logout" onClick={handleLogout} type="button">
+            <RippleButton aria-label="退出登录" className="app-topbar__logout border-0" onClick={handleLogout} rippleColor="rgba(77,141,255,0.28)" type="button">
               <LogOut size={16} />
-            </button>
+            </RippleButton>
           </div>
         </header>
 
         <main className="app-shell__content">
           <div className="app-shell__canvas">
-            <Outlet />
+            <PageTransition key={location.pathname}>
+              <Outlet />
+            </PageTransition>
           </div>
         </main>
       </div>

@@ -9,6 +9,7 @@ from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.models.chat import ChatMessage
+    from app.models.conversation import Conversation
     from app.models.user import User
 
 
@@ -37,4 +38,7 @@ class Task(Base):
     owner: Mapped["User"] = relationship(back_populates="tasks", lazy="selectin")
     chats: Mapped[list["ChatMessage"]] = relationship(
         back_populates="task", lazy="selectin", cascade="all, delete-orphan"
+    )
+    conversations: Mapped[list["Conversation"]] = relationship(
+        back_populates="task", lazy="selectin"
     )

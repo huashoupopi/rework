@@ -2,6 +2,7 @@ import * as React from "react"
 import { Bot } from "lucide-react"
 
 import { ChatMessageCard } from "./ChatMessageCard"
+import { Meteors } from "@/shared/ui/magicui/meteors"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 export function ChatMessageList({ messages = [] }) {
@@ -34,10 +35,12 @@ export function ChatMessageList({ messages = [] }) {
     >
       {messages.length === 0 ? (
         <div className="chat-empty-state">
+          <Meteors number={4} />
           <div className="chat-empty-state__icon">
             <Bot size={28} />
           </div>
           <h2>开始对话</h2>
+          <p>随便问点什么</p>
           <p>发送问题或上传图片，AI 将为你提供分析与建议。</p>
         </div>
       ) : null}

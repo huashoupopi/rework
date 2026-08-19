@@ -5,9 +5,11 @@ import { afterEach, expect, test, vi } from "vitest"
 
 const getTaskDetailMock = vi.fn()
 const downloadTaskImageMock = vi.fn()
+const exportTaskMock = vi.fn()
 
 vi.mock("@/features/task-center/api/task-api", () => ({
   downloadTaskImage: (...args) => downloadTaskImageMock(...args),
+  exportTask: (...args) => exportTaskMock(...args),
   getTaskDetail: (...args) => getTaskDetailMock(...args),
 }))
 
@@ -17,6 +19,7 @@ afterEach(() => {
   vi.useRealTimers()
   getTaskDetailMock.mockReset()
   downloadTaskImageMock.mockReset()
+  exportTaskMock.mockReset()
 })
 
 function renderTaskDetailPage(initialEntry = "/tasks/7") {
@@ -65,10 +68,14 @@ test("loads task detail from the route param and renders the completed summary",
   expect(screen.getByLabelText("检测标框画布")).toBeInTheDocument()
 
   fireEvent.click(screen.getByRole("button", { name: "下载单张" }))
+  fireEvent.click(screen.getByRole("button", { name: "导出 JSON" }))
+  fireEvent.click(screen.getByRole("button", { name: "导出 CSV" }))
 
   await waitFor(() => {
     expect(downloadTaskImageMock).toHaveBeenCalledWith(7)
   })
+  expect(exportTaskMock).toHaveBeenCalledWith(7, "json")
+  expect(exportTaskMock).toHaveBeenCalledWith(7, "csv")
 })
 
 test("shows the failed state without exposing the download action", async () => {
@@ -89,6 +96,8 @@ test("shows the failed state without exposing the download action", async () => 
   expect(screen.getByRole("alert")).toHaveTextContent("任务处理失败")
   expect(screen.getAllByText("任务 #7").length).toBeGreaterThanOrEqual(1)
   expect(screen.queryByRole("button", { name: "下载单张" })).not.toBeInTheDocument()
+  expect(screen.queryByRole("button", { name: "导出 JSON" })).not.toBeInTheDocument()
+  expect(screen.queryByRole("button", { name: "导出 CSV" })).not.toBeInTheDocument()
   expect(screen.getByRole("img", { name: "failed.png 原图预览" })).toBeInTheDocument()
   expect(screen.getByText("检测失败，请检查原始图片或稍后重试。")).toBeInTheDocument()
 })

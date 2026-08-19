@@ -9,6 +9,8 @@ from typing import Any, AsyncGenerator
 
 from app.core.config import settings
 from app.security import GUARDRAIL_RESPONSE, check_context_node, check_user_input
+from app.services.cjk_fts import tokenize_for_fts
+from app.services.query_rewrite import needs_rewrite
 
 os.environ["HF_HOME"] = settings.HF_HOME
 os.environ["HUGGINGFACE_HUB_CACHE"] = settings.HUGGINGFACE_HUB_CACHE
@@ -132,17 +134,9 @@ _REWRITE_SYSTEM = (
 )
 
 
-# 指代词/省略词：出现这些时 query 大概率需要上下文才能理解
-_CONTEXT_INDICATORS = re.compile(
-    r"那个?|这个?|它的?|其|上面|前面|刚才|同样|也是|还有|另外|呢\s*[？?]?$"
-)
-
-
-def _needs_rewrite(question: str) -> bool:
-    """启发式判断：问题是否需要多轮改写。长且自包含的问题跳过。"""
-    if len(question) > 30:
-        return False
-    return bool(_CONTEXT_INDICATORS.search(question))
+def _needs_rewrite(question: str, *, has_history: bool = False) -> bool:
+    """有历史的短问才改写。不认指代词，避免「轻度的怎么划分?」被跳过。"""
+    return needs_rewrite(question, has_history=has_history)
 
 
 async def rewrite_query_with_context(
@@ -152,7 +146,7 @@ async def rewrite_query_with_context(
     """利用 LLM 将多轮对话中的指代性 query 改写为自包含检索 query。"""
     if not chat_window:
         return question
-    if not _needs_rewrite(question):
+    if not _needs_rewrite(question, has_history=True):
         logger.debug("rag rewrite skipped: question is self-contained %r", question)
         return question
 
@@ -432,12 +426,13 @@ class RagService:
                         if result_meta is not None:
                             result_meta["rewritten_query"] = retrieval_query
                     augmented_question = build_augmented_query(retrieval_query, image_context)
+                    hybrid_query = tokenize_for_fts(augmented_question) or augmented_question
                     logger.info("rag stage=query len=%d", len(augmented_question))
 
                     retriever = cls._index.as_retriever(
                         similarity_top_k=cls.RETRIEVAL_TOP_K, vector_store_query_mode="hybrid"
                     )
-                    nodes = await retriever.aretrieve(augmented_question)
+                    nodes = await retriever.aretrieve(hybrid_query)
                     retriever_ms = (time.perf_counter() - t0) * 1000
                     logger.info("rag stage=retriever ms=%.1f node=%d", retriever_ms, len(nodes))
 
@@ -607,7 +602,9 @@ class RagService:
     ) -> list[ChatMessage]:
         """构建结构化 chat messages，替代旧的自由文本 prompt 拼接。"""
         messages: list[ChatMessage] = []
-        include_history = bool(chat_window and _needs_rewrite(question))
+        include_history = bool(
+            chat_window and _needs_rewrite(question, has_history=True)
+        )
 
         # 1. System prompt
         if route == "rag":

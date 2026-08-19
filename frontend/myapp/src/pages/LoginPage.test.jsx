@@ -116,3 +116,26 @@ test("shows the backend error message when login fails", async () => {
 
   expect(await screen.findByText("用户名或密码错误")).toBeInTheDocument()
 })
+
+test("locks the form after three failed passwords", async () => {
+  const user = userEvent.setup()
+
+  loginMock.mockRejectedValue({
+    response: {
+      data: {
+        detail: "用户名或密码错误",
+      },
+    },
+  })
+
+  renderLoginPage()
+
+  await user.type(screen.getByPlaceholderText("请输入用户名"), "demo")
+  await user.type(screen.getByPlaceholderText("请输入密码"), "wrong")
+  await user.click(screen.getByRole("button", { name: /登\s*录/i }))
+  await user.click(screen.getByRole("button", { name: /登\s*录/i }))
+  await user.click(screen.getByRole("button", { name: /登\s*录/i }))
+
+  expect(await screen.findByText("叶片检修中，请稍后再试")).toBeInTheDocument()
+  expect(screen.getByRole("button", { name: /登\s*录/i })).toBeDisabled()
+})

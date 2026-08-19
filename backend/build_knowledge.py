@@ -300,6 +300,21 @@ async def build_index(
             logger.warning("没有文档可构建，退出")
             return
 
+        from app.services.ingest_text import (
+            apply_normalize_to_node,
+            near_duplicate_warnings,
+            normalize_ingest_text,
+        )
+
+        for doc in documents:
+            raw = getattr(doc, "text", "") or ""
+            normalized = normalize_ingest_text(raw)
+            if normalized != raw:
+                if hasattr(doc, "set_content"):
+                    doc.set_content(normalized)
+                else:
+                    doc.text = normalized
+
         # --- [4] 根据配置选择分块器 ---
         print(f"分块策略: {chunk_splitter}, chunk_size={chunk_size}, overlap={chunk_overlap}")
         if chunk_splitter == "markdown":
@@ -314,6 +329,8 @@ async def build_index(
 
         nodes = splitter.get_nodes_from_documents(documents)
         print(f"分块完成，原始节点数: {len(nodes)}")
+        for node in nodes:
+            apply_normalize_to_node(node)
 
         # --- [5] 过滤短文本 + 附加元数据 ---
         filtered_nodes = []
@@ -347,6 +364,7 @@ async def build_index(
             filtered_nodes.append(node)
 
         logger.info("过滤后节点数: %d (min_len=%d)", len(filtered_nodes), chunk_min_len)
+        near_duplicate_warnings(filtered_nodes)
 
         if not filtered_nodes:
             logger.warning("过滤后没有可入库节点，退出")
@@ -399,7 +417,11 @@ async def build_index(
                         # CursorResult 有 rowcount，但 AsyncSession.execute() 的静态类型是
                         # Result[Any]，用 getattr 安全取值避免 Pylance 误报
                         rowcount = getattr(del_result, "rowcount", "?")
-                        logger.info("  删除 %s 旧 chunks: %s 条", doc_key, rowcount)
+                        logger.info(
+                            "  删除 %s 旧 chunks: %s 条（同 doc_key 版本替换）",
+                            doc_key,
+                            rowcount,
+                        )
                     await db.commit()
                 else:
                     logger.info("向量表尚不存在，跳过旧 chunks 删除")

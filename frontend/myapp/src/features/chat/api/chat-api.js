@@ -18,13 +18,22 @@ async function buildStreamError(response) {
   return error
 }
 
-export async function getChatHistory({ taskId, limit = 50, order = "asc", before, after } = {}) {
+export async function getChatHistory({
+  conversationId,
+  taskId,
+  limit = 50,
+  order = "asc",
+  before,
+  after,
+} = {}) {
   const params = {
     limit,
     order,
   }
 
-  if (taskId !== undefined && taskId !== null && taskId !== "") {
+  if (conversationId !== undefined && conversationId !== null && conversationId !== "") {
+    params.conversation_id = conversationId
+  } else if (taskId !== undefined && taskId !== null && taskId !== "") {
     params.task_id = taskId
   }
 
@@ -43,9 +52,20 @@ export async function getChatHistory({ taskId, limit = 50, order = "asc", before
   return response.data
 }
 
-export async function streamChat({ question, taskId, images, onChunk, signal } = {}) {
+export async function streamChat({
+  question,
+  conversationId,
+  taskId,
+  images,
+  onChunk,
+  signal,
+} = {}) {
   const payload = new FormData()
   payload.append("question", question ?? "")
+
+  if (conversationId !== undefined && conversationId !== null && conversationId !== "") {
+    payload.append("conversation_id", String(conversationId))
+  }
 
   if (taskId !== undefined && taskId !== null && taskId !== "") {
     payload.append("task_id", String(taskId))

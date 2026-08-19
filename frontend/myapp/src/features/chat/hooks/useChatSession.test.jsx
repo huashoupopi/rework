@@ -39,6 +39,7 @@ test("loads chat history for the active task id", async () => {
 
   await waitFor(() => {
     expect(getChatHistoryMock).toHaveBeenCalledWith({
+      conversationId: undefined,
       limit: 50,
       order: "asc",
       taskId: 7,
@@ -92,6 +93,7 @@ test("sendMessage appends the user message and finalizes the assistant response 
   })
 
   expect(streamChatMock).toHaveBeenCalledWith({
+    conversationId: undefined,
     images: undefined,
     onChunk: expect.any(Function),
     question: "请分析任务 7",

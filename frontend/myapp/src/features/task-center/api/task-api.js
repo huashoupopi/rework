@@ -50,6 +50,12 @@ export async function downloadTaskImage(taskId) {
   return response.data
 }
 
+export async function exportTask(taskId, format) {
+  return downloadFile(`/tasks/${taskId}/export`, {
+    params: { format },
+  })
+}
+
 export async function downloadTaskBatch(taskIds) {
   const params = new URLSearchParams()
 
