@@ -1,0 +1,19 @@
+{
+  "phase": "before",
+  "measured_at": "2026-08-19T19:42:13.050015+00:00",
+  "f4_health": {
+    "target": "f4_health",
+    "url": "http://127.0.0.1:54656/health",
+    "port": 54656,
+    "timeout_s": 180.0,
+    "first_200_s": 17.768,
+    "first_200_body": "{\"status\":\"ok\"}",
+    "refused_or_unconnected": 310,
+    "timed_out": 0,
+    "other_errors": 0,
+    "post_up_n": 8,
+    "post_up_max_s": 0.0016,
+    "post_up_p50_s": 0.0014,
+    "startup_complete": true
+  }
+}
