@@ -9,8 +9,13 @@ from __future__ import annotations
 
 import ast
 import asyncio
+import io
 import time
 from pathlib import Path
+
+import pytest
+from fastapi import HTTPException, UploadFile
+from starlette.datastructures import Headers
 
 BACKEND = Path(__file__).resolve().parents[1]
 
@@ -64,6 +69,13 @@ def test_lifespan_still_warms_rag_before_yield():
     assert init_at < yield_at
 
 
+def _module_fn(tree: ast.AST, fn_name: str) -> ast.AST:
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == fn_name:
+            return node
+    raise AssertionError(f"{fn_name} not found")
+
+
 async def test_to_thread_keeps_event_loop_ticking():
     """对照：同一把 loop-lag 尺子，to_thread 不应出现接近 sleep 时长的空洞。"""
     interval = 0.05
@@ -81,3 +93,84 @@ async def test_to_thread_keeps_event_loop_ticking():
     await ping_task
     assert samples
     assert max(samples) < 0.2
+
+
+def test_save_file_uses_to_thread():
+    src = (BACKEND / "app" / "services" / "file_service.py").read_text(encoding="utf-8")
+    fn = _class_fn(ast.parse(src), "FileService", "save_file")
+    assert isinstance(fn, ast.AsyncFunctionDef)
+    assert _calls_name(fn, "to_thread")
+    assert _calls_name(fn, "prepare_image_bytes")
+    assert _calls_name(fn, "write_bytes")
+
+
+def test_prepare_upload_images_uses_to_thread():
+    src = (BACKEND / "app" / "services" / "image_guard.py").read_text(encoding="utf-8")
+    fn = _module_fn(ast.parse(src), "prepare_upload_images")
+    assert isinstance(fn, ast.AsyncFunctionDef)
+    assert _calls_name(fn, "to_thread")
+    assert _calls_name(fn, "prepare_image_bytes")
+
+
+def test_upload_route_offloads_duplicate_prepare():
+    src = (BACKEND / "app" / "routers" / "task.py").read_text(encoding="utf-8")
+    fn = _module_fn(ast.parse(src), "upload_tasks")
+    assert _calls_name(fn, "to_thread")
+    assert _calls_name(fn, "prepare_image_bytes")
+
+
+async def test_save_file_pillow_does_not_stall_event_loop(monkeypatch, tmp_path):
+    from app.services import file_service
+    from app.services.image_guard import PreparedImage
+
+    monkeypatch.setattr(file_service, "UPLOAD_DIR", tmp_path)
+
+    def slow_prepare(content: bytes, original_name: str | None = None) -> PreparedImage:
+        time.sleep(0.3)
+        return PreparedImage(
+            content=b"ok",
+            content_type="image/jpeg",
+            suffix=".jpg",
+            original_name=original_name,
+        )
+
+    monkeypatch.setattr(file_service, "prepare_image_bytes", slow_prepare)
+
+    samples: list[float] = []
+
+    async def ping() -> None:
+        deadline = time.perf_counter() + 0.45
+        while time.perf_counter() < deadline:
+            t0 = time.perf_counter()
+            await asyncio.sleep(0.05)
+            samples.append(time.perf_counter() - t0)
+
+    upload = UploadFile(
+        file=io.BytesIO(b"fake-bytes"),
+        filename="a.jpg",
+        headers=Headers({"content-type": "image/jpeg"}),
+    )
+    ping_task = asyncio.create_task(ping())
+    await file_service.FileService.save_file(upload)
+    await ping_task
+    assert samples
+    assert max(samples) < 0.2
+
+
+async def test_save_file_propagates_http_exception(monkeypatch, tmp_path):
+    from app.services import file_service
+
+    monkeypatch.setattr(file_service, "UPLOAD_DIR", tmp_path)
+
+    def boom(content: bytes, original_name: str | None = None):
+        raise HTTPException(status_code=400, detail="图片不能为空")
+
+    monkeypatch.setattr(file_service, "prepare_image_bytes", boom)
+    upload = UploadFile(
+        file=io.BytesIO(b"x"),
+        filename="a.jpg",
+        headers=Headers({"content-type": "image/jpeg"}),
+    )
+    with pytest.raises(HTTPException) as exc:
+        await file_service.FileService.save_file(upload)
+    assert exc.value.status_code == 400

@@ -105,7 +105,9 @@ async def chat_stream(
     try:
         uploaded_image_paths: list[tuple[str, str | None]] = []
         if prepared_images:
-            uploaded_image_paths = persist_chat_images(current_user.id, prepared_images)
+            uploaded_image_paths = await asyncio.to_thread(
+                persist_chat_images, current_user.id, prepared_images
+            )
             for relative_path, _original in uploaded_image_paths:
                 logger.info(
                     "用户上传聊天图片 user_id=%d path=%s",

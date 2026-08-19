@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import json
 import logging
@@ -48,7 +49,7 @@ async def upload_tasks(
 
     for file in files:
         content = await file.read()
-        prepare_image_bytes(content, file.filename)
+        await asyncio.to_thread(prepare_image_bytes, content, file.filename)
         await file.seek(0)
 
         # 分布式锁：防重复提交
