@@ -4,6 +4,17 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest"
 
 import { TaskImagePreview } from "./TaskImagePreview"
 
+// TaskImagePreview 内部走鉴权接口取原图 Blob（批次 2 关了 /static 匿名访问）。
+// 只替换 http.get，其余导出（downloadFile / extractErrorMessage）保留真实实现。
+const httpGetMock = vi.fn()
+vi.mock("@/shared/api/http", async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    http: { ...actual.http, get: (...args) => httpGetMock(...args) },
+  }
+})
+
 const strokeRectMock = vi.fn()
 const fillRectMock = vi.fn()
 const fillTextMock = vi.fn()
@@ -59,6 +70,11 @@ beforeEach(() => {
 
   globalThis.Image = MockImage
 
+  httpGetMock.mockReset()
+  httpGetMock.mockResolvedValue({ data: new Blob(["fake-image"], { type: "image/png" }) })
+  globalThis.URL.createObjectURL = vi.fn(() => "blob:mock-preview")
+  globalThis.URL.revokeObjectURL = vi.fn()
+
   Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
     configurable: true,
     value: vi.fn(() => drawContext),
@@ -77,13 +93,19 @@ test("renders the original image and draws boxes for completed tasks", async () 
           objects: [{ box: [120, 120, 60, 60], class: "crack", confidence: 0.98 }],
         },
         file_name: "blade.png",
+        id: 56,
         original_path: "static/uploads/blade.png",
         status: "completed",
       }}
     />,
   )
 
-  expect(screen.getByRole("img", { name: "blade.png 原图预览" })).toBeInTheDocument()
+  // 必须走鉴权接口，不能回退成直连 /static（那条路已被后端 404）
+  expect(httpGetMock).toHaveBeenCalledWith("/tasks/56/image?kind=original", {
+    responseType: "blob",
+  })
+
+  expect(await screen.findByRole("img", { name: "blade.png 原图预览" })).toBeInTheDocument()
   expect(screen.getByLabelText("检测标框画布")).toBeInTheDocument()
 
   await waitFor(() => {
@@ -91,18 +113,19 @@ test("renders the original image and draws boxes for completed tasks", async () 
   })
 })
 
-test("shows the original image with a processing hint and no canvas while running", () => {
+test("shows the original image with a processing hint and no canvas while running", async () => {
   render(
     <TaskImagePreview
       task={{
         file_name: "processing.png",
+        id: 57,
         original_path: "static/uploads/processing.png",
         status: "progressing",
       }}
     />,
   )
 
-  expect(screen.getByRole("img", { name: "processing.png 原图预览" })).toBeInTheDocument()
+  expect(await screen.findByRole("img", { name: "processing.png 原图预览" })).toBeInTheDocument()
   expect(screen.getByText("正在检测中，结果生成后会自动刷新。")).toBeInTheDocument()
   expect(screen.queryByLabelText("检测标框画布")).not.toBeInTheDocument()
   expect(strokeRectMock).not.toHaveBeenCalled()
