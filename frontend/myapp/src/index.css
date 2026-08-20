@@ -2808,7 +2808,10 @@ textarea {
 }
 
 .wind-turbine-svg__blades {
-  transform-box: fill-box;
+  /* 必须是 view-box：fill-box 会让 origin 从叶片组自身 bbox 的左上角 (8,14) 起算，
+     "60 75" 于是落在 (68,89) 而不是轮毂 (60,75)，偏心 8×14 —— 转起来就是上下晃。
+     view-box 让坐标直接对齐 SVG 的 viewBox，60 75 正好是那个 <circle> 轮毂。 */
+  transform-box: view-box;
   transform-origin: 60px 75px;
 }
 
