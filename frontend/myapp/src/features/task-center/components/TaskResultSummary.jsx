@@ -1,7 +1,9 @@
 import * as React from "react"
 
+import { defectName } from "@/shared/lib/labels"
+
 function formatObjectLabel(object, index) {
-  return object?.class ?? `对象 ${index + 1}`
+  return object?.class ? defectName(object.class) : `对象 ${index + 1}`
 }
 
 function formatStatus(status) {

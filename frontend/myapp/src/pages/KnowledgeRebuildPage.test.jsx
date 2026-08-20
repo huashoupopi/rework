@@ -46,9 +46,10 @@ test("renders rebuild summary and document status", () => {
   expect(screen.getByRole("heading", { name: "知识库重建" })).toBeInTheDocument()
   expect(screen.getByText("索引维护")).toBeInTheDocument()
   expect(screen.getByText("查看索引状态，触发全量或增量重建。")).toBeInTheDocument()
-  expect(screen.getByText("已索引")).toBeInTheDocument()
+  // 「已索引」既是统计卡标题也是文档状态标签，故用 getAllByText
+  expect(screen.getAllByText("已索引").length).toBeGreaterThanOrEqual(2)
   expect(screen.getByText("guide.md")).toBeInTheDocument()
-  expect(screen.getByText("indexed")).toBeInTheDocument()
+  expect(screen.queryByText("indexed")).not.toBeInTheDocument()
   expect(screen.getByRole("button", { name: "全量重建" })).toBeInTheDocument()
   expect(screen.getByRole("button", { name: "增量重建" })).toBeInTheDocument()
 })

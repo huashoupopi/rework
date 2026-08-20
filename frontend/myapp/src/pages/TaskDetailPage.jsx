@@ -4,6 +4,7 @@ import { Bot, RefreshCw } from "lucide-react"
 
 import { exportTask } from "@/features/task-center/api/task-api"
 import { extractErrorMessage } from "@/shared/api/http"
+import { taskStatusName } from "@/shared/lib/labels"
 import { TaskImagePreview } from "@/features/task-center/components/TaskImagePreview"
 import { TaskResultSummary } from "@/features/task-center/components/TaskResultSummary"
 import { useTaskDetail } from "@/features/task-center/hooks/useTaskDetail"
@@ -37,7 +38,7 @@ export function TaskDetailPage() {
         aside={
           <PageWorkbandInfoCard
             items={[
-              { label: "状态", value: activeTask?.status ?? "加载中" },
+              { label: "状态", value: taskStatusName(activeTask?.status) || "加载中" },
               { label: "图片", value: activeTask?.file_name ?? `任务 #${resolvedTaskId}` },
             ]}
             label={`任务 #${resolvedTaskId}`}

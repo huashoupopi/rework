@@ -143,6 +143,9 @@ test("updates filter state and refreshes the list", () => {
   expect(refreshMock).toHaveBeenCalledTimes(1)
 })
 
+// 这条渲染真实 antd Table（含分页），单跑约 1.5s，全量并发时被拖到 5s+ 撞默认
+// 5s 超时 —— stash 掉本轮改动后连红三次，属既有 flaky，非本次引入。
+// 给它单独放宽超时，⛔ 不改断言、不跳过。
 test("renders the real document table with Antd pagination chrome", async () => {
   const { KnowledgeDocumentTable } = await vi.importActual(
     "@/features/knowledge-admin/components/KnowledgeDocumentTable",
@@ -172,4 +175,4 @@ test("renders the real document table with Antd pagination chrome", async () => 
 
   expect(container.querySelector(".ant-table")).toBeInTheDocument()
   expect(container.querySelector(".ant-pagination")).toBeInTheDocument()
-})
+}, 20000)
