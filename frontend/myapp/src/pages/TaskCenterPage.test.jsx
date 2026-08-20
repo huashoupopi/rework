@@ -5,16 +5,23 @@ import { afterEach, expect, test, vi } from "vitest"
 const refreshMock = vi.fn()
 const setPageMock = vi.fn()
 const setPageSizeMock = vi.fn()
+const setStatusMock = vi.fn()
+const setFileNameMock = vi.fn()
 
 vi.mock("@/features/task-center/hooks/useTaskList", () => ({
   useTaskList: () => ({
     error: null,
+    fileName: "",
     loading: false,
     page: 2,
     pageSize: 10,
     refresh: refreshMock,
+    setFileName: setFileNameMock,
     setPage: setPageMock,
     setPageSize: setPageSizeMock,
+    setStatus: setStatusMock,
+    status: "",
+    statusCounts: { completed: 18, failed: 4, pending: 1 },
     tasks: [
       {
         id: 1,
@@ -114,7 +121,8 @@ test("renders upload entry, filtering entry, and task table", () => {
 
   expect(screen.getByRole("heading", { name: "任务中心" })).toBeInTheDocument()
   expect(screen.getByText("检测任务")).toBeInTheDocument()
-  expect(screen.getByText("已加载 3 条任务，当前页完成 1 条。")).toBeInTheDocument()
+  // 描述用全库口径：total 与 statusCounts 都来自服务端，不再数当前页
+  expect(screen.getByText("共 23 条任务，本页显示 3 条，全部已完成 18 条。")).toBeInTheDocument()
   expect(screen.getByRole("button", { name: "刷新任务列表" })).toBeInTheDocument()
   expect(screen.getByRole("button", { name: "刷新按钮" })).toBeInTheDocument()
   expect(screen.getByRole("button", { name: "模拟上传成功" })).toBeInTheDocument()
@@ -133,19 +141,28 @@ test("refreshes the list after upload success", async () => {
   })
 })
 
-test("filters tasks locally and forwards pagination controls", () => {
+// 回归钉：筛选必须交给服务端。此前在前端对当前页做本地过滤 ——
+// 实测第 2 页共 6 条，筛「失败」得 5、筛「已完成」得 1，5+1 正好是这一页全部，
+// 说明根本没查全库；要找全某状态的任务得一页页翻着筛。
+test("filters are pushed to the server, not applied locally", () => {
   render(<TaskCenterPage />)
 
   fireEvent.change(screen.getByLabelText("文件名关键词"), {
     target: { value: "report" },
   })
+  expect(setFileNameMock).toHaveBeenCalledWith("report")
 
   fireEvent.change(screen.getByLabelText("状态"), {
     target: { value: "failed" },
   })
+  expect(setStatusMock).toHaveBeenCalledWith("failed")
 
-  expect(screen.getByText("筛选结果：1 / 3")).toBeInTheDocument()
-  expect(screen.getByText("任务表格:report.png")).toBeInTheDocument()
+  // 表格渲染的是服务端返回的那一页，前端不再自己裁
+  expect(screen.getByText("任务表格:demo.png,beta.png,report.png")).toBeInTheDocument()
+})
+
+test("forwards pagination controls", () => {
+  render(<TaskCenterPage />)
 
   fireEvent.click(screen.getByRole("button", { name: "下一页入口" }))
   fireEvent.click(screen.getByRole("button", { name: "切换每页条数" }))
