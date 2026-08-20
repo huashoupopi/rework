@@ -468,7 +468,7 @@ class RagService:
                     fallback_retriever = cls._index.as_retriever(
                         similarity_top_k=top_k, vector_store_query_mode="default"
                     )
-                    nodes, retrieve_mode = await retrieve_two_path(
+                    nodes, retrieve_mode, path_stats = await retrieve_two_path(
                         dense_retriever.aretrieve(hybrid_query),
                         sparse_retriever.aretrieve(hybrid_query),
                         lambda: fallback_retriever.aretrieve(augmented_question),
@@ -488,6 +488,9 @@ class RagService:
                             tokenized_query=hybrid_query,
                             returned=len(nodes),
                             top_score=first_node_score(nodes),
+                            dense=path_stats["dense"],
+                            sparse=path_stats["sparse"],
+                            overlap=path_stats["overlap"],
                         )
 
                     pre_rerank_nodes = nodes  # rerank 返回新列表，此引用保住 rerank 前名次表
