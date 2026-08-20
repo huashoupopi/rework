@@ -6,11 +6,16 @@ export function useEvalReports() {
   const [items, setItems] = React.useState([])
   const [report, setReport] = React.useState(null)
   const [selectedName, setSelectedName] = React.useState(null)
+  // 跨跑批对比要同时持有两份报告 —— 逐题比 MRR 才能看出哪些题在抖
+  const [compareReport, setCompareReport] = React.useState(null)
+  const [compareName, setCompareName] = React.useState(null)
+  const [compareLoading, setCompareLoading] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [detailLoading, setDetailLoading] = React.useState(false)
   const [error, setError] = React.useState(null)
   const requestIdRef = React.useRef(0)
   const detailIdRef = React.useRef(0)
+  const compareIdRef = React.useRef(0)
   const mountedRef = React.useRef(true)
 
   const loadList = React.useCallback(async () => {
@@ -63,6 +68,36 @@ export function useEvalReports() {
     }
   }, [])
 
+  const openCompare = React.useCallback(async (name) => {
+    if (!name) {
+      setCompareName(null)
+      setCompareReport(null)
+      return null
+    }
+
+    const requestId = ++compareIdRef.current
+    setCompareName(name)
+    setCompareLoading(true)
+
+    try {
+      const response = await getEvalReport(name)
+      if (!mountedRef.current || requestId !== compareIdRef.current) {
+        return response
+      }
+      setCompareReport(response)
+      return response
+    } catch (nextError) {
+      if (mountedRef.current && requestId === compareIdRef.current) {
+        setCompareReport(null)
+      }
+      throw nextError
+    } finally {
+      if (mountedRef.current && requestId === compareIdRef.current) {
+        setCompareLoading(false)
+      }
+    }
+  }, [])
+
   React.useEffect(() => {
     mountedRef.current = true
     return () => {
@@ -75,10 +110,14 @@ export function useEvalReports() {
   }, [loadList])
 
   return {
+    compareLoading,
+    compareName,
+    compareReport,
     detailLoading,
     error,
     items,
     loading,
+    openCompare,
     openReport,
     refresh: loadList,
     report,
