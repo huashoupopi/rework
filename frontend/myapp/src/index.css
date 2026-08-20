@@ -3065,3 +3065,236 @@ textarea {
   outline: none;
   width: 100%;
 }
+
+/* ── 评测报告页：分层通过率、耗时占比、跨跑批对比、检索两路 ───────────── */
+
+.eval-layer-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+}
+
+.eval-layer-grid li {
+  background: var(--surface-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+}
+
+.eval-layer-grid li.eval-layer--partial {
+  border-color: var(--danger-soft);
+}
+
+.eval-layer__name {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.eval-layer__score {
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.eval-layer__meter {
+  background: var(--surface-muted);
+  border-radius: 999px;
+  display: block;
+  height: 4px;
+  overflow: hidden;
+}
+
+.eval-layer__meter > span {
+  background: var(--accent);
+  display: block;
+  height: 100%;
+}
+
+.eval-layer--partial .eval-layer__meter > span {
+  background: #ff6666;
+}
+
+.eval-timing__head {
+  align-items: baseline;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.eval-timing__head h3 {
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.eval-timing__head span {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.eval-sharebar {
+  background: var(--surface-muted);
+  border-radius: 999px;
+  display: flex;
+  height: 10px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.eval-sharebar__seg {
+  display: block;
+  height: 100%;
+}
+
+/* 各跳配色：改写用暖色，因为它最容易意外吃掉大头（实测占过 39%） */
+.eval-sharebar__seg--rewrite,
+.eval-dot--rewrite { background: #ffb44d; }
+.eval-sharebar__seg--retrieve,
+.eval-dot--retrieve { background: var(--accent); }
+.eval-sharebar__seg--rerank,
+.eval-dot--rerank { background: var(--accent-cyan); }
+.eval-sharebar__seg--route,
+.eval-dot--route { background: #9d6bff; }
+.eval-sharebar__seg--generate,
+.eval-dot--generate { background: #2ba370; }
+
+.eval-timing__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eval-timing__legend li {
+  align-items: center;
+  display: flex;
+  font-size: 0.8rem;
+  gap: 6px;
+}
+
+.eval-dot {
+  border-radius: 50%;
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+}
+
+.eval-compare-select,
+.eval-layer-select {
+  min-width: 220px;
+}
+
+.eval-layer-select {
+  min-width: 120px;
+}
+
+.eval-diff__none,
+.eval-diff__summary {
+  align-items: center;
+  color: var(--text-muted);
+  display: flex;
+  font-size: 0.85rem;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.eval-delta--up,
+.eval-delta--down {
+  align-items: center;
+  display: inline-flex;
+  gap: 3px;
+}
+
+.eval-delta--up { color: #2ba370; }
+.eval-delta--down { color: #ff6666; }
+
+.eval-filters {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.secondary-action.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.eval-paths,
+.eval-moves {
+  border-top: 1px solid var(--glass-border);
+  margin-top: 16px;
+  padding-top: 14px;
+}
+
+.eval-paths h3,
+.eval-moves h3 {
+  font-size: 0.92rem;
+  margin: 0 0 10px;
+}
+
+.eval-paths ul {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eval-paths li {
+  background: var(--surface-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+}
+
+.eval-paths li span {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.eval-paths__query {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+
+.eval-paths__query code {
+  background: var(--surface-muted);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+}
+
+.eval-moves ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eval-moves li {
+  align-items: center;
+  display: flex;
+  font-size: 0.82rem;
+  gap: 5px;
+}
+
+.eval-trace__ms {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 400;
+  margin-left: 6px;
+}
