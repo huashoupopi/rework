@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import {
   ArrowRight,
   Bot,
+  ClipboardList,
   FileText,
   LibraryBig,
   RefreshCw,
@@ -144,6 +145,10 @@ export function HomePage() {
             <Link className="admin-link-card" to="/users">
               <Users size={16} />
               <span>用户管理</span>
+            </Link>
+            <Link className="admin-link-card" to="/evals">
+              <ClipboardList size={16} />
+              <span>评测报告</span>
             </Link>
           </div>
         </section>

@@ -72,4 +72,5 @@ test("renders admin grid for superusers", () => {
   expect(screen.getByText("知识库文档")).toBeInTheDocument()
   expect(screen.getByText("索引重建")).toBeInTheDocument()
   expect(screen.getByText("用户管理")).toBeInTheDocument()
+  expect(screen.getByText("评测报告")).toBeInTheDocument()
 })
