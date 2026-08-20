@@ -47,7 +47,10 @@ test("hides admin navigation for normal users", async () => {
   })
 
   expect(screen.getByText("REWORK")).toBeInTheDocument()
-  expect(screen.getByRole("heading", { name: "工作台" })).toBeInTheDocument()
+  // 顶栏显示当前位置，但它不是页面标题 —— 页面标题由 PageWorkband 提供，
+  // 两处都用 h1 会让每页有两个 H1、同一个词显示两遍。
+  expect(screen.getByText("工作台", { selector: ".app-topbar__title *" })).toBeInTheDocument()
+  expect(screen.queryByRole("heading", { name: "工作台" })).not.toBeInTheDocument()
   expect(screen.getByRole("navigation", { name: "主导航" })).toBeInTheDocument()
   expect(screen.getByText("工作台", { selector: ".app-sidebar__group-label" })).toBeInTheDocument()
   expect(screen.getByRole("link", { name: "工作台" })).toBeInTheDocument()
@@ -72,7 +75,10 @@ test("shows admin navigation for superusers", async () => {
   expect(screen.getByRole("link", { name: "用户管理" })).toBeInTheDocument()
   expect(screen.getByText("管理", { selector: ".app-sidebar__group-label" })).toBeInTheDocument()
   expect(screen.getByText("admin")).toBeInTheDocument()
-  expect(screen.getByRole("heading", { name: "工作台" })).toBeInTheDocument()
+  // 顶栏显示当前位置，但它不是页面标题 —— 页面标题由 PageWorkband 提供，
+  // 两处都用 h1 会让每页有两个 H1、同一个词显示两遍。
+  expect(screen.getByText("工作台", { selector: ".app-topbar__title *" })).toBeInTheDocument()
+  expect(screen.queryByRole("heading", { name: "工作台" })).not.toBeInTheDocument()
 })
 
 test("toggles the navigation collapse state from the header control", async () => {

@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom"
 
 import { register } from "@/features/auth/api/auth-api"
 import { useAuthStore } from "@/features/auth/store/auth-store"
+import { extractErrorMessage } from "@/shared/api/http"
 import { InteractiveHoverButton } from "@/shared/ui/magicui/interactive-hover-button"
 import { GlassCard } from "@/shared/ui/GlassCard"
 import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
@@ -30,7 +31,7 @@ export function RegisterPage() {
       await register(values)
       navigate("/login", { replace: true })
     } catch (error) {
-      setErrorMessage(error?.response?.data?.detail ?? "注册失败，请稍后重试")
+      setErrorMessage(extractErrorMessage(error, "注册失败，请稍后重试"))
     } finally {
       setSubmitting(false)
     }

@@ -5,6 +5,7 @@ import { useReducedMotion } from "motion/react"
 
 import { getCurrentUser, login } from "@/features/auth/api/auth-api"
 import { useAuthStore } from "@/features/auth/store/auth-store"
+import { extractErrorMessage } from "@/shared/api/http"
 import { tokenDurationSeconds } from "@/shared/lib/utils"
 import { InteractiveHoverButton } from "@/shared/ui/magicui/interactive-hover-button"
 import { GlassCard } from "@/shared/ui/GlassCard"
@@ -70,7 +71,7 @@ export function LoginPage() {
       setErrorMessage(
         nextFails >= 3
           ? "叶片检修中，请稍后再试"
-          : (error?.response?.data?.detail ?? "登录失败，请稍后重试"),
+          : extractErrorMessage(error, "登录失败，请稍后重试"),
       )
     } finally {
       setSubmitting(false)

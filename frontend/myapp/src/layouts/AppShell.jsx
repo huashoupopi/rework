@@ -167,11 +167,14 @@ export function AppShell() {
         <header className="app-topbar">
           <div className="app-topbar__intro">
             <p className="app-topbar__eyebrow">REWORK OPERATIONS</p>
-            <h1 className="app-topbar__title">
+            {/* 顶栏显示的是「当前位置」，页面内容里的 PageWorkband 才是真正的页面标题。
+                这里曾用 <h1>，导致每页两个 H1、同一个词在一屏内显示两遍。
+                样式走 .app-topbar__title 这个 class，改标签不影响视觉。 */}
+            <p className="app-topbar__title">
               <LineShadowText as="span" shadowColor="rgba(77,141,255,0.28)">
                 {activeItem?.label ?? "工作台"}
               </LineShadowText>
-            </h1>
+            </p>
           </div>
           <div className="app-topbar__actions">
             <div className="user-badge" title={userInfo?.is_superuser ? "管理员" : "成员"}>

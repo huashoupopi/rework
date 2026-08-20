@@ -12,11 +12,39 @@ async def get_task_by_id(db: AsyncSession, task_id: int) -> Task | None:
 
 
 async def get_tasks_paginated(
-    db: AsyncSession, user_id: int, is_superuser: bool, skip: int = 0, limit: int = 10
+    db: AsyncSession,
+    user_id: int,
+    is_superuser: bool,
+    skip: int = 0,
+    limit: int = 10,
+    status: str | None = None,
+    file_name: str | None = None,
 ) -> TaskPaginationSchema:
-    base_stmt = select(Task)
+    """按状态筛选与统计都在库里做。
+
+    此前筛选只在前端对当前页做，翻页才能找全某状态的任务，
+    且完成率之类的指标只按当前页算。status_counts 一次给出全量分布，
+    前端无需再自己数。
+    """
+    scope_stmt = select(Task)
     if not is_superuser:
-        base_stmt = base_stmt.where(Task.user_id == user_id)
+        scope_stmt = scope_stmt.where(Task.user_id == user_id)
+
+    # 各状态计数不受 status 过滤影响 —— 筛选时也要能看到全貌
+    counts_stmt = select(Task.status, func.count(Task.id)).group_by(Task.status)
+    if not is_superuser:
+        counts_stmt = counts_stmt.where(Task.user_id == user_id)
+    counts_result = await db.execute(counts_stmt)
+    status_counts = {row[0]: row[1] for row in counts_result.all() if row[0] is not None}
+
+    base_stmt = scope_stmt
+    if status:
+        base_stmt = base_stmt.where(Task.status == status)
+    if file_name:
+        # ilike + 转义，避免用户输入的 % _ 变成通配符
+        escaped = file_name.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        base_stmt = base_stmt.where(Task.file_name.ilike(f"%{escaped}%", escape="\\"))
+
     total_stmt = select(func.count()).select_from(base_stmt.subquery())
     total_result = await db.execute(total_stmt)
     total = total_result.scalar_one()
@@ -30,7 +58,7 @@ async def get_tasks_paginated(
     result = (await db.execute(stmt)).scalars().all()
     items = [TaskSchema.model_validate(task) for task in result]
 
-    return TaskPaginationSchema(total=total, items=items)
+    return TaskPaginationSchema(total=total, items=items, status_counts=status_counts)
 
 
 """

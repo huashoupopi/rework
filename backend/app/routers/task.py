@@ -100,10 +100,14 @@ async def upload_tasks(
 async def get_tasks(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1),
+    status: str | None = Query(None, pattern="^(pending|progressing|completed|failed)$"),
+    file_name: str | None = Query(None, max_length=200),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> TaskPaginationSchema:
-    result = await get_tasks_paginated(db, current_user.id, current_user.is_superuser, skip, limit)
+    result = await get_tasks_paginated(
+        db, current_user.id, current_user.is_superuser, skip, limit, status, file_name
+    )
     return result
 
 

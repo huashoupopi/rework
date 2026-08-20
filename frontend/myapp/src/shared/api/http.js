@@ -53,3 +53,48 @@ export async function downloadFile(url, config = {}) {
 
   return response
 }
+
+// FastAPI 的 detail 有三种形态：字符串（HTTPException）、对象数组（Pydantic 422）、
+// 或缺席。以前各页面直接把 detail 塞进 React，遇到 422 就抛
+// "Objects are not valid as a React child"，整页白屏。统一在这里收敛成字符串。
+export function extractErrorMessage(error, fallback = "请求失败，请稍后重试") {
+  const detail = error?.response?.data?.detail
+
+  if (typeof detail === "string" && detail.trim()) {
+    return detail
+  }
+
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) => {
+        if (typeof item === "string") {
+          return item
+        }
+        if (!item || typeof item !== "object") {
+          return ""
+        }
+        // loc 形如 ["body", "password"]，取末段当字段名
+        const field = Array.isArray(item.loc) ? item.loc[item.loc.length - 1] : ""
+        const msg = typeof item.msg === "string" ? item.msg : ""
+        if (!msg) {
+          return ""
+        }
+        return field ? `${field}：${msg}` : msg
+      })
+      .filter(Boolean)
+
+    if (messages.length > 0) {
+      return messages.join("；")
+    }
+  }
+
+  if (detail && typeof detail === "object" && typeof detail.msg === "string") {
+    return detail.msg
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  return fallback
+}

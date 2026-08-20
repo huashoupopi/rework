@@ -1,7 +1,7 @@
 import * as React from "react"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom"
-import { afterEach, expect, test, vi } from "vitest"
+import { afterEach, beforeEach, expect, test, vi } from "vitest"
 
 const getTaskDetailMock = vi.fn()
 const downloadTaskImageMock = vi.fn()
@@ -13,7 +13,25 @@ vi.mock("@/features/task-center/api/task-api", () => ({
   getTaskDetail: (...args) => getTaskDetailMock(...args),
 }))
 
+// TaskImagePreview 内部走鉴权接口取原图 Blob（批次 2 关了 /static 匿名访问）。
+// 只替换 http.get，其余导出（downloadFile / extractErrorMessage）保留真实实现。
+const httpGetMock = vi.fn()
+vi.mock("@/shared/api/http", async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    http: { ...actual.http, get: (...args) => httpGetMock(...args) },
+  }
+})
+
 const { TaskDetailPage } = await import("./TaskDetailPage")
+
+beforeEach(() => {
+  httpGetMock.mockReset()
+  httpGetMock.mockResolvedValue({ data: new Blob(["fake-image"], { type: "image/png" }) })
+  globalThis.URL.createObjectURL = vi.fn(() => "blob:mock-preview")
+  globalThis.URL.revokeObjectURL = vi.fn()
+})
 
 afterEach(() => {
   vi.useRealTimers()
@@ -64,7 +82,7 @@ test("loads task detail from the route param and renders the completed summary",
   expect(screen.getByText("发现 3 处目标")).toBeInTheDocument()
   expect(screen.getByText(/crack/)).toBeInTheDocument()
   expect(screen.getByRole("link", { name: /关联问答/ })).toHaveAttribute("href", "/chat?taskId=7")
-  expect(screen.getByRole("img", { name: "demo.png 原图预览" })).toBeInTheDocument()
+  expect(await screen.findByRole("img", { name: "demo.png 原图预览" })).toBeInTheDocument()
   expect(screen.getByLabelText("检测标框画布")).toBeInTheDocument()
 
   fireEvent.click(screen.getByRole("button", { name: "下载单张" }))
@@ -98,7 +116,7 @@ test("shows the failed state without exposing the download action", async () => 
   expect(screen.queryByRole("button", { name: "下载单张" })).not.toBeInTheDocument()
   expect(screen.queryByRole("button", { name: "导出 JSON" })).not.toBeInTheDocument()
   expect(screen.queryByRole("button", { name: "导出 CSV" })).not.toBeInTheDocument()
-  expect(screen.getByRole("img", { name: "failed.png 原图预览" })).toBeInTheDocument()
+  expect(await screen.findByRole("img", { name: "failed.png 原图预览" })).toBeInTheDocument()
   expect(screen.getByText("检测失败，请检查原始图片或稍后重试。")).toBeInTheDocument()
 })
 
@@ -180,7 +198,7 @@ test("shows the original image with a processing hint before detection completes
     expect(getTaskDetailMock).toHaveBeenCalledWith(7)
   })
 
-  expect(screen.getByRole("img", { name: "queue.png 原图预览" })).toBeInTheDocument()
+  expect(await screen.findByRole("img", { name: "queue.png 原图预览" })).toBeInTheDocument()
   expect(screen.getByText("正在检测中，结果生成后会自动刷新。")).toBeInTheDocument()
   expect(screen.queryByLabelText("检测标框画布")).not.toBeInTheDocument()
 })

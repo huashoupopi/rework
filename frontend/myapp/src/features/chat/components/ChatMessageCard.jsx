@@ -1,6 +1,9 @@
 import * as React from "react"
+
+import { http } from "@/shared/api/http"
+import { WindTurbineSvg } from "@/shared/ui/WindTurbineSvg"
 import Markdown from "react-markdown"
-import { BrainCircuit, ChevronDown, ChevronRight, FileText, LoaderCircle } from "lucide-react"
+import { BrainCircuit, ChevronDown, ChevronRight, FileText } from "lucide-react"
 
 import { AnimatedShinyText } from "@/shared/ui/magicui/animated-shiny-text"
 import { TextShimmerWave } from "@/shared/ui/motion-primitives/text-shimmer-wave"
@@ -127,26 +130,63 @@ function MessageImages({ images }) {
       return undefined
     }
 
-    const created = images.map((img) => {
+    // 三种来源：已是 URL 的字符串、刚选中的本地 Blob、后端返回的历史图。
+    // 历史图不能再直连 /static —— 批次 2 关了匿名访问，必须带 token 取 Blob。
+    const objectUrls = []
+    let cancelled = false
+
+    const immediate = images.map((img) => {
       if (typeof img === "string") {
         return img
       }
       if (img instanceof Blob) {
-        return URL.createObjectURL(img)
-      }
-      if (img && typeof img === "object" && typeof img.file_path === "string") {
-        return `/static/${img.file_path}`
+        const objectUrl = URL.createObjectURL(img)
+        objectUrls.push(objectUrl)
+        return objectUrl
       }
       return null
-    }).filter(Boolean)
+    })
 
-    setUrls(created)
+    setUrls(immediate.filter(Boolean))
+
+    const remoteTasks = images
+      .map((img, index) => {
+        if (immediate[index] !== null) {
+          return null
+        }
+        const imageId = img && typeof img === "object" ? img.id : null
+        if (imageId === undefined || imageId === null) {
+          return null
+        }
+        return http
+          .get(`/chat/images/${imageId}`, { responseType: "blob" })
+          .then((response) => ({ blob: response.data, index }))
+          .catch(() => null)
+      })
+      .filter(Boolean)
+
+    if (remoteTasks.length > 0) {
+      Promise.all(remoteTasks).then((results) => {
+        if (cancelled) {
+          return
+        }
+        const merged = [...immediate]
+        for (const item of results) {
+          if (!item) {
+            continue
+          }
+          const objectUrl = URL.createObjectURL(item.blob)
+          objectUrls.push(objectUrl)
+          merged[item.index] = objectUrl
+        }
+        setUrls(merged.filter(Boolean))
+      })
+    }
 
     return () => {
-      for (const url of created) {
-        if (url.startsWith("blob:")) {
-          URL.revokeObjectURL(url)
-        }
+      cancelled = true
+      for (const url of objectUrls) {
+        URL.revokeObjectURL(url)
       }
     }
   }, [images])
@@ -185,7 +225,7 @@ export function ChatMessageCard({ message }) {
         <span className="message-card__role">{roleLabel}</span>
         {isStreaming ? (
           <span className="message-card__badge">
-            <LoaderCircle size={14} />
+            <WindTurbineSvg className="message-card__spinner" spinning />
             <span>生成中</span>
           </span>
         ) : null}

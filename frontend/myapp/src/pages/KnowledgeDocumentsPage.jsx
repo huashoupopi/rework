@@ -78,8 +78,8 @@ export function KnowledgeDocumentsPage() {
               }
             >
               <option value="">全部</option>
-              <option value="active">active</option>
-              <option value="deleted">deleted</option>
+              <option value="active">生效中</option>
+              <option value="deleted">已删除</option>
             </select>
           </label>
           <button disabled={loading} type="button" onClick={refresh}>
