@@ -56,6 +56,7 @@ test("hides admin navigation for normal users", async () => {
   expect(screen.getByRole("link", { name: "工作台" })).toBeInTheDocument()
   expect(screen.queryByRole("link", { name: "知识库文档" })).not.toBeInTheDocument()
   expect(screen.queryByRole("link", { name: "用户管理" })).not.toBeInTheDocument()
+  expect(screen.queryByRole("link", { name: "评测报告" })).not.toBeInTheDocument()
 })
 
 test("shows admin navigation for superusers", async () => {
@@ -73,6 +74,7 @@ test("shows admin navigation for superusers", async () => {
   expect(screen.getByRole("link", { name: "索引重建" })).toBeInTheDocument()
   expect(screen.getByRole("link", { name: "分块配置" })).toBeInTheDocument()
   expect(screen.getByRole("link", { name: "用户管理" })).toBeInTheDocument()
+  expect(screen.getByRole("link", { name: "评测报告" })).toBeInTheDocument()
   expect(screen.getByText("管理", { selector: ".app-sidebar__group-label" })).toBeInTheDocument()
   expect(screen.getByText("admin")).toBeInTheDocument()
   // 顶栏显示当前位置，但它不是页面标题 —— 页面标题由 PageWorkband 提供，

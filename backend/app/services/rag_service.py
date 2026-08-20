@@ -11,6 +11,12 @@ from app.core.config import settings
 from app.security import GUARDRAIL_RESPONSE, check_context_node, check_user_input
 from app.services.cjk_fts import tokenize_for_fts
 from app.services.query_rewrite import needs_rewrite
+from app.services.rag_trace import (
+    first_node_score,
+    maybe_start_trace,
+    rerank_moved,
+)
+from app.services.retrieval_fusion import retrieve_two_path
 
 os.environ["HF_HOME"] = settings.HF_HOME
 os.environ["HUGGINGFACE_HUB_CACHE"] = settings.HUGGINGFACE_HUB_CACHE
@@ -271,10 +277,6 @@ class RagService:
     _init_lock = asyncio.Lock()
     _chat_sema = asyncio.Semaphore(settings.RAG_MAX_CONCURRENCY)
 
-    RETRIEVAL_TOP_K: int = 10
-    RERANK_TOP_N: int = 5
-    SOURCE_THRESHOLD: float = -6.0
-
     @classmethod
     def _load_models_sync(cls) -> None:
         """同步加载 embedding / LLM / 向量索引 / reranker。必须在线程里跑。"""
@@ -363,7 +365,7 @@ class RagService:
         )
         cls._reranker = FlagEmbeddingReranker(
             model="BAAI/bge-reranker-v2-m3",
-            top_n=cls.RERANK_TOP_N,
+            top_n=settings.RERANK_TOP_N,
             use_fp16=use_fp16,
         )
 
@@ -408,6 +410,8 @@ class RagService:
                 return
 
         t0 = time.perf_counter()
+        # 关闭时 maybe_start_trace 返回 None，不构造对象。
+        trace = maybe_start_trace()
         # 放在最前面——不安全直接拒答，不浪费后续计算资源
         # 包含：长度校验 + Unicode 归一化 + 规则评分
         # ============================================
@@ -417,6 +421,8 @@ class RagService:
                 result_meta["finish_reason"] = "guardrail_blocked"
             yield GUARDRAIL_RESPONSE
             return
+        if trace is not None:
+            trace.lap_ms()  # 门卫耗时不记入 rewrite 跳
 
         try:
             async with cls._chat_sema:
@@ -433,23 +439,60 @@ class RagService:
                         # 改写被启发式跳过时它就等于原句——观测现实，不美化
                         if result_meta is not None:
                             result_meta["rewritten_query"] = retrieval_query
+                    if not session_messages:
+                        rewrite_skipped, rewrite_reason = True, "no_history"
+                    elif not _needs_rewrite(question, has_history=True):
+                        rewrite_skipped, rewrite_reason = True, "heuristic_skip"
+                    else:
+                        rewrite_skipped, rewrite_reason = False, None
+                    if trace is not None:
+                        rewrite_fields: dict = {
+                            "skipped": rewrite_skipped,
+                            "original": question,
+                            "rewritten": retrieval_query,
+                        }
+                        if rewrite_reason is not None:
+                            rewrite_fields["reason"] = rewrite_reason
+                        trace.add("rewrite", **rewrite_fields)
                     augmented_question = build_augmented_query(retrieval_query, image_context)
                     hybrid_query = tokenize_for_fts(augmented_question) or augmented_question
                     logger.info("rag stage=query len=%d", len(augmented_question))
 
-                    retriever = cls._index.as_retriever(
-                        similarity_top_k=cls.RETRIEVAL_TOP_K, vector_store_query_mode="hybrid"
+                    top_k = settings.RETRIEVAL_TOP_K
+                    dense_retriever = cls._index.as_retriever(
+                        similarity_top_k=top_k, vector_store_query_mode="default"
                     )
-                    nodes = await retriever.aretrieve(hybrid_query)
+                    sparse_retriever = cls._index.as_retriever(
+                        similarity_top_k=top_k, vector_store_query_mode="sparse"
+                    )
+                    fallback_retriever = cls._index.as_retriever(
+                        similarity_top_k=top_k, vector_store_query_mode="default"
+                    )
+                    nodes, retrieve_mode, path_stats = await retrieve_two_path(
+                        # 向量吃自然语言；全文吃 jieba 空格串。两路不要喂同一串。
+                        dense_retriever.aretrieve(augmented_question),
+                        sparse_retriever.aretrieve(hybrid_query),
+                        lambda: fallback_retriever.aretrieve(augmented_question),
+                        fusion=settings.RAG_FUSION_MODE,
+                        rrf_k=settings.RRF_K,
+                    )
                     retriever_ms = (time.perf_counter() - t0) * 1000
                     logger.info("rag stage=retriever ms=%.1f node=%d", retriever_ms, len(nodes))
+                    if retrieve_mode == "fallback_dense":
+                        logger.warning("两路检索都空，降级为纯向量检索")
 
-                    if not nodes:
-                        logger.warning("Hybrid search返回0结果， 降级为纯向量检索")
-                        fallback_retriever = cls._index.as_retriever(
-                            similarity_top_k=cls.RETRIEVAL_TOP_K, vector_store_query_mode="default"
+                    if trace is not None:
+                        trace.add(
+                            "retrieve",
+                            mode=retrieve_mode,
+                            query=augmented_question,
+                            tokenized_query=hybrid_query,
+                            returned=len(nodes),
+                            top_score=first_node_score(nodes),
+                            dense=path_stats["dense"],
+                            sparse=path_stats["sparse"],
+                            overlap=path_stats["overlap"],
                         )
-                        nodes = await fallback_retriever.aretrieve(augmented_question)
 
                     pre_rerank_nodes = nodes  # rerank 返回新列表，此引用保住 rerank 前名次表
                     if cls._reranker and nodes:
@@ -460,6 +503,15 @@ class RagService:
                             query_bundle,
                         )
                     rerank_ms = (time.perf_counter() - t0) * 1000
+                    if trace is not None:
+                        trace.add(
+                            "rerank",
+                            **{
+                                "in": len(pre_rerank_nodes),
+                                "out": len(nodes),
+                                "moved": rerank_moved(pre_rerank_nodes, nodes),
+                            },
+                        )
 
                     # eval 观测口（裁决 A）：带出 rerank 前 top_k / 后 top_n 的完整名次表。
                     # 生产保持关闭——chunk 全文进 meta 会显著放大消息体积。
@@ -470,7 +522,7 @@ class RagService:
                         }
 
                     context_nodes = [
-                        n for n in nodes if n.score is None or n.score > cls.SOURCE_THRESHOLD
+                        n for n in nodes if n.score is None or n.score > settings.SOURCE_THRESHOLD
                     ]
 
                     # 放在 Reranker 之后（已精排，节点少），Prompt 构建之前
@@ -515,6 +567,14 @@ class RagService:
                         injection_score,
                         rerank_ms,
                     )
+                    if trace is not None:
+                        trace.add(
+                            "route",
+                            route=route,
+                            context_nodes=len(context_nodes),
+                            top_score=top_score,
+                            injection_score=injection_score,
+                        )
 
                     sources: list[dict[str, Any]] = []
                     if route == "rag" and context_nodes:
@@ -530,6 +590,8 @@ class RagService:
                         and all(Path(p).exists() for p in vision_image_paths)
                     )
 
+                    ttfb_sink: list[float] | None = [] if trace is not None else None
+                    generate_mode = "vision" if use_vision else "chat"
                     if use_vision:
                         # 视觉链路仍用 _build_prompt（直接发 HTTP），后续迭代统一
                         full_prompt = cls._build_prompt(
@@ -539,7 +601,9 @@ class RagService:
                             session_block="",
                             image_context=image_context if has_image else None,
                         )
-                        stream_fn = cls._stream_vision(full_prompt, vision_image_paths, t0)
+                        stream_fn = cls._stream_vision(
+                            full_prompt, vision_image_paths, t0, ttfb_sink=ttfb_sink
+                        )
                     else:
                         messages = cls._build_messages(
                             question=question,
@@ -561,7 +625,7 @@ class RagService:
                                 len(m.content),
                                 m.content[:100],
                             )
-                        stream_fn = cls._stream_chat(messages, t0)
+                        stream_fn = cls._stream_chat(messages, t0, ttfb_sink=ttfb_sink)
                     emitted = False
                     async for token in stream_fn:
                         emitted = True
@@ -583,19 +647,38 @@ class RagService:
                         len(sources),
                         total_ms,
                     )
+                    if trace is not None:
+                        finish_reason = "ok"
+                        if result_meta is not None:
+                            finish_reason = str(result_meta.get("finish_reason") or "ok")
+                        generate_fields: dict = {
+                            "mode": generate_mode,
+                            "finish_reason": finish_reason,
+                        }
+                        if ttfb_sink:
+                            generate_fields["ttfb_ms"] = ttfb_sink[0]
+                        trace.add("generate", **generate_fields)
+                        if result_meta is not None:
+                            result_meta["rag_trace"] = trace.finish()
         except TimeoutError:
             if result_meta is not None:
                 result_meta["finish_reason"] = "timeout"
+                if trace is not None and "rag_trace" not in result_meta:
+                    result_meta["rag_trace"] = trace.finish()
             logger.warning("rag stage=timeout")
             yield "系统繁忙（生成超时），请稍后再试。"
         except asyncio.CancelledError:
             if result_meta is not None:
                 result_meta["finish_reason"] = "cancelled"
+                if trace is not None and "rag_trace" not in result_meta:
+                    result_meta["rag_trace"] = trace.finish()
             logger.info("rag stage=cancelled")
             raise
         except Exception:
             if result_meta is not None:
                 result_meta["finish_reason"] = "internal_error"
+                if trace is not None and "rag_trace" not in result_meta:
+                    result_meta["rag_trace"] = trace.finish()
             logger.exception("RAG 生成失败")
             yield "\n系统错误，检索服务暂时不可用。"
 
@@ -785,7 +868,10 @@ class RagService:
 
     @classmethod
     async def _stream_chat(
-        cls, messages: list[ChatMessage], t0: float
+        cls,
+        messages: list[ChatMessage],
+        t0: float,
+        ttfb_sink: list[float] | None = None,
     ) -> AsyncGenerator[str, None]:
         """结构化对话流式输出，使用 LlamaIndex 的 astream_chat 接口。
 
@@ -803,6 +889,7 @@ class RagService:
         last_content_len = 0
         thinking_started = False
         thinking_ended = False
+        stream_t0 = time.perf_counter()
 
         response_gen = await LlamaSettings.llm.astream_chat(messages)
         async for chunk in response_gen:
@@ -837,12 +924,19 @@ class RagService:
             if first_token:
                 ttfb_ms = (time.perf_counter() - t0) * 1000
                 logger.info("rag stage=ttfb ms=%.1f mode=chat", ttfb_ms)
+                if ttfb_sink is not None:
+                    # trace 要单跳 TTFB，不能搬日志里从总 t0 起算的累计值
+                    ttfb_sink.append(round((time.perf_counter() - stream_t0) * 1000, 1))
                 first_token = False
             yield token
 
     @classmethod
     async def _stream_vision(
-        cls, prompt: str, image_paths: list[str], t0: float
+        cls,
+        prompt: str,
+        image_paths: list[str],
+        t0: float,
+        ttfb_sink: list[float] | None = None,
     ) -> AsyncGenerator[str, None]:
         images_b64: list[str] = []
         for image_path in image_paths:
@@ -897,6 +991,7 @@ class RagService:
         first_token = True
         thinking_started = False
         thinking_ended = False
+        stream_t0 = time.perf_counter()
 
         stream_headers = headers if settings.LLM_PROVIDER == "openai" else None
 
@@ -949,6 +1044,8 @@ class RagService:
                     if first_token:
                         ttfb_ms = (time.perf_counter() - t0) * 1000
                         logger.info("rag stage=ttfb ms=%.1f mode=vision", ttfb_ms)
+                        if ttfb_sink is not None:
+                            ttfb_sink.append(round((time.perf_counter() - stream_t0) * 1000, 1))
                         first_token = False
                     yield token
                 if settings.LLM_PROVIDER == "ollama" and data.get("done"):

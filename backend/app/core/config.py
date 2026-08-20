@@ -66,6 +66,13 @@ class Settings(BaseSettings):
     # eval 观测口（eval30 检索层判分用；生产必须保持 False——meta 会带全量 chunk 文本）
     RAG_EVAL_DEBUG: bool = False
 
+    # 检索超参（从 RagService 类属性搬来，默认值必须与搬家前一致）
+    RETRIEVAL_TOP_K: int = 10
+    RERANK_TOP_N: int = 5
+    SOURCE_THRESHOLD: float = -6.0
+    RRF_K: int = 60
+    RAG_FUSION_MODE: str = "concat"  # concat=库现状拼接去重；rrf=自研 RRF。默认保留原行为
+
     # === 知识库配置 ===
     KNOWLEDGE_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "knowledge_base")
     MANAGED_VERSIONS_DIR: str = ""  # 版本归档目录，_build_derived_paths 自动填充

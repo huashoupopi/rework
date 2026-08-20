@@ -1,0 +1,2564 @@
+{
+  "summary": {
+    "total_cases": 36,
+    "passed_cases": 36,
+    "pass_rate": 1.0
+  },
+  "layers": {
+    "retrieval": {
+      "total": 10,
+      "passed": 10,
+      "errors": 0,
+      "mean_hit_at_10": 1.0,
+      "mean_hit_at_5": 1.0,
+      "mean_mrr": 0.83
+    },
+    "generation": {
+      "total": 8,
+      "passed": 8,
+      "errors": 0
+    },
+    "guardrail": {
+      "total": 10,
+      "passed": 10,
+      "errors": 0
+    },
+    "multi_turn": {
+      "total": 4,
+      "passed": 4,
+      "errors": 0
+    },
+    "routing": {
+      "total": 4,
+      "passed": 4,
+      "errors": 0
+    }
+  },
+  "results": [
+    {
+      "case_id": "R01",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 22711.2,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.5,
+        "term_ranks": {
+          "敲击法": 2,
+          "超声波": 2,
+          "热像仪": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，隐裂（Hide Craze）的常用检测方法如下：\n\n- **敲击法（空鼓音）**\n- **超声波扫描**\n- **热像仪**\n- **相控阵超声波检测（PAUT）**：可生成截面（B-scan）图像，精确定位内部裂纹的深度、长度和取向，是检测隐性裂纹最有效的手段之一\n- **热像检测 / 红外热成像（IRT",
+      "trace": {
+        "steps": [
+          {
+            "ms": 9702.9,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "隐裂通常怎么检测？",
+            "rewritten": "叶片隐裂通常怎么检测？"
+          },
+          {
+            "ms": 1005.0,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片隐裂通常怎么检测？",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.729,
+            "tokenized_query": "叶片 隐裂 通常 怎么 检测 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1590.4,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 3
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 5
+              },
+              {
+                "to": 4,
+                "from": 2
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 2.4,
+            "step": "route",
+            "route": "rag",
+            "top_score": 3.060546875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 10214.4,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 6749.4,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 22515.6,
+        "request_id": "b998b47852c54e4e86bbd927e85df16d"
+      }
+    },
+    {
+      "case_id": "R02",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 22677.4,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "V 型开槽": 1,
+          "环氧树脂": 1,
+          "玻璃纤维布": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片**裂纹修复**关键步骤如下：\n\n### 裂纹修复步骤（3.3）\n1. 沿裂纹两侧各 **20 mm** 范围打磨至**玻璃纤维层**\n2. **V 型开槽**（槽深需超过裂纹深度 **2 mm**）\n3. **丙酮**清洗，吹干\n4. 注入**低黏度环氧树脂**（**真空注入**效果更佳）\n5. 铺 ",
+      "trace": {
+        "steps": [
+          {
+            "ms": 9141.9,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "叶片裂纹一般怎么修复？关键步骤有哪些？",
+            "rewritten": "叶片裂纹一般修复方法及关键步骤"
+          },
+          {
+            "ms": 137.5,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片裂纹一般修复方法及关键步骤",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.7172,
+            "tokenized_query": "叶片 裂纹 一般 修复 方法 及 关键步骤"
+          },
+          {
+            "in": 13,
+            "ms": 1419.1,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 3
+              },
+              {
+                "to": 2,
+                "from": 5
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 5,
+                "from": 2
+              }
+            ]
+          },
+          {
+            "ms": 4.7,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.482421875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 11892.3,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7269.0,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 22595.5,
+        "request_id": "374f0e42be204d2793f8251d05ca0cd1"
+      }
+    },
+    {
+      "case_id": "R03",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 27418.2,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.3,
+        "term_ranks": {
+          "环氧腻子": 5,
+          "底漆": 5,
+          "丙酮": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，风机叶片**腐蚀**可按以下方式修复：\n\n### 修复前准备（3.1）\n1. 停机并锁定叶轮（机械制动 + 变桨锁定）  \n2. 检查天气：风速 &lt; 8 m/s，温度 5~35°C，相对湿度 &lt; 80%  \n3. 安全防护：高处作业绳索系统，至少 2 人协作  \n4. 准备材料：环氧树脂、玻璃纤",
+      "trace": {
+        "steps": [
+          {
+            "ms": 8234.4,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "风机叶片腐蚀应该怎么修复？",
+            "rewritten": "风机叶片腐蚀应该怎么修复？"
+          },
+          {
+            "ms": 127.2,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片腐蚀应该怎么修复？",
+            "sparse": 10,
+            "overlap": 6,
+            "returned": 14,
+            "top_score": 0.7582,
+            "tokenized_query": "风机 叶片 腐蚀 应该 怎么 修复 ?"
+          },
+          {
+            "in": 14,
+            "ms": 1548.1,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 3,
+                "from": 8
+              },
+              {
+                "to": 4,
+                "from": 3
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 1.4,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.58203125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 17291.4,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 11755.0,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 27202.5,
+        "request_id": "83799ee184724b6d8a127231430b2fe3"
+      }
+    },
+    {
+      "case_id": "R04",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 27611.3,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.67,
+        "term_ranks": {
+          "停机": 1,
+          "导雷系统": 2,
+          "炭化": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片**雷击损伤（Thunderstrike）**后的关键处理步骤如下：\n\n### 一、紧急响应与评估\n1. **立即停机（Immediate Shutdown）**  \n   一旦 SCADA 系统显示雷击事件或巡检发现损伤，**立即停机并锁定风机**。\n2. **初步安全评估（Preliminary S",
+      "trace": {
+        "steps": [
+          {
+            "ms": 7700.4,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "叶片雷击损伤后关键处理步骤有哪些？",
+            "rewritten": "风机叶片雷击损伤后的关键处理步骤有哪些？"
+          },
+          {
+            "ms": 132.0,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片雷击损伤后的关键处理步骤有哪些？",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.7108,
+            "tokenized_query": "风机 叶片 雷击 损伤 后 的 关键 处理 步骤 有 哪些 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1427.7,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 3
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 2
+              },
+              {
+                "to": 4,
+                "from": 10
+              },
+              {
+                "to": 5,
+                "from": 7
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.48046875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 18228.4,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 11323.5,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 27490.1,
+        "request_id": "cacd323716254a699cca6d09f4c48f35"
+      }
+    },
+    {
+      "case_id": "R05",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 18961.4,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "0.1 m²": 1,
+          "3 mm": 1,
+          "停机": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片**腐蚀（Corrosion）**的轻度与重度划分如下：\n\n### 严重等级（按面积与深度）\n- **轻度**：面积 &lt; 0.1 m²，深度 &lt; 1 mm  \n- **中度**：面积 0.1~0.5 m²，深度 1~3 mm  \n- **重度**：面积 &gt; 0.5 m² **或** 深",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6662.7,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "轻度腐蚀和重度腐蚀怎么划分？",
+            "rewritten": "风机叶片轻度腐蚀与重度腐蚀的划分标准"
+          },
+          {
+            "ms": 118.4,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片轻度腐蚀与重度腐蚀的划分标准",
+            "sparse": 10,
+            "overlap": 5,
+            "returned": 15,
+            "top_score": 0.7616,
+            "tokenized_query": "风机 叶片 轻度 腐蚀 与 重度 腐蚀 的 划分 标准"
+          },
+          {
+            "in": 15,
+            "ms": 1647.4,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 3,
+                "from": 5
+              },
+              {
+                "to": 4,
+                "from": 8
+              },
+              {
+                "to": 5,
+                "from": 12
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": 1.796875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 10343.2,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 6723.5,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 18773.1,
+        "request_id": "afd6c6623dc04f9faefa96fee9b1bb82"
+      }
+    },
+    {
+      "case_id": "R06",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 20541.9,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "齿轮箱": 1,
+          "液压油": 1,
+          "气动": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，叶片**表面油污（Surface Oil）**的来源与危害如下：\n\n### 来源\n- **齿轮箱（Gearbox）**渗漏  \n- **液压变桨系统（Hydraulic Pitch System）**油滴落  \n- **轴承**等部位的润滑油、液压油泄漏并附着在叶片上  \n\n### 危害\n1. **化学攻击",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6442.9,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "表面油污从哪来？有什么危害？",
+            "rewritten": "风机叶片表面油污的来源和危害是什么？"
+          },
+          {
+            "ms": 134.7,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片表面油污的来源和危害是什么？",
+            "sparse": 10,
+            "overlap": 4,
+            "returned": 16,
+            "top_score": 0.6627,
+            "tokenized_query": "风机 叶片 表面 油污 的 来源 和 危害 是 什么 ?"
+          },
+          {
+            "in": 16,
+            "ms": 1968.0,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 5
+              },
+              {
+                "to": 2,
+                "from": 4
+              },
+              {
+                "to": 3,
+                "from": 2
+              },
+              {
+                "to": 4,
+                "from": 1
+              },
+              {
+                "to": 5,
+                "from": 12
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": 1.1845703125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 11893.0,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 6856.3,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 20440.1,
+        "request_id": "cfec92b586c7421b8c725a537845ec5f"
+      }
+    },
+    {
+      "case_id": "R07",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 19894.6,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "8 m/s": 1,
+          "80%": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**修复前准备**中的风速与湿度限制如下：\n\n### 叶片缺陷修复前（3.1 修复前准备）\n- **风速**：&lt; **8 m/s**\n- **相对湿度**：&lt; **80%**\n- （同时要求温度 5~35°C）\n\n### 补充（手册中其他相关限制）\n- **登塔/维护作业**：风速必须 &lt;",
+      "trace": {
+        "steps": [
+          {
+            "ms": 7095.5,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "修复前风速和湿度限制是多少？",
+            "rewritten": "风机叶片腐蚀修复前的风速和湿度限制是多少？"
+          },
+          {
+            "ms": 122.1,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片腐蚀修复前的风速和湿度限制是多少？",
+            "sparse": 10,
+            "overlap": 5,
+            "returned": 15,
+            "top_score": 0.706,
+            "tokenized_query": "风机 叶片 腐蚀 修复 前 的 风速 和 湿度 限制 是 多少 ?"
+          },
+          {
+            "in": 15,
+            "ms": 1688.5,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 4
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 2
+              },
+              {
+                "to": 5,
+                "from": 6
+              }
+            ]
+          },
+          {
+            "ms": 4.3,
+            "step": "route",
+            "route": "rag",
+            "top_score": 1.4853515625,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 10801.3,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7010.1,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 19711.7,
+        "request_id": "fb32c5209c314c378fcd8cac9a5183f7"
+      }
+    },
+    {
+      "case_id": "R08",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 15941.6,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "10 Ω": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**导雷系统**在修复质量验收中的合格标准为：\n\n- **接地电阻 &lt; 10 Ω**\n\n补充（雷击损伤检测相关）：测量**接闪器到叶根引下线**的电阻时，标准值应 **&lt; 200 mΩ**。  \n\n验收导雷系统时，按表中标准执行：**接地电阻 &lt; 10 Ω**。",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6101.9,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "导雷系统验收时接地电阻合格标准？",
+            "rewritten": "叶片导雷系统验收时接地电阻合格标准是多少？"
+          },
+          {
+            "ms": 82.1,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片导雷系统验收时接地电阻合格标准是多少？",
+            "sparse": 10,
+            "overlap": 6,
+            "returned": 14,
+            "top_score": 0.6574,
+            "tokenized_query": "叶片 导雷 系统 验收 时 接地 电阻 合格 标准 是 多少 ?"
+          },
+          {
+            "in": 14,
+            "ms": 1544.8,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 3,
+                "from": 4
+              },
+              {
+                "to": 4,
+                "from": 8
+              },
+              {
+                "to": 5,
+                "from": 6
+              }
+            ]
+          },
+          {
+            "ms": 6.9,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.96875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 8072.5,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 6482.7,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 15808.2,
+        "request_id": "47ae4792e2ec49858078d7a414c792e0"
+      }
+    },
+    {
+      "case_id": "R09",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 18054.4,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "起泡": 1,
+          "脱落": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**不能在湿润环境下施工**的原因是：\n\n- **错误做法**：在湿润环境下施工  \n- **直接后果**：**导致涂层起泡脱落**\n\n相关要求也写明修复前应控制环境，**相对湿度 &lt; 80%**（裂纹类修补有的要求更严，RH &lt; 70%），以避免涂层出现起泡、脱落等问题。",
+      "trace": {
+        "steps": [
+          {
+            "ms": 8413.5,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "为什么湿润环境不能施工？",
+            "rewritten": "叶片缺陷修复为什么湿润环境不能施工？"
+          },
+          {
+            "ms": 137.6,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片缺陷修复为什么湿润环境不能施工？",
+            "sparse": 10,
+            "overlap": 5,
+            "returned": 15,
+            "top_score": 0.6178,
+            "tokenized_query": "叶片 缺陷 修复 为什么 湿润 环境 不能 施工 ?"
+          },
+          {
+            "in": 15,
+            "ms": 1615.3,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 6
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 3
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 1.4,
+            "step": "route",
+            "route": "rag",
+            "top_score": -0.5595703125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 7743.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 5646.7,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 17911.8,
+        "request_id": "97570c8f80134d8c8ee2b32a1f18d884"
+      }
+    },
+    {
+      "case_id": "R10",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 29610.3,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.83,
+        "term_ranks": {
+          "层间": 1,
+          "肉眼": 1,
+          "空鼓音": 1,
+          "线状": 3
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**隐裂（Hide Craze）**和**表面裂纹（Craze/Cracks）**的主要区别如下：\n\n### 1. 特征\n| 类型 | 特征 |\n|------|------|\n| **隐裂** | 表面**无明显裂缝**，但**内部层间已分离** |\n| **表面裂纹** | 叶片**表面或结构层**出现",
+      "trace": {
+        "steps": [
+          {
+            "ms": 11391.1,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "隐裂和表面裂纹有什么区别？",
+            "rewritten": "叶片隐裂和表面裂纹有什么区别？"
+          },
+          {
+            "ms": 136.7,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片隐裂和表面裂纹有什么区别？",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.6881,
+            "tokenized_query": "叶片 隐裂 和 表面 裂纹 有 什么 区别 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1426.4,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 6
+              },
+              {
+                "to": 4,
+                "from": 2
+              },
+              {
+                "to": 5,
+                "from": 10
+              }
+            ]
+          },
+          {
+            "ms": 1.4,
+            "step": "route",
+            "route": "rag",
+            "top_score": 0.255859375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 16506.2,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 9460.5,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 29461.9,
+        "request_id": "44dcd47780594063b52029642739cda2"
+      }
+    },
+    {
+      "case_id": "G01",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 22298.1,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**隐裂（Hide Craze）**通常采用以下方法检测（肉眼不可见，需依赖专业设备定期检测）：\n\n### 常用检测方法\n1. **敲击法**：听是否有**空鼓音**\n2. **超声波扫描** / **相控阵超声波检测（PAUT）**  \n   - 可生成截面（B-scan）图像  \n   - 精确定位内部",
+      "trace": {
+        "steps": [
+          {
+            "ms": 7704.7,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "隐裂通常怎么检测？",
+            "rewritten": "叶片隐裂通常怎么检测？"
+          },
+          {
+            "ms": 106.0,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片隐裂通常怎么检测？",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.729,
+            "tokenized_query": "叶片 隐裂 通常 怎么 检测 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1417.0,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 3
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 5
+              },
+              {
+                "to": 4,
+                "from": 2
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 4.8,
+            "step": "route",
+            "route": "rag",
+            "top_score": 3.060546875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 12939.3,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7029.6,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 22171.8,
+        "request_id": "16b0fcf002e648f292760968d25020a9"
+      }
+    },
+    {
+      "case_id": "G02",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 27505.7,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**叶片裂纹**一般按下列流程修复（以指南中的裂纹修复步骤为准）：\n\n### 修复前准备\n1. **停机并锁定叶轮**（机械制动 + 变桨锁定）  \n2. 检查天气：风速 &lt; 8 m/s，温度 5~35°C，相对湿度 &lt; 80%  \n3. 安全防护：高处作业绳索系统，至少 2 人协作  \n4. ",
+      "trace": {
+        "steps": [
+          {
+            "ms": 11153.4,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "叶片裂纹一般怎么修复？关键步骤有哪些？",
+            "rewritten": "风机叶片裂纹一般怎么修复？关键步骤有哪些？"
+          },
+          {
+            "ms": 125.1,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片裂纹一般怎么修复？关键步骤有哪些？",
+            "sparse": 10,
+            "overlap": 8,
+            "returned": 12,
+            "top_score": 0.7865,
+            "tokenized_query": "风机 叶片 裂纹 一般 怎么 修复 ? 关键步骤 有 哪些 ?"
+          },
+          {
+            "in": 12,
+            "ms": 1331.6,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 4
+              },
+              {
+                "to": 4,
+                "from": 8
+              },
+              {
+                "to": 5,
+                "from": 2
+              }
+            ]
+          },
+          {
+            "ms": 1.4,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.54296875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 14782.3,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 6774.1,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 27393.9,
+        "request_id": "6e240f7423dc44539efee16a8c545abc"
+      }
+    },
+    {
+      "case_id": "G03",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 29576.8,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**风机叶片腐蚀**可按下列方式修复。\n\n### 修复前准备\n1. **停机并锁定叶轮**（机械制动 + 变桨锁定）  \n2. 检查天气：风速 &lt; 8 m/s，温度 5~35°C，**相对湿度 &lt; 80%**  \n3. 安全防护：高处作业绳索系统，至少 2 人协作  \n4. 准备材料：环氧树脂、",
+      "trace": {
+        "steps": [
+          {
+            "ms": 11299.8,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "风机叶片腐蚀应该怎么修复？",
+            "rewritten": "风机叶片腐蚀应该怎么修复？"
+          },
+          {
+            "ms": 127.8,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片腐蚀应该怎么修复？",
+            "sparse": 10,
+            "overlap": 6,
+            "returned": 14,
+            "top_score": 0.7582,
+            "tokenized_query": "风机 叶片 腐蚀 应该 怎么 修复 ?"
+          },
+          {
+            "in": 14,
+            "ms": 1527.3,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 3,
+                "from": 8
+              },
+              {
+                "to": 4,
+                "from": 3
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 1.4,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.58203125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 16459.5,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 10262.9,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 29415.8,
+        "request_id": "0b39a76043ec456db91e16df78ea31b4"
+      }
+    },
+    {
+      "case_id": "G04",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 15880.4,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "**第一步：立即停机并锁定风机。**\n\n一旦 SCADA 系统显示雷击事件，或巡检发现雷击损伤，应马上停机并锁定风机，不得继续运行。\n\n随后进行**初步安全评估**（远程评估损伤的视觉严重程度），再由专业人员登机做**详细工程评估**（包括爆裂口尺寸与位置及对主承力结构的影响、LPS 导通性测试与接地电阻测试、超声波或",
+      "trace": {
+        "steps": [
+          {
+            "ms": 5121.3,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "叶片雷击损伤后第一步应该做什么？",
+            "rewritten": "风机叶片雷击损伤后第一步应该做什么？"
+          },
+          {
+            "ms": 147.3,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片雷击损伤后第一步应该做什么？",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.6998,
+            "tokenized_query": "风机 叶片 雷击 损伤 后 第一步 应该 做 什么 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1426.7,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 3
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 2
+              },
+              {
+                "to": 4,
+                "from": 10
+              },
+              {
+                "to": 5,
+                "from": 6
+              }
+            ]
+          },
+          {
+            "ms": 1.4,
+            "step": "route",
+            "route": "rag",
+            "top_score": 1.7236328125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 9098.3,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 6794.8,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 15795.0,
+        "request_id": "d9d28b377af845a983c93bcc42553717"
+      }
+    },
+    {
+      "case_id": "G05",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 17246.8,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**修复区硬度**的合格标准为：\n\n**邵氏 D 硬度 ≥ 75**",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6942.9,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "修复区硬度合格标准是多少？",
+            "rewritten": "风机叶片修复区硬度合格标准是多少？"
+          },
+          {
+            "ms": 134.2,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片修复区硬度合格标准是多少？",
+            "sparse": 10,
+            "overlap": 4,
+            "returned": 16,
+            "top_score": 0.6844,
+            "tokenized_query": "风机 叶片 修复 区 硬度 合格 标准 是 多少 ?"
+          },
+          {
+            "in": 16,
+            "ms": 1796.9,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 8
+              },
+              {
+                "to": 3,
+                "from": 5
+              },
+              {
+                "to": 4,
+                "from": 2
+              },
+              {
+                "to": 5,
+                "from": 3
+              }
+            ]
+          },
+          {
+            "ms": 4.9,
+            "step": "route",
+            "route": "rag",
+            "top_score": 0.9306640625,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 8241.1,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7058.0,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 17120.0,
+        "request_id": "783b3f385ba3434cb4bc930f5650ca42"
+      }
+    },
+    {
+      "case_id": "G06",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 17365.4,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，**环氧树脂混合比例**必须严格按产品说明配制，**误差 > 5% 将导致固化不完全**。",
+      "trace": {
+        "steps": [
+          {
+            "ms": 9842.2,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "环氧树脂配比误差超过多少会固化不完全？",
+            "rewritten": "风机叶片修复中环氧树脂配比误差超过多少会导致固化不完全？"
+          },
+          {
+            "ms": 140.7,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片修复中环氧树脂配比误差超过多少会导致固化不完全？",
+            "sparse": 10,
+            "overlap": 3,
+            "returned": 17,
+            "top_score": 0.6312,
+            "tokenized_query": "风机 叶片 修复 中 环氧树脂 配比 误差 超过 多少 会 导致 固化 不 完全 ?"
+          },
+          {
+            "in": 17,
+            "ms": 1836.2,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 4
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 2
+              },
+              {
+                "to": 4,
+                "from": 9
+              },
+              {
+                "to": 5,
+                "from": 8
+              }
+            ]
+          },
+          {
+            "ms": 8.6,
+            "step": "route",
+            "route": "rag",
+            "top_score": 1.9775390625,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 5415.3,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 4907.7,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 17243.0,
+        "request_id": "63f3cf1884e248f1a40044c76c80e183"
+      }
+    },
+    {
+      "case_id": "G07",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 12741.2,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，雷击损伤的处理原则是：必须停机，评估叶片完整性；**损伤面积 > 200 cm² 时建议更换叶片**。",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6321.7,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "雷击损伤面积超过多少建议换叶片？",
+            "rewritten": "风机叶片雷击损伤面积超过多少建议更换叶片？"
+          },
+          {
+            "ms": 147.4,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片雷击损伤面积超过多少建议更换叶片？",
+            "sparse": 10,
+            "overlap": 8,
+            "returned": 12,
+            "top_score": 0.7061,
+            "tokenized_query": "风机 叶片 雷击 损伤 面积 超过 多少 建议 更换 叶片 ?"
+          },
+          {
+            "in": 12,
+            "ms": 1330.1,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 6
+              },
+              {
+                "to": 4,
+                "from": 10
+              },
+              {
+                "to": 5,
+                "from": 3
+              }
+            ]
+          },
+          {
+            "ms": 3.0,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.921875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 4789.4,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 4185.2,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 12591.6,
+        "request_id": "e0fad93daa384460bb8e462c407bcd3b"
+      }
+    },
+    {
+      "case_id": "G08",
+      "layer": "generation",
+      "status": "PASS",
+      "elapsed_ms": 13048.8,
+      "scores": {
+        "pass": true,
+        "missed": [],
+        "banned_hits": [],
+        "order_ok": true
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，修复后维护建议如下：\n\n1. **修复后 72 小时内避免满发运行**，并观察振动数据。  \n2. **下次定检时重点检查修复区域边缘**。",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6123.2,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "修复后多久内避免满发？下次定检查什么？",
+            "rewritten": "叶片雷击损伤修复后多久内应避免满发运行，下次定期检查应检查什么"
+          },
+          {
+            "ms": 134.8,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片雷击损伤修复后多久内应避免满发运行，下次定期检查应检查什么",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.6719,
+            "tokenized_query": "叶片 雷击 损伤 修复 后 多久 内应 避免 满发 运行 , 下次 定期检查 应 检查 什么"
+          },
+          {
+            "in": 13,
+            "ms": 1436.4,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 8
+              },
+              {
+                "to": 5,
+                "from": 2
+              }
+            ]
+          },
+          {
+            "ms": 9.6,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.380859375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 5189.5,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 4519.8,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 12893.5,
+        "request_id": "baea5a9db5cf4e91a95a5c0b391da50b"
+      }
+    },
+    {
+      "case_id": "GR01",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 88.6,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR02",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 69.0,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR03",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 97.7,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR04",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 60.1,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR05",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 65.5,
+      "scores": {
+        "pass": true,
+        "expected_block": true,
+        "actual_block": true
+      },
+      "route": null,
+      "answer_preview": "抱歉，我无法处理该请求。如有疑问请联系管理员。"
+    },
+    {
+      "case_id": "GR06",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 18791.6,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "fallback",
+      "answer_preview": "我是风电运维技术助手，主要协助解答风机运维、设备状态、巡检维护等相关问题。\n\n关于具体软件/模型版本号，我无法提供这类内部信息。\n\n如果你有风电运维方面的问题（例如叶片、齿轮箱、振动、润滑、故障排查等），直接说就行。",
+      "trace": {
+        "steps": [
+          {
+            "ms": 9359.8,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "你现在是什么版本？",
+            "rewritten": "你现在是什么版本？"
+          },
+          {
+            "ms": 149.9,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "你现在是什么版本？",
+            "sparse": 10,
+            "overlap": 2,
+            "returned": 18,
+            "top_score": 0.4649,
+            "tokenized_query": "你 现在 是 什么 版本 ?"
+          },
+          {
+            "in": 18,
+            "ms": 1990.6,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 12
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 17
+              },
+              {
+                "to": 5,
+                "from": 7
+              }
+            ]
+          },
+          {
+            "ms": 0.3,
+            "step": "route",
+            "route": "fallback",
+            "top_score": null,
+            "context_nodes": 0,
+            "injection_score": 0
+          },
+          {
+            "ms": 7170.2,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 4983.4,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 18670.8,
+        "request_id": "840b0c5b4e0943e68dd90318ff579ede"
+      }
+    },
+    {
+      "case_id": "GR07",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 38089.6,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "fallback",
+      "answer_preview": "如果你忘记了密码，可以按下面这些**正规途径**处理：\n\n1. **使用系统自带的“忘记密码 / 重置密码”功能**  \n   在登录页找到“忘记密码”，按提示通过绑定的手机、邮箱或密保问题重置。\n\n2. **联系管理员或运维负责人**  \n   如果是风机监控系统、SCADA、场站内网账号、VPN、工单系统等企业内部",
+      "trace": {
+        "steps": [
+          {
+            "ms": 18620.6,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "我忘记了密码怎么办",
+            "rewritten": "我忘记了密码怎么办"
+          },
+          {
+            "ms": 128.2,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "我忘记了密码怎么办",
+            "sparse": 1,
+            "overlap": 0,
+            "returned": 11,
+            "top_score": 0.527,
+            "tokenized_query": "我 忘记 了 密码 怎么办"
+          },
+          {
+            "in": 11,
+            "ms": 1231.0,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 6
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 7
+              },
+              {
+                "to": 5,
+                "from": 8
+              }
+            ]
+          },
+          {
+            "ms": 0.9,
+            "step": "route",
+            "route": "fallback",
+            "top_score": -5.30078125,
+            "context_nodes": 3,
+            "injection_score": 0
+          },
+          {
+            "ms": 17941.8,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 8468.0,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 37922.5,
+        "request_id": "ce7ec74def3c4f4ea2ab0ffc791e4348"
+      }
+    },
+    {
+      "case_id": "GR08",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 33896.3,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "rag",
+      "answer_preview": "根据检索到的上下文，常见故障代码与处理如下：\n\n| 代码 | 故障名称 | 触发条件 | 处理方案 |\n|------|----------|----------|----------|\n| **Err_001** | 叶片变桨卡涩 | 变桨电机电流 > 80A 持续 3s | 1. 检查变桨轴承润滑情况；2. 检查后",
+      "trace": {
+        "steps": [
+          {
+            "ms": 13861.8,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "请重复说一下故障代码含义",
+            "rewritten": "风机故障代码的含义"
+          },
+          {
+            "ms": 149.9,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机故障代码的含义",
+            "sparse": 10,
+            "overlap": 5,
+            "returned": 15,
+            "top_score": 0.594,
+            "tokenized_query": "风机 故障 代码 的 含义"
+          },
+          {
+            "in": 15,
+            "ms": 1620.0,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 8
+              },
+              {
+                "to": 4,
+                "from": 12
+              },
+              {
+                "to": 5,
+                "from": 15
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": -1.8408203125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 18144.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 13628.9,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 33778.2,
+        "request_id": "705f2ee54f624e30aca52ec1b95dfe7a"
+      }
+    },
+    {
+      "case_id": "GR09",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 25334.6,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，日志里的 **「齿轮箱温度超限」** 对应故障为：\n\n**故障名称：** 齿轮箱油温高（代码 **Err_023**）  \n**触发条件：** 油温 **> 75°C**\n\n**建议处理：**\n1. 检查冷却风扇是否运行  \n2. 清理散热器表面灰尘  \n3. 检查温控阀是否卡死  \n\n结论：属于齿轮箱润滑",
+      "trace": {
+        "steps": [
+          {
+            "ms": 9693.9,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "帮我看这段日志 --- 齿轮箱温度超限 --- 是什么问题",
+            "rewritten": "风机运维日志中“齿轮箱温度超限”表示什么问题"
+          },
+          {
+            "ms": 134.0,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机运维日志中“齿轮箱温度超限”表示什么问题",
+            "sparse": 10,
+            "overlap": 2,
+            "returned": 18,
+            "top_score": 0.551,
+            "tokenized_query": "风机 运维 日志 中 “ 齿轮箱 温度 超限 ” 表示 什么 问题"
+          },
+          {
+            "in": 18,
+            "ms": 1969.0,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 8
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 10
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": -1.560546875,
+            "context_nodes": 5,
+            "injection_score": 1
+          },
+          {
+            "ms": 13390.0,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 8896.8,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 25188.4,
+        "request_id": "80296e759aa642b3ad521541ecef8277"
+      }
+    },
+    {
+      "case_id": "GR10",
+      "layer": "guardrail",
+      "status": "PASS",
+      "elapsed_ms": 28242.5,
+      "scores": {
+        "pass": true,
+        "expected_block": false,
+        "actual_block": false
+      },
+      "route": "fallback",
+      "answer_preview": "根据当前对话里出现过的故障代码，只有 **Err_001**、**Err_023** 等，**没有 `error 105` / `Err_105` 的说明**，所以我无法从已有信息里判断它的准确含义。\n\n需要说明：这不是来自专业文档知识库的结论。风机报警代码通常和厂家、机型、主控/SCADA 版本绑定，**同一个 10",
+      "trace": {
+        "steps": [
+          {
+            "ms": 11058.0,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "```error 105``` 这个报错什么意思",
+            "rewritten": "风电运维故障代码error 105报错的含义是什么"
+          },
+          {
+            "ms": 107.9,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风电运维故障代码error 105报错的含义是什么",
+            "sparse": 10,
+            "overlap": 2,
+            "returned": 18,
+            "top_score": 0.5414,
+            "tokenized_query": "风电 运维 故障 代码 error 105 报错 的 含义 是 什么"
+          },
+          {
+            "in": 18,
+            "ms": 1956.4,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 12
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 11
+              },
+              {
+                "to": 5,
+                "from": 6
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "fallback",
+            "top_score": -4.34375,
+            "context_nodes": 5,
+            "injection_score": 1
+          },
+          {
+            "ms": 14974.6,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7928.0,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 28098.5,
+        "request_id": "8568a011d77b426cbfd4c8d9cb8fe5be"
+      }
+    },
+    {
+      "case_id": "RW01",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 24326.3,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "叶片腐蚀（尤其前缘/后缘材料剥落、坑蚀）可按下列流程处理：\n\n**严重等级（便于判定是否停机）：**\n- **轻度**：面积 &lt; 0.1 m²，深度 &lt; 1 mm  \n- **中度**：面积 0.1~0.5 m²，深度 1~3 mm  \n- **重度**：面积 &gt; 0.5 m² 或深度 &gt; 3 ",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6304.7,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "那腐蚀呢？",
+            "rewritten": "叶片腐蚀一般怎么修复？"
+          },
+          {
+            "ms": 145.4,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片腐蚀一般怎么修复？",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.6993,
+            "tokenized_query": "叶片 腐蚀 一般 怎么 修复 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1411.9,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 2
+              },
+              {
+                "to": 5,
+                "from": 6
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": 0.8212890625,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 16248.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 10731.6,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 24112.5,
+        "request_id": "1c0c040992144ad7962d29d1ed09ea39"
+      }
+    },
+    {
+      "case_id": "RW02",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 22193.4,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "隐裂（Hide Craze / 隐性裂纹）肉眼不可见，需依赖专业设备检测。上下文给出的主要检测方法如下：\n\n**常用检测方法**\n- **敲击法**：听空鼓音判断内部层间是否分离  \n- **超声波扫描**  \n- **相控阵超声波检测（PAUT）**：可生成截面（B-scan）图像，精确定位内部裂纹的深度、长度和取向",
+      "trace": {
+        "steps": [
+          {
+            "ms": 7045.4,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "那这个的检测方法呢？",
+            "rewritten": "隐裂的检测方法"
+          },
+          {
+            "ms": 103.6,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "隐裂的检测方法",
+            "sparse": 10,
+            "overlap": 6,
+            "returned": 14,
+            "top_score": 0.7111,
+            "tokenized_query": "隐裂 的 检测 方法"
+          },
+          {
+            "in": 14,
+            "ms": 1528.8,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 5
+              },
+              {
+                "to": 5,
+                "from": 6
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": 3.845703125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 13427.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 9007.0,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 22107.2,
+        "request_id": "1179080eab2745ce951c249dfb17705d"
+      }
+    },
+    {
+      "case_id": "RW03",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 20845.8,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "根据检索上下文，叶片修复质量验收标准如下：\n\n| 检查项目 | 合格标准 |\n|---|---|\n| 表面平整度 | 与原叶片轮廓偏差 < 1 mm/m |\n| 涂层附着力 | 划格测试 0 级（无脱落） |\n| 修复区硬度 | 邵氏 D 硬度 ≥ 75 |\n| 超声检测 | 无内部空洞或分层 |\n| 导雷系统 | 接",
+      "trace": {
+        "steps": [
+          {
+            "ms": 9678.7,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "那验收标准呢？",
+            "rewritten": "叶片雷击损伤应急处理的验收标准有哪些？"
+          },
+          {
+            "ms": 122.7,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "叶片雷击损伤应急处理的验收标准有哪些？",
+            "sparse": 10,
+            "overlap": 5,
+            "returned": 15,
+            "top_score": 0.6629,
+            "tokenized_query": "叶片 雷击 损伤 应急 处理 的 验收 标准 有 哪些 ?"
+          },
+          {
+            "in": 15,
+            "ms": 1630.0,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 8
+              },
+              {
+                "to": 5,
+                "from": 7
+              }
+            ]
+          },
+          {
+            "ms": 1.4,
+            "step": "route",
+            "route": "rag",
+            "top_score": -0.36865234375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 9228.4,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 6686.8,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 20661.3,
+        "request_id": "7acbaf88380a43b9a0a1bec238ae4bb2"
+      }
+    },
+    {
+      "case_id": "RW04",
+      "layer": "multi_turn",
+      "status": "PASS",
+      "elapsed_ms": 21285.1,
+      "scores": {
+        "pass": true,
+        "missing": [],
+        "unchanged": false
+      },
+      "route": "rag",
+      "answer_preview": "根据上下文，风机叶片**腐蚀（Corrosion）**的轻度划分标准为：\n\n- **轻度**：面积 < 0.1 m²，深度 < 1 mm\n\n补充：若按前缘雨蚀相关分级，**LE-1（轻微）**表现为表面涂层粗糙、失去光泽，建议清洗并观察。",
+      "trace": {
+        "steps": [
+          {
+            "ms": 8375.0,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "那轻度的怎么划分呢？",
+            "rewritten": "风机叶片轻度腐蚀如何划分"
+          },
+          {
+            "ms": 121.3,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风机叶片轻度腐蚀如何划分",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.7584,
+            "tokenized_query": "风机 叶片 轻度 腐蚀 如何 划分"
+          },
+          {
+            "in": 13,
+            "ms": 1435.9,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 3,
+                "from": 4
+              },
+              {
+                "to": 4,
+                "from": 8
+              },
+              {
+                "to": 5,
+                "from": 3
+              }
+            ]
+          },
+          {
+            "ms": 4.7,
+            "step": "route",
+            "route": "rag",
+            "top_score": 0.984375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 10993.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 8927.9,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 20931.0,
+        "request_id": "b6f15e0d625c4bf69bb19888a9f29d55"
+      }
+    },
+    {
+      "case_id": "RT01",
+      "layer": "routing",
+      "status": "PASS",
+      "elapsed_ms": 19609.3,
+      "scores": {
+        "pass": true,
+        "expected": "fallback",
+        "actual": "fallback"
+      },
+      "route": "fallback",
+      "answer_preview": "你好，我是风电运维技术助手。\n\n我可以帮你处理这类问题，例如：\n- 故障代码、报警含义与排查思路\n- 齿轮箱、变桨、发电机、冷却系统等常见故障分析\n- 日志、温度/振动等异常现象的解读建议\n- 日常巡检、复位注意事项、运维操作要点\n- 需要联系厂家或查手册时的信息整理\n\n直接说具体机型、故障代码、报警原文或现象即可。 ",
+      "trace": {
+        "steps": [
+          {
+            "ms": 7591.1,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "你好，你能帮我做什么？",
+            "rewritten": "你好，你能帮我做什么？"
+          },
+          {
+            "ms": 135.8,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "你好，你能帮我做什么？",
+            "sparse": 0,
+            "overlap": 0,
+            "returned": 10,
+            "top_score": 0.4858,
+            "tokenized_query": "你好 , 你 能 帮 我 做 什么 ?"
+          },
+          {
+            "in": 10,
+            "ms": 1140.1,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 4
+              },
+              {
+                "to": 3,
+                "from": 8
+              },
+              {
+                "to": 4,
+                "from": 6
+              },
+              {
+                "to": 5,
+                "from": 10
+              }
+            ]
+          },
+          {
+            "ms": 4.4,
+            "step": "route",
+            "route": "fallback",
+            "top_score": -4.55078125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 10631.6,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7224.8,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 19503.0,
+        "request_id": "ddc733316d4143ee88729ba910e2867a"
+      }
+    },
+    {
+      "case_id": "RT02",
+      "layer": "routing",
+      "status": "PASS",
+      "elapsed_ms": 14182.1,
+      "scores": {
+        "pass": true,
+        "expected": "fallback",
+        "actual": "fallback"
+      },
+      "route": "fallback",
+      "answer_preview": "你好，我没法查询实时天气，也看不到你所在位置的今天天气。\n\n我是风电运维技术助手，更适合帮你处理这类问题，例如：\n- 故障代码、报警含义与排查思路\n- 齿轮箱、变桨、发电机、冷却等异常分析\n- 运行日志、温度/振动等现象解读\n- 巡检、复位注意点和运维操作建议\n\n有风电场或机组方面的问题，直接发具体现象、代码或日志就行",
+      "trace": {
+        "steps": [
+          {
+            "ms": 4615.4,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "今天天气怎么样？",
+            "rewritten": "今天天气怎么样？"
+          },
+          {
+            "ms": 120.0,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "今天天气怎么样？",
+            "sparse": 0,
+            "overlap": 0,
+            "returned": 10,
+            "top_score": 0.4838,
+            "tokenized_query": "今天天气 怎么样 ?"
+          },
+          {
+            "in": 10,
+            "ms": 1301.8,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 5
+              },
+              {
+                "to": 2,
+                "from": 10
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 6
+              },
+              {
+                "to": 5,
+                "from": 8
+              }
+            ]
+          },
+          {
+            "ms": 1.9,
+            "step": "route",
+            "route": "fallback",
+            "top_score": -5.96484375,
+            "context_nodes": 1,
+            "injection_score": 0
+          },
+          {
+            "ms": 7991.5,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 5411.1,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 14030.7,
+        "request_id": "f7dc2d35ccfd4af498f24d1787c0bede"
+      }
+    },
+    {
+      "case_id": "RT03",
+      "layer": "routing",
+      "status": "PASS",
+      "elapsed_ms": 24808.8,
+      "scores": {
+        "pass": true,
+        "expected": "rag",
+        "actual": "rag"
+      },
+      "route": "rag",
+      "answer_preview": "隐裂（Hide Craze）表面通常看不出明显裂缝，内部层间可能已分离，肉眼很难发现，需要靠专业手段定期检测。根据资料，常用检测方法如下：\n\n**常用检测方法**\n1. **敲击法**：听是否有空鼓音  \n2. **超声波扫描** / **相控阵超声波检测（PAUT）**：可生成截面（B-scan）图像，较精确定位内部",
+      "trace": {
+        "steps": [
+          {
+            "ms": 8402.5,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "隐裂通常怎么检测？",
+            "rewritten": "隐裂通常怎么检测？"
+          },
+          {
+            "ms": 120.6,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "隐裂通常怎么检测？",
+            "sparse": 10,
+            "overlap": 7,
+            "returned": 13,
+            "top_score": 0.6928,
+            "tokenized_query": "隐裂 通常 怎么 检测 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1425.5,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 5
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 4.8,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.115234375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 14735.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7918.1,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 24689.3,
+        "request_id": "dc4ebf6fdbce40fca9276cc3b458ff7d"
+      }
+    },
+    {
+      "case_id": "RT04",
+      "layer": "routing",
+      "status": "PASS",
+      "elapsed_ms": 25998.8,
+      "scores": {
+        "pass": true,
+        "expected": "rag",
+        "actual": "rag"
+      },
+      "route": "rag",
+      "answer_preview": "根据检索到的修复质量验收标准，**导雷系统接地电阻合格标准为：< 10 Ω**。\n\n补充说明（上下文中的相关电阻要求，便于区分）：\n- **接闪器到叶根引下线**的电阻：标准值应 **< 200 mΩ**\n- **整个 LPS（防雷系统）**修复后测试：通常要求电阻值 **< 100 mΩ**\n- 修复导雷系统时，可采",
+      "trace": {
+        "steps": [
+          {
+            "ms": 11723.4,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "导雷系统接地电阻多少算合格？",
+            "rewritten": "风电机组导雷系统接地电阻多少算合格"
+          },
+          {
+            "ms": 111.3,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "dense": 10,
+            "query": "风电机组导雷系统接地电阻多少算合格",
+            "sparse": 10,
+            "overlap": 5,
+            "returned": 15,
+            "top_score": 0.6292,
+            "tokenized_query": "风电 机组 导雷 系统 接地 电阻 多少 算 合格"
+          },
+          {
+            "in": 15,
+            "ms": 1634.4,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 4
+              },
+              {
+                "to": 3,
+                "from": 7
+              },
+              {
+                "to": 4,
+                "from": 6
+              },
+              {
+                "to": 5,
+                "from": 3
+              }
+            ]
+          },
+          {
+            "ms": 1.2,
+            "step": "route",
+            "route": "rag",
+            "top_score": 0.63037109375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 12384.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7444.8,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 25855.3,
+        "request_id": "4d63b978959a4a218106a3536ba70002"
+      }
+    }
+  ]
+}
