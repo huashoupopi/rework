@@ -1,4 +1,5 @@
 import * as React from "react"
+import { documentStatusName } from "@/shared/lib/labels"
 import { Button, Popconfirm, Space, Table, Tag, Typography } from "antd"
 import { ProgressiveBlur } from "@/shared/ui/motion-primitives/progressive-blur"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
@@ -49,7 +50,11 @@ export function KnowledgeDocumentTable({
     {
       dataIndex: "status",
       title: "状态",
-      render: (_, document) => <Tag color={getStatusTagColor(document.status)}>{document.status ?? "-"}</Tag>,
+      render: (_, document) => (
+        <Tag color={getStatusTagColor(document.status)}>
+          {documentStatusName(document.status) || "-"}
+        </Tag>
+      ),
     },
     {
       dataIndex: "latest_version",

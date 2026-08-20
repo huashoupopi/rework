@@ -1,4 +1,5 @@
 import * as React from "react"
+import { DEFECT_COLORS as COLORS, DEFECT_NAMES as NAMES } from "@/shared/lib/labels"
 import { Download, ListChecks } from "lucide-react"
 
 import { downloadTaskBatch, downloadTaskImage } from "../api/task-api"
@@ -29,29 +30,8 @@ function formatCreatedAt(value) {
   })
 }
 
-export const DEFECT_COLORS = {
-  corrosion: "#f0803c",
-  craze: "#ff6b6e",
-  hide_craze: "#9d6bff",
-  surface_attach: "#1890ff",
-  surface_corrosion: "#ffa940",
-  surface_eye: "#13c2c2",
-  surface_injure: "#eb2f96",
-  surface_oil: "#52c41a",
-  thunderstrike: "#faad14",
-}
-
-export const DEFECT_NAMES = {
-  corrosion: "腐蚀",
-  craze: "裂纹",
-  hide_craze: "隐裂",
-  surface_attach: "附着物",
-  surface_corrosion: "表面腐蚀",
-  surface_eye: "气孔",
-  surface_injure: "表面损伤",
-  surface_oil: "油污",
-  thunderstrike: "雷击",
-}
+// 映射已收敛到 shared/lib/labels，这里仅作兼容再导出
+export { DEFECT_COLORS, DEFECT_NAMES } from "@/shared/lib/labels"
 
 function DetectSummary({ task }) {
   if (!task?.detect_result?.objects?.length) {
@@ -68,9 +48,9 @@ function DetectSummary({ task }) {
         <span
           className="defect-tag"
           key={cls}
-          style={{ "--tag-color": DEFECT_COLORS[cls] || "#999" }}
+          style={{ "--tag-color": COLORS[cls] || "#999" }}
         >
-          {DEFECT_NAMES[cls] || cls} {count}
+          {NAMES[cls] || cls} {count}
         </span>
       ))}
     </div>
