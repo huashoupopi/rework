@@ -16,6 +16,7 @@ from app.services.rag_trace import (
     maybe_start_trace,
     rerank_moved,
 )
+from app.services.retrieval_fusion import retrieve_two_path
 
 os.environ["HF_HOME"] = settings.HF_HOME
 os.environ["HUGGINGFACE_HUB_CACHE"] = settings.HUGGINGFACE_HUB_CACHE
@@ -457,21 +458,27 @@ class RagService:
                     hybrid_query = tokenize_for_fts(augmented_question) or augmented_question
                     logger.info("rag stage=query len=%d", len(augmented_question))
 
-                    retriever = cls._index.as_retriever(
-                        similarity_top_k=settings.RETRIEVAL_TOP_K, vector_store_query_mode="hybrid"
+                    top_k = settings.RETRIEVAL_TOP_K
+                    dense_retriever = cls._index.as_retriever(
+                        similarity_top_k=top_k, vector_store_query_mode="default"
                     )
-                    nodes = await retriever.aretrieve(hybrid_query)
+                    sparse_retriever = cls._index.as_retriever(
+                        similarity_top_k=top_k, vector_store_query_mode="sparse"
+                    )
+                    fallback_retriever = cls._index.as_retriever(
+                        similarity_top_k=top_k, vector_store_query_mode="default"
+                    )
+                    nodes, retrieve_mode = await retrieve_two_path(
+                        dense_retriever.aretrieve(hybrid_query),
+                        sparse_retriever.aretrieve(hybrid_query),
+                        lambda: fallback_retriever.aretrieve(augmented_question),
+                        fusion=settings.RAG_FUSION_MODE,
+                        rrf_k=settings.RRF_K,
+                    )
                     retriever_ms = (time.perf_counter() - t0) * 1000
                     logger.info("rag stage=retriever ms=%.1f node=%d", retriever_ms, len(nodes))
-                    retrieve_mode = "hybrid"
-
-                    if not nodes:
-                        logger.warning("Hybrid search返回0结果， 降级为纯向量检索")
-                        fallback_retriever = cls._index.as_retriever(
-                            similarity_top_k=settings.RETRIEVAL_TOP_K, vector_store_query_mode="default"
-                        )
-                        nodes = await fallback_retriever.aretrieve(augmented_question)
-                        retrieve_mode = "fallback_dense"
+                    if retrieve_mode == "fallback_dense":
+                        logger.warning("两路检索都空，降级为纯向量检索")
 
                     if trace is not None:
                         trace.add(

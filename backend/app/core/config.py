@@ -71,6 +71,7 @@ class Settings(BaseSettings):
     RERANK_TOP_N: int = 5
     SOURCE_THRESHOLD: float = -6.0
     RRF_K: int = 60
+    RAG_FUSION_MODE: str = "concat"  # concat=库现状拼接去重；rrf=自研 RRF。默认保留原行为
 
     # === 知识库配置 ===
     KNOWLEDGE_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "knowledge_base")

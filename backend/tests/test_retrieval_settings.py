@@ -8,3 +8,4 @@ def test_retrieval_settings_keep_legacy_defaults():
     assert settings.RERANK_TOP_N == 5
     assert settings.SOURCE_THRESHOLD == -6.0
     assert settings.RRF_K == 60
+    assert settings.RAG_FUSION_MODE == "concat"
