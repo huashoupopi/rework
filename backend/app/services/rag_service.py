@@ -469,7 +469,8 @@ class RagService:
                         similarity_top_k=top_k, vector_store_query_mode="default"
                     )
                     nodes, retrieve_mode, path_stats = await retrieve_two_path(
-                        dense_retriever.aretrieve(hybrid_query),
+                        # 向量吃自然语言；全文吃 jieba 空格串。两路不要喂同一串。
+                        dense_retriever.aretrieve(augmented_question),
                         sparse_retriever.aretrieve(hybrid_query),
                         lambda: fallback_retriever.aretrieve(augmented_question),
                         fusion=settings.RAG_FUSION_MODE,
