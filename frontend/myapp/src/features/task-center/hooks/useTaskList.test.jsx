@@ -28,7 +28,7 @@ test("loads the first page on mount", async () => {
   const { result } = renderHook(() => useTaskList())
 
   await waitFor(() => {
-    expect(getTasksMock).toHaveBeenCalledWith(1, 10)
+    expect(getTasksMock).toHaveBeenCalledWith(1, 10, "", "")
   })
 
   await waitFor(() => {
@@ -68,7 +68,7 @@ test("fetches the next page when page changes", async () => {
   const { result } = renderHook(() => useTaskList())
 
   await waitFor(() => {
-    expect(getTasksMock).toHaveBeenCalledWith(1, 10)
+    expect(getTasksMock).toHaveBeenCalledWith(1, 10, "", "")
   })
 
   act(() => {
@@ -76,10 +76,10 @@ test("fetches the next page when page changes", async () => {
   })
 
   await waitFor(() => {
-    expect(getTasksMock).toHaveBeenCalledWith(2, 10)
+    expect(getTasksMock).toHaveBeenCalledWith(2, 10, "", "")
   })
 
-  expect(getTasksMock).toHaveBeenLastCalledWith(2, 10)
+  expect(getTasksMock).toHaveBeenLastCalledWith(2, 10, "", "")
 })
 
 test("refresh reloads the current page", async () => {
@@ -110,7 +110,7 @@ test("refresh reloads the current page", async () => {
   const { result } = renderHook(() => useTaskList())
 
   await waitFor(() => {
-    expect(getTasksMock).toHaveBeenCalledWith(1, 10)
+    expect(getTasksMock).toHaveBeenCalledWith(1, 10, "", "")
   })
 
   act(() => {
@@ -121,7 +121,7 @@ test("refresh reloads the current page", async () => {
     expect(getTasksMock).toHaveBeenCalledTimes(2)
   })
 
-  expect(getTasksMock).toHaveBeenLastCalledWith(1, 10)
+  expect(getTasksMock).toHaveBeenLastCalledWith(1, 10, "", "")
 })
 
 test("keeps polling while task is progressing", async () => {
@@ -153,7 +153,7 @@ test("keeps polling while task is progressing", async () => {
     await Promise.resolve()
   })
 
-  expect(getTasksMock).toHaveBeenCalledWith(1, 10)
+  expect(getTasksMock).toHaveBeenCalledWith(1, 10, "", "")
 
   expect(result.current.tasks).toEqual([
     {
@@ -169,5 +169,5 @@ test("keeps polling while task is progressing", async () => {
 
   expect(getTasksMock).toHaveBeenCalledTimes(2)
 
-  expect(getTasksMock).toHaveBeenLastCalledWith(1, 10)
+  expect(getTasksMock).toHaveBeenLastCalledWith(1, 10, "", "")
 })

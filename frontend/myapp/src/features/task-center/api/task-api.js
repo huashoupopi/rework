@@ -24,12 +24,14 @@ export async function uploadTasks(files) {
   return response.data
 }
 
-export async function getTasks(page = 1, pageSize = 10) {
+export async function getTasks(page = 1, pageSize = 10, status = "", fileName = "") {
   const skip = Math.max(0, (page - 1) * pageSize)
   const limit = pageSize
 
   const response = await http.get("/tasks", {
     params: {
+      ...(status ? { status } : {}),
+      ...(fileName ? { file_name: fileName } : {}),
       limit,
       skip,
     },
