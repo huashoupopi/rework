@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { http } from "@/shared/api/http"
-import { TurbineSpinner } from "@/shared/ui/TurbineSpinner"
+import { WindTurbineSvg } from "@/shared/ui/WindTurbineSvg"
 import Markdown from "react-markdown"
 import { BrainCircuit, ChevronDown, ChevronRight, FileText } from "lucide-react"
 
@@ -225,7 +225,7 @@ export function ChatMessageCard({ message }) {
         <span className="message-card__role">{roleLabel}</span>
         {isStreaming ? (
           <span className="message-card__badge">
-            <TurbineSpinner size={14} title="" />
+            <WindTurbineSvg className="message-card__spinner" spinning />
             <span>生成中</span>
           </span>
         ) : null}
