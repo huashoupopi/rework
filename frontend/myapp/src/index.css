@@ -2942,3 +2942,10 @@ textarea {
     }
   }
 }
+/* 「生成中」徽标里的风机：与彩蛋用同一个组件，这里只约束尺寸。
+   转停、加速、reduced-motion 全部沿用 .wind-turbine-svg 既有契约。 */
+.message-card__spinner {
+  width: 0.85rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
