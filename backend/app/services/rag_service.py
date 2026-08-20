@@ -276,10 +276,6 @@ class RagService:
     _init_lock = asyncio.Lock()
     _chat_sema = asyncio.Semaphore(settings.RAG_MAX_CONCURRENCY)
 
-    RETRIEVAL_TOP_K: int = 10
-    RERANK_TOP_N: int = 5
-    SOURCE_THRESHOLD: float = -6.0
-
     @classmethod
     def _load_models_sync(cls) -> None:
         """同步加载 embedding / LLM / 向量索引 / reranker。必须在线程里跑。"""
@@ -368,7 +364,7 @@ class RagService:
         )
         cls._reranker = FlagEmbeddingReranker(
             model="BAAI/bge-reranker-v2-m3",
-            top_n=cls.RERANK_TOP_N,
+            top_n=settings.RERANK_TOP_N,
             use_fp16=use_fp16,
         )
 
@@ -462,7 +458,7 @@ class RagService:
                     logger.info("rag stage=query len=%d", len(augmented_question))
 
                     retriever = cls._index.as_retriever(
-                        similarity_top_k=cls.RETRIEVAL_TOP_K, vector_store_query_mode="hybrid"
+                        similarity_top_k=settings.RETRIEVAL_TOP_K, vector_store_query_mode="hybrid"
                     )
                     nodes = await retriever.aretrieve(hybrid_query)
                     retriever_ms = (time.perf_counter() - t0) * 1000
@@ -472,7 +468,7 @@ class RagService:
                     if not nodes:
                         logger.warning("Hybrid search返回0结果， 降级为纯向量检索")
                         fallback_retriever = cls._index.as_retriever(
-                            similarity_top_k=cls.RETRIEVAL_TOP_K, vector_store_query_mode="default"
+                            similarity_top_k=settings.RETRIEVAL_TOP_K, vector_store_query_mode="default"
                         )
                         nodes = await fallback_retriever.aretrieve(augmented_question)
                         retrieve_mode = "fallback_dense"
@@ -515,7 +511,7 @@ class RagService:
                         }
 
                     context_nodes = [
-                        n for n in nodes if n.score is None or n.score > cls.SOURCE_THRESHOLD
+                        n for n in nodes if n.score is None or n.score > settings.SOURCE_THRESHOLD
                     ]
 
                     # 放在 Reranker 之后（已精排，节点少），Prompt 构建之前
