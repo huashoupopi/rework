@@ -2942,3 +2942,23 @@ textarea {
     }
   }
 }
+/* 生成中的三叶风机：绕轮毂匀速转。静止用户（reduced-motion）不转，只保留图形。 */
+.turbine-spinner__rotor {
+  transform-origin: 12px 11px;
+  animation: turbine-spin 1.6s linear infinite;
+}
+
+@keyframes turbine-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turbine-spinner__rotor {
+    animation: none;
+  }
+}
