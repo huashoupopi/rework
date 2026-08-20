@@ -150,3 +150,6 @@ def test_rag_service_does_not_call_private_vector_store_methods():
     assert 'vector_store_query_mode="hybrid"' not in src
     assert "asyncio.gather" not in src
     assert "retrieve_two_path" in src
+    assert "dense_retriever.aretrieve(augmented_question)" in src
+    assert "sparse_retriever.aretrieve(hybrid_query)" in src
+    assert "dense_retriever.aretrieve(hybrid_query)" not in src
