@@ -2,6 +2,7 @@ import * as React from "react"
 import { CloudUpload, ImageIcon } from "lucide-react"
 
 import { uploadTasks } from "../api/task-api"
+import { extractErrorMessage } from "@/shared/api/http"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 export function TaskUploadCard({ onUploaded }) {
@@ -27,7 +28,7 @@ export function TaskUploadCard({ onUploaded }) {
       setFiles([])
       onUploaded?.()
     } catch (nextError) {
-      setError(nextError?.response?.data?.detail ?? (nextError instanceof Error ? nextError.message : "上传失败"))
+      setError(extractErrorMessage(nextError, "上传失败"))
     } finally {
       setLoading(false)
     }

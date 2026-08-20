@@ -12,20 +12,51 @@ import { PageWorkband } from "@/shared/ui/PageWorkband"
 import { PageWorkbandInfoCard } from "@/shared/ui/PageWorkbandInfoCard"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
-const DEFAULT_FILTERS = {
-  fileName: "",
-  status: "all",
-}
-
 export function TaskCenterPage() {
-  const { page, pageSize, refresh, setPage, setPageSize, tasks, total } = useTaskList()
-  const [filters, setFilters] = React.useState(DEFAULT_FILTERS)
+  const {
+    fileName,
+    page,
+    pageSize,
+    refresh,
+    setFileName,
+    setPage,
+    setPageSize,
+    setStatus,
+    status,
+    statusCounts,
+    tasks,
+    total,
+  } = useTaskList()
 
-  const keyword = filters.fileName.trim().toLowerCase()
-  const status = filters.status
-  const hasActiveFilters = keyword !== "" || status !== "all"
-  const completedCount = tasks.filter((task) => task.status === "completed").length
-  const completionRate = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0
+  // 筛选与统计都在服务端做。此前是前端对当前页做本地过滤 ——
+  // 实测第 2 页共 6 条，筛「失败」得 5、筛「已完成」得 1，5+1 正好是这一页全部，
+  // 说明根本没查全库；完成率也只按当前页算。
+  const safeFileName = fileName ?? ""
+  const safeStatus = status ?? ""
+
+  const filters = React.useMemo(
+    () => ({ fileName: safeFileName, status: safeStatus === "" ? "all" : safeStatus }),
+    [safeFileName, safeStatus],
+  )
+
+  const handleFiltersChange = React.useCallback(
+    (next) => {
+      setStatus?.(next.status === "all" ? "" : next.status)
+      setFileName?.(next.fileName ?? "")
+    },
+    [setFileName, setStatus],
+  )
+
+  const hasActiveFilters = safeFileName.trim() !== "" || safeStatus !== ""
+
+  // 分母用全量分布之和，指标不随筛选与翻页漂移
+  const allStatusTotal = React.useMemo(
+    () => Object.values(statusCounts ?? {}).reduce((sum, n) => sum + n, 0),
+    [statusCounts],
+  )
+  const completedCount = statusCounts?.completed ?? 0
+  const completionRate =
+    allStatusTotal > 0 ? Math.round((completedCount / allStatusTotal) * 100) : 0
 
   // 聚合缺陷统计
   const defectStats = React.useMemo(() => {
@@ -61,14 +92,6 @@ export function TaskCenterPage() {
     return { ranked, totalDefects, ownerCount: owners.size }
   }, [tasks])
 
-  const filteredTasks = tasks.filter((task) => {
-    const fileName = String(task.file_name ?? "").toLowerCase()
-    const matchesKeyword = keyword === "" || fileName.includes(keyword)
-    const matchesStatus = status === "all" || task.status === status
-
-    return matchesKeyword && matchesStatus
-  })
-
   const handlePageChange = (nextPage) => {
     setPage(nextPage)
   }
@@ -90,14 +113,18 @@ export function TaskCenterPage() {
           <PageWorkbandInfoCard
             items={[
               { label: "完成", value: `${completedCount} 条` },
-              { label: "筛选", value: hasActiveFilters ? `${filteredTasks.length}/${tasks.length}` : "关闭" },
+              { label: "筛选", value: hasActiveFilters ? `命中 ${total} 条` : "关闭" },
             ]}
             label="当前批次"
             title={`${total} 条任务`}
           />
         }
         className="page-workband--operations"
-        description={`已加载 ${tasks.length} 条任务，当前页完成 ${completedCount} 条。`}
+        description={
+          hasActiveFilters
+            ? `筛选命中 ${total} 条，本页显示 ${tasks.length} 条。`
+            : `共 ${total} 条任务，本页显示 ${tasks.length} 条，全部已完成 ${completedCount} 条。`
+        }
         eyebrow="检测任务"
         footer={
           <InView once>
@@ -201,8 +228,10 @@ export function TaskCenterPage() {
       )}
 
       <GlassPanel className="toolbar-surface">
-        <TaskFilters filters={filters} onFiltersChange={setFilters} onRefresh={refresh} />
-        {hasActiveFilters ? <p className="toolbar-surface__summary">筛选结果：{filteredTasks.length} / {tasks.length}</p> : null}
+        <TaskFilters filters={filters} onFiltersChange={handleFiltersChange} onRefresh={refresh} />
+        {hasActiveFilters ? (
+          <p className="toolbar-surface__summary">筛选命中 {total} 条（全库）</p>
+        ) : null}
       </GlassPanel>
 
       <TaskTable
@@ -210,7 +239,7 @@ export function TaskCenterPage() {
         onPageSizeChange={handlePageSizeChange}
         page={page}
         pageSize={pageSize}
-        tasks={filteredTasks}
+        tasks={tasks}
         total={total}
       />
     </div>

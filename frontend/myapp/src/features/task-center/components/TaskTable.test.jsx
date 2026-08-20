@@ -61,8 +61,11 @@ test("renders task fields, detail entry, and gated download actions", async () =
   expect(screen.getByText("已选 0 项")).toBeInTheDocument()
   expect(screen.getByText("ready.png")).toBeInTheDocument()
   expect(screen.getByText("running.png")).toBeInTheDocument()
-  expect(screen.getByText("completed")).toBeInTheDocument()
-  expect(screen.getByText("progressing")).toBeInTheDocument()
+  // 状态显示中文，且不得再出现后端英文原值
+  expect(screen.getByText("已完成")).toBeInTheDocument()
+  expect(screen.queryByText("completed")).not.toBeInTheDocument()
+  expect(screen.getByText("处理中")).toBeInTheDocument()
+  expect(screen.queryByText("progressing")).not.toBeInTheDocument()
   expect(screen.getByText("裂纹 2")).toBeInTheDocument()
   expect(screen.getByText("腐蚀 1")).toBeInTheDocument()
   expect(screen.getAllByText("-")).toHaveLength(3)

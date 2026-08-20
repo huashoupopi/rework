@@ -1,4 +1,5 @@
 import * as React from "react"
+import { indexStatusName } from "@/shared/lib/labels"
 import { Button, Card, List, Space, Statistic, Tag, Typography } from "antd"
 import { Meteors } from "@/shared/ui/magicui/meteors"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
@@ -62,7 +63,7 @@ export function KnowledgeStatusSummary({
                 <Space>
                   <span>{document.title}</span>
                   <Tag color={document.index_status === "indexed" ? "green" : "gold"}>
-                    {document.index_status ?? "-"}
+                    {indexStatusName(document.index_status) || "-"}
                   </Tag>
                 </Space>
               </List.Item>

@@ -1,5 +1,7 @@
 import * as React from "react"
 
+import { useAuthedBlobUrl } from "@/shared/hooks/useAuthedBlobUrl"
+
 const DEFECT_COLORS = {
   corrosion: "#f0803c",
   crack: "#ff6b6e",
@@ -14,20 +16,17 @@ const DEFECT_COLORS = {
   default: "#2563eb",
 }
 
-function getPreviewUrl(originalPath) {
-  if (!originalPath || typeof originalPath !== "string") {
+// 原图不再直连 /static —— 批次 2 把匿名访问关了（IDOR）。
+// 走 GET /tasks/{id}/image?kind=original，由 useAuthedBlobUrl 带 token 取 Blob。
+function getImageRequestPath(task) {
+  const taskId = task?.id
+  if (taskId === undefined || taskId === null) {
     return ""
   }
-
-  if (originalPath.startsWith("http://") || originalPath.startsWith("https://")) {
-    return originalPath
+  if (!task?.original_path) {
+    return ""
   }
-
-  if (originalPath.startsWith("/")) {
-    return originalPath
-  }
-
-  return `/${originalPath}`
+  return `/tasks/${taskId}/image?kind=original`
 }
 
 function getStatusCopy(status) {
@@ -142,7 +141,8 @@ export function TaskImagePreview({ task }) {
   const containerRef = React.useRef(null)
   const imageRef = React.useRef(null)
   const canvasRef = React.useRef(null)
-  const previewUrl = getPreviewUrl(task?.original_path)
+  const imagePath = getImageRequestPath(task)
+  const { error: fetchError, loading: fetchLoading, url: previewUrl } = useAuthedBlobUrl(imagePath)
   const [naturalSize, setNaturalSize] = React.useState(null)
   const [loadError, setLoadError] = React.useState(false)
   const rawObjects = task?.detect_result?.objects
@@ -192,7 +192,21 @@ export function TaskImagePreview({ task }) {
     return undefined
   }, [isCompleted, naturalSize, previewUrl, rawObjects])
 
-  if (!previewUrl || loadError) {
+  if (fetchLoading) {
+    return (
+      <section aria-label="任务图像预览" className="task-image-preview task-image-preview--empty">
+        <div className="task-image-preview__header">
+          <p className="page-header__eyebrow">检测预览</p>
+          <h3>原图预览</h3>
+        </div>
+        <div className="task-image-preview__empty">
+          <p>原图加载中…</p>
+        </div>
+      </section>
+    )
+  }
+
+  if (!previewUrl || loadError || fetchError) {
     return (
       <section aria-label="任务图像预览" className="task-image-preview task-image-preview--empty">
         <div className="task-image-preview__header">
