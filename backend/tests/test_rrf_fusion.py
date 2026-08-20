@@ -12,6 +12,7 @@ import pytest
 from app.services.retrieval_fusion import (
     concat_dedup,
     fuse_nodes,
+    path_overlap_stats,
     retrieve_two_path,
     rrf_fuse,
 )
@@ -68,7 +69,7 @@ async def test_two_path_concurrent_not_serial():
         return [_n(label)]
 
     t0 = time.perf_counter()
-    nodes, mode = await retrieve_two_path(
+    nodes, mode, stats = await retrieve_two_path(
         slow("d", 0.12),
         slow("s", 0.12),
         lambda: slow("fb", 0.01),
@@ -79,6 +80,7 @@ async def test_two_path_concurrent_not_serial():
     elapsed = time.perf_counter() - t0
     assert mode == "hybrid"
     assert [n.id_ for n in nodes] == ["d", "s"]
+    assert stats == {"dense": 1, "sparse": 1, "overlap": 0}
     assert elapsed < 0.20
     assert abs(starts[0] - starts[1]) < 0.05
 
@@ -90,7 +92,7 @@ async def test_two_path_fallback_when_both_empty():
     async def fallback():
         return [_n("vec")]
 
-    nodes, mode = await retrieve_two_path(
+    nodes, mode, stats = await retrieve_two_path(
         empty(),
         empty(),
         fallback,
@@ -100,6 +102,7 @@ async def test_two_path_fallback_when_both_empty():
     )
     assert mode == "fallback_dense"
     assert [n.id_ for n in nodes] == ["vec"]
+    assert stats == {"dense": 0, "sparse": 0, "overlap": 0}
 
 
 async def test_two_path_does_not_fallback_when_one_side_hits():
@@ -112,7 +115,7 @@ async def test_two_path_does_not_fallback_when_one_side_hits():
     async def fallback():
         raise AssertionError("fallback must not run")
 
-    nodes, mode = await retrieve_two_path(
+    nodes, mode, stats = await retrieve_two_path(
         empty(),
         sparse(),
         fallback,
@@ -122,6 +125,17 @@ async def test_two_path_does_not_fallback_when_one_side_hits():
     )
     assert mode == "hybrid"
     assert [n.id_ for n in nodes] == ["fts"]
+    assert stats == {"dense": 0, "sparse": 1, "overlap": 0}
+
+
+def test_path_overlap_stats_counts_shared_ids():
+    dense = [_n("A"), _n("B"), _n("C")]
+    sparse = [_n("B"), _n("C"), _n("D")]
+    assert path_overlap_stats(dense, sparse, _id) == {
+        "dense": 3,
+        "sparse": 3,
+        "overlap": 2,
+    }
 
 
 def test_rag_service_does_not_call_private_vector_store_methods():

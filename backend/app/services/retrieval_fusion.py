@@ -49,6 +49,20 @@ def rrf_fuse(
     return [nodes[key] for key in ordered]
 
 
+def path_overlap_stats(
+    dense: Sequence[Any],
+    sparse: Sequence[Any],
+    id_fn: Callable[[Any], str] = node_identity,
+) -> dict[str, int]:
+    dense_ids = {id_fn(node) for node in dense}
+    sparse_ids = {id_fn(node) for node in sparse}
+    return {
+        "dense": len(dense),
+        "sparse": len(sparse),
+        "overlap": len(dense_ids & sparse_ids),
+    }
+
+
 def fuse_nodes(
     dense: Sequence[Any],
     sparse: Sequence[Any],
@@ -72,9 +86,10 @@ async def retrieve_two_path(
     fusion: str,
     rrf_k: int,
     id_fn: Callable[[Any], str] = node_identity,
-) -> tuple[list[Any], str]:
+) -> tuple[list[Any], str, dict[str, int]]:
     """两路并发。都空则走纯向量兜底。fallback 是工厂，避免未使用的 coroutine。"""
     dense_nodes, sparse_nodes = await asyncio.gather(dense, sparse)
+    stats = path_overlap_stats(dense_nodes, sparse_nodes, id_fn)
     if dense_nodes or sparse_nodes:
         fused = fuse_nodes(
             dense_nodes,
@@ -83,6 +98,6 @@ async def retrieve_two_path(
             rrf_k=rrf_k,
             id_fn=id_fn,
         )
-        return fused, "hybrid"
+        return fused, "hybrid", stats
     fallback_nodes = await fallback()
-    return list(fallback_nodes), "fallback_dense"
+    return list(fallback_nodes), "fallback_dense", stats
