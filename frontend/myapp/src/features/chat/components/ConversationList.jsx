@@ -1,5 +1,6 @@
 import * as React from "react"
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { Popconfirm } from "antd"
+import { Check, Pencil, Plus, Trash2, X } from "lucide-react"
 
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
@@ -12,20 +13,46 @@ export function ConversationList({
   onRename,
   onSelect,
 }) {
-  const handleRename = (event, conversation) => {
-    event.stopPropagation()
-    const nextTitle = window.prompt("会话标题", conversation.title ?? "")
+  // 重命名走行内编辑，删除走 Popconfirm。
+  // ⛔ 不用 window.prompt / window.confirm —— 原生对话框会阻塞整个 JS 主线程
+  // （自动化实测：点删除后页面完全无响应），而且与深色玻璃设计不搭。
+  const [editingId, setEditingId] = React.useState(null)
+  const [draft, setDraft] = React.useState("")
+  const inputRef = React.useRef(null)
 
-    if (nextTitle && nextTitle.trim() && nextTitle.trim() !== conversation.title) {
-      onRename?.(conversation.id, nextTitle.trim())
+  React.useEffect(() => {
+    if (editingId !== null) {
+      inputRef.current?.focus()
+      inputRef.current?.select()
     }
+  }, [editingId])
+
+  function startRename(event, conversation) {
+    event.stopPropagation()
+    setEditingId(conversation.id)
+    setDraft(conversation.title ?? "")
   }
 
-  const handleDelete = (event, conversation) => {
-    event.stopPropagation()
+  function cancelRename() {
+    setEditingId(null)
+    setDraft("")
+  }
 
-    if (window.confirm(`删除会话「${conversation.title}」及其消息？`)) {
-      onDelete?.(conversation.id)
+  function commitRename(conversation) {
+    const next = draft.trim()
+    if (next && next !== conversation.title) {
+      onRename?.(conversation.id, next)
+    }
+    cancelRename()
+  }
+
+  function handleKeyDown(event, conversation) {
+    if (event.key === "Enter") {
+      event.preventDefault()
+      commitRename(conversation)
+    } else if (event.key === "Escape") {
+      event.preventDefault()
+      cancelRename()
     }
   }
 
@@ -44,38 +71,83 @@ export function ConversationList({
         <ul className="chat-sidebar__list">
           {items.map((conversation) => {
             const selected = conversation.id === activeId
+            const editing = editingId === conversation.id
 
             return (
               <li key={conversation.id}>
-                <button
-                  className={
-                    selected ? "chat-sidebar__item chat-sidebar__item--active" : "chat-sidebar__item"
-                  }
-                  type="button"
-                  onClick={() => onSelect?.(conversation)}
-                >
-                  <span className="chat-sidebar__title">{conversation.title || "新对话"}</span>
-                  {conversation.task_id != null ? (
-                    <span className="chat-sidebar__meta">任务 #{conversation.task_id}</span>
-                  ) : (
-                    <span className="chat-sidebar__meta">自由问答</span>
-                  )}
-                </button>
+                {editing ? (
+                  <div className="chat-sidebar__item chat-sidebar__item--editing">
+                    <input
+                      aria-label={`会话标题 ${conversation.title}`}
+                      className="chat-sidebar__rename-input"
+                      ref={inputRef}
+                      value={draft}
+                      onBlur={() => commitRename(conversation)}
+                      onChange={(event) => setDraft(event.target.value)}
+                      onKeyDown={(event) => handleKeyDown(event, conversation)}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    className={
+                      selected
+                        ? "chat-sidebar__item chat-sidebar__item--active"
+                        : "chat-sidebar__item"
+                    }
+                    type="button"
+                    onClick={() => onSelect?.(conversation)}
+                  >
+                    <span className="chat-sidebar__title">{conversation.title || "新对话"}</span>
+                    {conversation.task_id != null ? (
+                      <span className="chat-sidebar__meta">任务 #{conversation.task_id}</span>
+                    ) : (
+                      <span className="chat-sidebar__meta">自由问答</span>
+                    )}
+                  </button>
+                )}
                 <div className="chat-sidebar__actions">
-                  <button
-                    aria-label={`重命名 ${conversation.title}`}
-                    type="button"
-                    onClick={(event) => handleRename(event, conversation)}
-                  >
-                    <Pencil size={13} />
-                  </button>
-                  <button
-                    aria-label={`删除 ${conversation.title}`}
-                    type="button"
-                    onClick={(event) => handleDelete(event, conversation)}
-                  >
-                    <Trash2 size={13} />
-                  </button>
+                  {editing ? (
+                    <>
+                      <button
+                        aria-label={`保存 ${conversation.title}`}
+                        type="button"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => commitRename(conversation)}
+                      >
+                        <Check size={13} />
+                      </button>
+                      <button
+                        aria-label={`取消重命名 ${conversation.title}`}
+                        type="button"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={cancelRename}
+                      >
+                        <X size={13} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        aria-label={`重命名 ${conversation.title}`}
+                        type="button"
+                        onClick={(event) => startRename(event, conversation)}
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <Popconfirm
+                        cancelText="取消"
+                        okText="删除"
+                        okButtonProps={{ danger: true }}
+                        title="删除会话"
+                        description={`「${conversation.title || "新对话"}」及其消息将被删除。`}
+                        onConfirm={() => onDelete?.(conversation.id)}
+                      >
+                        <button aria-label={`删除 ${conversation.title}`} type="button">
+                          <Trash2 size={13} />
+                        </button>
+                      </Popconfirm>
+                    </>
+                  )}
                 </div>
               </li>
             )
