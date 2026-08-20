@@ -1,9 +1,10 @@
 import * as React from "react"
 import { FileUp } from "lucide-react"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
+import { extractErrorMessage } from "@/shared/api/http"
 
 function getErrorMessage(error) {
-  return error?.response?.data?.detail ?? (error instanceof Error ? error.message : "上传失败")
+  return extractErrorMessage(error, "上传失败")
 }
 
 export function KnowledgeUploadCard({ onUpload }) {
