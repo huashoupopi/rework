@@ -372,6 +372,8 @@ async def _chat_event_generator(
                 meta["rewritten_query"] = result_meta["rewritten_query"]
             if result_meta.get("retrieval_debug"):
                 meta["retrieval_debug"] = result_meta["retrieval_debug"]
+            if result_meta.get("rag_trace"):
+                meta["rag_trace"] = result_meta["rag_trace"]
 
             # output_safe, leak_desc = check_output_leak(content_only)
             # if not output_safe:
@@ -400,6 +402,8 @@ async def _chat_event_generator(
                         meta_cancel["think"] = parser.think_content
                     if result_meta.get("sources"):
                         meta_cancel["sources"] = result_meta["sources"]
+                    if result_meta.get("rag_trace"):
+                        meta_cancel["rag_trace"] = result_meta["rag_trace"]
                     await chat_crud.create_message(
                         bg_session,
                         user_id=current_user.id,

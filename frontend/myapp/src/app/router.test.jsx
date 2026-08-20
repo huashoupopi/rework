@@ -26,6 +26,7 @@ test("declares the expected public, protected, and admin routes", () => {
       "/knowledge/rebuild",
       "/knowledge/chunk-configs",
       "/users",
+      "/evals",
     ]),
   )
 })

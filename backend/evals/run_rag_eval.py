@@ -222,7 +222,7 @@ async def run_case(
     answer, meta, elapsed_ms = await send_chat(client, base_url, token, query)
     scores = dispatch_score(case, answer, meta)
 
-    return {
+    row: dict[str, Any] = {
         "case_id": case["id"],
         "layer": case["layer"],
         "status": "PASS" if scores["pass"] else "FAIL",
@@ -231,6 +231,9 @@ async def run_case(
         "route": meta.get("route"),
         "answer_preview": answer[:160],
     }
+    if meta.get("rag_trace"):
+        row["trace"] = meta["rag_trace"]
+    return row
 
 
 def build_report(results: list[dict[str, Any]]) -> dict[str, Any]:
@@ -283,6 +286,26 @@ def print_report(report: dict[str, Any]) -> None:
     summary = report["summary"]
     print("-" * 64)
     print(f"总计: {summary['passed_cases']}/{summary['total_cases']} ({summary['pass_rate']:.0%})")
+    _print_failure_traces(report.get("results") or [])
+
+
+def _print_failure_traces(results: list[dict[str, Any]]) -> None:
+    failed = [row for row in results if row.get("status") != "PASS"]
+    if not failed:
+        return
+    print("=" * 64)
+    print("失败归因")
+    for row in failed:
+        case_id = row.get("case_id", "?")
+        trace = row.get("trace")
+        if not trace:
+            print(f"  {case_id}: 无 trace")
+            continue
+        print(f"  {case_id}: total_ms={trace.get('total_ms')} request_id={trace.get('request_id')}")
+        for step in trace.get("steps") or []:
+            name = step.get("step")
+            extra = {k: v for k, v in step.items() if k not in ("step",)}
+            print(f"    {name}: {extra}")
 
 
 async def run_eval(cases: list[dict[str, Any]], base_url: str) -> dict[str, Any]:
@@ -309,10 +332,14 @@ async def run_eval(cases: list[dict[str, Any]], base_url: str) -> dict[str, Any]
     return {**report, "results": results}
 
 
-def save_results(payload: dict[str, Any]) -> Path:
+def save_results(payload: dict[str, Any], tag: str | None = None) -> Path:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output = RESULTS_DIR / f"eval30_{timestamp}.json"
+    suffix = ""
+    if tag:
+        safe = "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in tag)
+        suffix = f"_{safe}"
+    output = RESULTS_DIR / f"eval30_{timestamp}{suffix}.json"
     output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return output
 
@@ -322,6 +349,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--case", action="append", dest="case_ids", help="只跑指定 case，可重复")
     parser.add_argument("--layer", action="append", dest="layers", help="只跑指定层，可重复")
     parser.add_argument("--dry-run", action="store_true", help="只验用例加载与物化，不发请求")
+    parser.add_argument("--tag", default=None, help="写入结果文件名，如 p1-after")
     parser.add_argument(
         "--base-url",
         default=os.getenv("RAG_EVAL_BASE_URL", "http://localhost:8000"),
@@ -347,7 +375,7 @@ def main() -> None:
 
     payload = asyncio.run(run_eval(cases, base_url=args.base_url.rstrip("/")))
     print_report(payload)
-    output = save_results(payload)
+    output = save_results(payload, tag=args.tag)
     print(f"结果文件: {output}")
 
 

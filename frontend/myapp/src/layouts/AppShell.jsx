@@ -2,6 +2,7 @@ import * as React from "react"
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import {
   Bot,
+  ClipboardList,
   FileText,
   Home,
   Layers3,
@@ -34,6 +35,7 @@ const navigationItems = [
   { label: "索引重建", path: "/knowledge/rebuild", icon: RefreshCw, adminOnly: true },
   { label: "分块配置", path: "/knowledge/chunk-configs", icon: Settings2, adminOnly: true },
   { label: "用户管理", path: "/users", icon: Users, adminOnly: true },
+  { label: "评测报告", path: "/evals", icon: ClipboardList, adminOnly: true },
 ]
 
 export function AppShell() {
