@@ -1,0 +1,812 @@
+{
+  "summary": {
+    "total_cases": 10,
+    "passed_cases": 10,
+    "pass_rate": 1.0
+  },
+  "layers": {
+    "retrieval": {
+      "total": 10,
+      "passed": 10,
+      "errors": 0,
+      "mean_hit_at_10": 1.0,
+      "mean_hit_at_5": 1.0,
+      "mean_mrr": 0.769
+    }
+  },
+  "results": [
+    {
+      "case_id": "R01",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 24405.3,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.39,
+        "term_ranks": {
+          "敲击法": 3,
+          "超声波": 2,
+          "热像仪": 3
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**隐裂（Hide Craze / 隐性裂纹）肉眼不可见**，需依赖专业设备定期检测。常用检测方法如下：\n\n### 主要检测方法\n1. **敲击法（空鼓音）**  \n2. **超声波扫描**  \n3. **热像仪 / 红外热像检测（Infrared Thermography, IRT）**  \n   - **",
+      "trace": {
+        "steps": [
+          {
+            "ms": 9838.1,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "隐裂通常怎么检测？",
+            "rewritten": "隐裂通常怎么检测？"
+          },
+          {
+            "ms": 1007.2,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "隐裂通常怎么检测？",
+            "returned": 13,
+            "top_score": 0.6928,
+            "tokenized_query": "隐裂 通常 怎么 检测 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1476.1,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 4
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 4,
+                "from": 7
+              },
+              {
+                "to": 5,
+                "from": 3
+              }
+            ]
+          },
+          {
+            "ms": 4.9,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.115234375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 11872.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7543.0,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 24199.5,
+        "request_id": "2501113102ae4e238698a988929f5d64"
+      }
+    },
+    {
+      "case_id": "R02",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 25768.8,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.5,
+        "term_ranks": {
+          "V 型开槽": 2,
+          "环氧树脂": 2,
+          "玻璃纤维布": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**叶片裂纹（Craze）**一般按下列流程修复（先完成修复前准备，再进入裂纹专项步骤）。\n\n### 修复前准备\n1. 停机并锁定叶轮（机械制动 + 变桨锁定）  \n2. 检查天气：风速 &lt; 8 m/s，温度 5~35°C，相对湿度 &lt; 80%  \n3. 安全防护：高处作业绳索系统，至少 2 人协",
+      "trace": {
+        "steps": [
+          {
+            "ms": 10331.2,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "叶片裂纹一般怎么修复？关键步骤有哪些？",
+            "rewritten": "风电叶片裂纹一般怎么修复？关键步骤有哪些？"
+          },
+          {
+            "ms": 120.8,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "风电叶片裂纹一般怎么修复？关键步骤有哪些？",
+            "returned": 13,
+            "top_score": 0.7384,
+            "tokenized_query": "风电 叶片 裂纹 一般 怎么 修复 ? 关键步骤 有 哪些 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1423.2,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 2
+              },
+              {
+                "to": 4,
+                "from": 5
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 2.9,
+            "step": "route",
+            "route": "rag",
+            "top_score": 1.4052734375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 13727.8,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7674.7,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 25606.0,
+        "request_id": "fe44fa9f14644004806759fe048fb5a5"
+      }
+    },
+    {
+      "case_id": "R03",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 21033.0,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.3,
+        "term_ranks": {
+          "环氧腻子": 5,
+          "底漆": 5,
+          "丙酮": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**风机叶片腐蚀（Corrosion / Erosion）**按下列规范修复。\n\n### 修复前准备\n1. 停机并锁定叶轮（机械制动 + 变桨锁定）  \n2. 检查天气：风速 &lt; 8 m/s，温度 5~35°C，相对湿度 &lt; 80%  \n3. 安全防护：高处作业绳索系统，至少 2 人协作  \n4.",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6965.3,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "风机叶片腐蚀应该怎么修复？",
+            "rewritten": "风机叶片腐蚀应该怎么修复？"
+          },
+          {
+            "ms": 124.0,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "风机叶片腐蚀应该怎么修复？",
+            "returned": 14,
+            "top_score": 0.7582,
+            "tokenized_query": "风机 叶片 腐蚀 应该 怎么 修复 ?"
+          },
+          {
+            "in": 14,
+            "ms": 1527.8,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 3,
+                "from": 10
+              },
+              {
+                "to": 4,
+                "from": 3
+              }
+            ]
+          },
+          {
+            "ms": 1.3,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.58203125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 12244.7,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 6702.9,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 20863.1,
+        "request_id": "14c039c9f283484c88b91823ea269d4c"
+      }
+    },
+    {
+      "case_id": "R04",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 26573.2,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.67,
+        "term_ranks": {
+          "停机": 1,
+          "导雷系统": 2,
+          "炭化": 2
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**叶片雷击损伤（Thunderstrike）**后的关键处理步骤如下。\n\n### 一、紧急响应与评估\n1. **立即停机（Immediate Shutdown）**  \n   一旦 SCADA 系统显示雷击事件或巡检发现损伤，**立即停机并锁定风机**。\n2. **初步安全评估（Preliminary Sa",
+      "trace": {
+        "steps": [
+          {
+            "ms": 4820.3,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "叶片雷击损伤后关键处理步骤有哪些？",
+            "rewritten": "风机叶片雷击损伤后的关键处理步骤有哪些？"
+          },
+          {
+            "ms": 115.0,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "风机叶片雷击损伤后的关键处理步骤有哪些？",
+            "returned": 13,
+            "top_score": 0.7013,
+            "tokenized_query": "风机 叶片 雷击 损伤 后 的 关键 处理 步骤 有 哪些 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1421.6,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 4
+              },
+              {
+                "to": 4,
+                "from": 5
+              },
+              {
+                "to": 5,
+                "from": 6
+              }
+            ]
+          },
+          {
+            "ms": 2.8,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.48046875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 20050.5,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 10688.5,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 26410.2,
+        "request_id": "7371ff0d56814c608cd6b12d5aa11d63"
+      }
+    },
+    {
+      "case_id": "R05",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 18569.4,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "0.1 m²": 1,
+          "3 mm": 1,
+          "停机": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，叶片**腐蚀**按面积和深度划分严重等级如下：\n\n### 划分标准\n- **轻度**：面积 **&lt; 0.1 m²**，深度 **&lt; 1 mm**\n- **中度**：面积 **0.1~0.5 m²**，深度 **1~3 mm**\n- **重度**：面积 **&gt; 0.5 m²**，**或** 深",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6238.7,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "轻度腐蚀和重度腐蚀怎么划分？",
+            "rewritten": "风机叶片轻度腐蚀与重度腐蚀如何划分？"
+          },
+          {
+            "ms": 121.0,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "风机叶片轻度腐蚀与重度腐蚀如何划分？",
+            "returned": 15,
+            "top_score": 0.7562,
+            "tokenized_query": "风机 叶片 轻度 腐蚀 与 重度 腐蚀 如何 划分 ?"
+          },
+          {
+            "in": 15,
+            "ms": 1635.6,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 2
+              },
+              {
+                "to": 4,
+                "from": 5
+              },
+              {
+                "to": 5,
+                "from": 7
+              }
+            ]
+          },
+          {
+            "ms": 4.9,
+            "step": "route",
+            "route": "rag",
+            "top_score": 0.09588623046875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 10420.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7884.2,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 18421.2,
+        "request_id": "4fff457a0144465296100582ed9d537c"
+      }
+    },
+    {
+      "case_id": "R06",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 19128.4,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "齿轮箱": 1,
+          "液压油": 1,
+          "气动": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**表面油污（Surface Oil）**的来源与危害如下。\n\n### 来源\n- **齿轮箱（Gearbox）渗漏**\n- **液压变桨系统（Hydraulic Pitch System）**液压油滴落/泄漏\n- **轴承**等部位的润滑油、液压油泄漏并附着在叶片上\n\n### 危害\n1. **化学攻击**：许",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6262.3,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "表面油污从哪来？有什么危害？",
+            "rewritten": "风机叶片表面油污的来源及危害"
+          },
+          {
+            "ms": 103.9,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "风机叶片表面油污的来源及危害",
+            "returned": 15,
+            "top_score": 0.6597,
+            "tokenized_query": "风机 叶片 表面 油污 的 来源 及 危害"
+          },
+          {
+            "in": 15,
+            "ms": 1628.3,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 6
+              },
+              {
+                "to": 5,
+                "from": 1
+              }
+            ]
+          },
+          {
+            "ms": 1.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": 1.4462890625,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 10945.4,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7167.1,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 18941.4,
+        "request_id": "ddceb1d8179d4d10b4c0091dc56224cf"
+      }
+    },
+    {
+      "case_id": "R07",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 23172.6,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "8 m/s": 1,
+          "80%": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**修复前**天气/环境限制如下：\n\n### 叶片缺陷修复前准备（3.1）\n- **风速**：**< 8 m/s**\n- **相对湿度**：**< 80%**\n- 同时温度需在 **5~35°C**\n\n### 补充（手册中的相关要求）\n- **表面裂纹修复（SOP-BL-05）**：相对湿度 **(RH) <",
+      "trace": {
+        "steps": [
+          {
+            "ms": 8321.6,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "修复前风速和湿度限制是多少？",
+            "rewritten": "风机叶片修复前风速和相对湿度的限制是多少？"
+          },
+          {
+            "ms": 86.9,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "风机叶片修复前风速和相对湿度的限制是多少？",
+            "returned": 16,
+            "top_score": 0.6749,
+            "tokenized_query": "风机 叶片 修复 前 风速 和 相对湿度 的 限制 是 多少 ?"
+          },
+          {
+            "in": 16,
+            "ms": 1785.1,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 6
+              },
+              {
+                "to": 4,
+                "from": 7
+              },
+              {
+                "to": 5,
+                "from": 4
+              }
+            ]
+          },
+          {
+            "ms": 3.1,
+            "step": "route",
+            "route": "rag",
+            "top_score": 1.373046875,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 12823.5,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 8337.9,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 23020.2,
+        "request_id": "5878255c3a2b45819c98e955193afa8b"
+      }
+    },
+    {
+      "case_id": "R08",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 17767.0,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "10 Ω": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**导雷系统**验收时的合格标准为：\n\n**接地电阻 &lt; 10 Ω**\n\n该标准列于修复质量验收标准表中，与表面平整度、涂层附着力、修复区硬度、超声检测等一并作为修复后验收项目。\n\n另：雷击损伤检测时，还需测量**接闪器到叶根引下线**的电阻，标准值为 **&lt; 200 mΩ**（导通性/连续性相关",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6583.9,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "导雷系统验收时接地电阻合格标准？",
+            "rewritten": "风电叶片导雷系统验收时接地电阻合格标准是多少？"
+          },
+          {
+            "ms": 108.1,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "风电叶片导雷系统验收时接地电阻合格标准是多少？",
+            "returned": 15,
+            "top_score": 0.64,
+            "tokenized_query": "风电 叶片 导雷 系统 验收 时 接地 电阻 合格 标准 是 多少 ?"
+          },
+          {
+            "in": 15,
+            "ms": 1633.7,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 2,
+                "from": 6
+              },
+              {
+                "to": 3,
+                "from": 4
+              },
+              {
+                "to": 4,
+                "from": 8
+              },
+              {
+                "to": 5,
+                "from": 2
+              }
+            ]
+          },
+          {
+            "ms": 4.3,
+            "step": "route",
+            "route": "rag",
+            "top_score": 2.580078125,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 9285.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 7145.9,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 17615.8,
+        "request_id": "ac75a5952be3456aac8b85569091e774"
+      }
+    },
+    {
+      "case_id": "R09",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 15400.4,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 1.0,
+        "term_ranks": {
+          "起泡": 1,
+          "脱落": 1
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**不能在湿润环境下施工**的原因是：\n\n**在湿润环境下施工 → 会导致涂层起泡、脱落。**\n\n这也是常见错误与注意事项中明确列出的一项。修复前要求相对湿度 **&lt; 80%**（表面裂纹等专项修复更严格时为 **&lt; 70%**），正是为避免涂层起泡脱落、附着力不足等问题。",
+      "trace": {
+        "steps": [
+          {
+            "ms": 6113.7,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "为什么湿润环境不能施工？",
+            "rewritten": "叶片修复为什么湿润环境不能施工？"
+          },
+          {
+            "ms": 116.3,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "叶片修复为什么湿润环境不能施工？",
+            "returned": 15,
+            "top_score": 0.5863,
+            "tokenized_query": "叶片 修复 为什么 湿润 环境 不能 施工 ?"
+          },
+          {
+            "in": 15,
+            "ms": 1611.0,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 1
+              },
+              {
+                "to": 3,
+                "from": 8
+              },
+              {
+                "to": 5,
+                "from": 3
+              }
+            ]
+          },
+          {
+            "ms": 4.5,
+            "step": "route",
+            "route": "rag",
+            "top_score": -0.7255859375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 7400.9,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 5872.3,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 15246.5,
+        "request_id": "d4f0284ce3d5420e95122f373dfb27ea"
+      }
+    },
+    {
+      "case_id": "R10",
+      "layer": "retrieval",
+      "status": "PASS",
+      "elapsed_ms": 24033.1,
+      "scores": {
+        "pass": true,
+        "hit_at_10": 1.0,
+        "hit_at_5": 1.0,
+        "mrr": 0.83,
+        "term_ranks": {
+          "层间": 1,
+          "肉眼": 1,
+          "空鼓音": 1,
+          "线状": 3
+        }
+      },
+      "route": "rag",
+      "answer_preview": "根据指南，**隐裂（Hide Craze）**和**表面裂纹（裂纹/Craze）**的主要区别如下。\n\n### 1. 特征\n| | **隐裂（Hide Craze）** | **裂纹（Craze / 表面裂纹）** |\n|---|---|---|\n| 外观 | 表面**无明显裂缝**，但**内部层间已分离** | 叶片",
+      "trace": {
+        "steps": [
+          {
+            "ms": 7829.1,
+            "step": "rewrite",
+            "skipped": false,
+            "original": "隐裂和表面裂纹有什么区别？",
+            "rewritten": "叶片隐裂和表面裂纹有什么区别？"
+          },
+          {
+            "ms": 106.1,
+            "mode": "hybrid",
+            "step": "retrieve",
+            "query": "叶片隐裂和表面裂纹有什么区别？",
+            "returned": 13,
+            "top_score": 0.6563,
+            "tokenized_query": "叶片 隐裂 和 表面 裂纹 有 什么 区别 ?"
+          },
+          {
+            "in": 13,
+            "ms": 1419.6,
+            "out": 5,
+            "step": "rerank",
+            "moved": [
+              {
+                "to": 1,
+                "from": 2
+              },
+              {
+                "to": 2,
+                "from": 3
+              },
+              {
+                "to": 3,
+                "from": 1
+              },
+              {
+                "to": 5,
+                "from": 7
+              }
+            ]
+          },
+          {
+            "ms": 4.1,
+            "step": "route",
+            "route": "rag",
+            "top_score": 0.255859375,
+            "context_nodes": 5,
+            "injection_score": 0
+          },
+          {
+            "ms": 14510.0,
+            "mode": "chat",
+            "step": "generate",
+            "ttfb_ms": 8084.6,
+            "finish_reason": "ok"
+          }
+        ],
+        "total_ms": 23868.9,
+        "request_id": "6ca19d8bd86b4ed0b28b01361856817c"
+      }
+    }
+  ]
+}
