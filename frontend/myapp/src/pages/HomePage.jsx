@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 
 import { useAuthStore } from "@/features/auth/store/auth-store"
+import { extractErrorMessage } from "@/shared/api/http"
 import { DEFECT_COLORS, DEFECT_NAMES } from "@/shared/lib/labels"
 import { useTaskList } from "@/features/task-center/hooks/useTaskList"
 import { InView } from "@/shared/ui/motion-primitives/in-view"
@@ -70,7 +71,10 @@ function formatTime(value) {
 export function HomePage() {
   const userInfo = useAuthStore((state) => state.userInfo)
   const username = userInfo?.username ?? "访客"
-  const { statusCounts, tasks, total } = useTaskList()
+  const { error, loading, statusCounts, tasks, total } = useTaskList()
+  // 首次加载时 tasks 是空数组、计数是 0 —— 不区分的话会把「还在拉」
+  // 显示成「没有任务」，这是两回事
+  const firstLoad = loading && (tasks ?? []).length === 0 && !total
 
   const counts = statusCounts ?? {}
   const recent = (tasks ?? []).slice(0, 6)
@@ -107,23 +111,39 @@ export function HomePage() {
       </header>
 
       {/* 概览：数字全部走等宽字与 tabular-nums，位宽不随数值变化跳动 */}
+      {error ? (
+        <p className="ops-alert" role="alert">
+          {extractErrorMessage(error, "任务数据加载失败")}
+        </p>
+      ) : null}
+
       <section aria-label="任务概览" className="ops-block ops-block--wide">
         <p className="ops-block__label">概览</p>
-        <div className="stat-row">
-          <div className="stat-row__cell">
+        <div className="stat-row" data-loading={firstLoad ? "true" : "false"}>
+          <div className="stat-row__cell" data-kind="total">
             <span className="stat-row__num">{total ?? 0}</span>
             <span className="stat-row__key">总任务</span>
           </div>
           {STATUS_ROWS.map((row) => {
             const value = counts[row.key] ?? 0
-            // 危险色只在真的有失败时出现 —— 「失败 0」还红着，等于狼来了
-            const tone = value > 0 ? (row.tone ?? "default") : "default"
+            const share = total > 0 ? Math.round((value / total) * 100) : 0
             return (
-              <div className="stat-row__cell" data-tone={tone} key={row.key}>
+              <div
+                className="stat-row__cell"
+                data-empty={value === 0 ? "true" : "false"}
+                data-tone={row.tone ?? "default"}
+                key={row.key}
+              >
                 <span className="stat-row__num">{value}</span>
                 <span className="stat-row__key">
                   {row.live && value > 0 ? <i aria-hidden="true" className="live-dot" /> : null}
                   {row.label}
+                </span>
+                {/* 占比微条：五格原本只有数字和标签，长得一模一样。
+                    这条给的是「这一类占全部任务多少」，是信息不是装饰。
+                    总任务那格没有 —— 它是分母。 */}
+                <span className="stat-row__share" title={`占全部任务 ${share}%`}>
+                  <span className="stat-row__share-fill" style={{ width: `${share}%` }} />
                 </span>
               </div>
             )
@@ -141,7 +161,22 @@ export function HomePage() {
                 <ArrowRight size={13} strokeWidth={1.5} />
               </Link>
             </div>
-            {recent.length === 0 ? (
+            {firstLoad ? (
+              <ul className="record-list record-list--skeleton" aria-hidden="true">
+                {[0, 1, 2, 3].map((i) => (
+                  <li className="record-list__row" key={i}>
+                    <span className="skeleton-bar" style={{ width: "5rem" }} />
+                    <span className="skeleton-bar" style={{ width: `${52 + i * 9}%` }} />
+                    <span className="skeleton-bar" style={{ width: "3rem" }} />
+                    <span />
+                  </li>
+                ))}
+              </ul>
+            ) : error ? (
+              // 请求失败时不能说「还没有任务」—— 拉不到和没有是两回事，
+              // 上面已经有错误条，这里保持沉默
+              <p className="ops-empty">数据暂时取不到。</p>
+            ) : recent.length === 0 ? (
               <p className="ops-empty">
                 还没有检测任务。<Link to="/tasks">上传第一批叶片图像</Link>后，结果会出现在这里。
               </p>
