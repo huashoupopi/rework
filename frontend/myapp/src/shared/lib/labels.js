@@ -78,3 +78,14 @@ export function documentStatusName(value) {
 export function indexStatusName(value) {
   return lookup(INDEX_STATUS_NAMES, value)
 }
+
+// 评测分层的中文名。原先 EvalReportPage 和 EvalCells 各存一份，
+// 后者把 guardrail/multi_turn 写成了 guard/multiturn，页面上直接显示英文原键。
+// 收敛到这里，两边共用一份。
+export const EVAL_LAYER_LABELS = {
+  generation: "生成",
+  guardrail: "门卫",
+  multi_turn: "多轮",
+  retrieval: "检索",
+  routing: "路由",
+}

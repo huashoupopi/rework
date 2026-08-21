@@ -4232,8 +4232,35 @@ textarea {
   color: var(--accent);
 }
 
+/* 0.16 在纸底上仍然太淡，几乎看不出切换。加深到 0.30，
+   并叠一层每 8 格一根的粗线 —— 真实图纸就是细格 + 主格两级。 */
 .app-shell[data-draft="true"] {
-  --grid-line: rgba(26, 26, 24, 0.16);
+  --grid-line: rgba(26, 26, 24, 0.30);
+}
+
+.app-shell[data-draft="true"] .app-shell__content {
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 575px, rgba(194, 65, 12, 0.20) 575px 576px),
+    repeating-linear-gradient(90deg, transparent 0 575px, rgba(194, 65, 12, 0.20) 575px 576px);
+  background-position: 0 0;
+}
+
+/* 进入制图模式时网格从中心扫出来，让「切换了」这件事被看见 */
+.app-shell[data-draft="true"] .app-shell__content::before,
+.app-shell[data-draft="true"] .app-shell__content::after {
+  animation: draft-corner 260ms var(--ease-out);
+}
+
+@keyframes draft-corner {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell[data-draft="true"] .app-shell__content::before,
+  .app-shell[data-draft="true"] .app-shell__content::after {
+    animation: none;
+  }
 }
 
 /* 制图模式下的四角坐标角标 —— 真实图纸的定位记号 */
@@ -4307,4 +4334,134 @@ textarea {
   .page-workband__copy h1::after {
     transition: none;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   评测表格：把压平的字符串还原成结构
+   原本三列各是一个字符串，整张表是一堵字墙。
+   ══════════════════════════════════════════════════════════════ */
+
+/* 跑批名：标签在上(识别项)，时间戳在下(定位用) */
+.run-name {
+  display: grid;
+  gap: 2px;
+}
+
+.run-name__tag {
+  color: var(--surface-strong);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.run-name__stamp {
+  color: var(--surface-faint);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-name__plain {
+  color: var(--surface-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* 总分：数字 + 完成度线。满分是墨黑，掉分转危险色，一眼分得开 */
+.pass-meter {
+  display: grid;
+  gap: 5px;
+  max-width: 92px;
+}
+
+.pass-meter__nums {
+  align-items: baseline;
+  display: flex;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  gap: 1px;
+}
+
+.pass-meter__nums b {
+  color: var(--danger);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.pass-meter[data-full="true"] .pass-meter__nums b {
+  color: var(--surface-strong);
+}
+
+.pass-meter__nums i {
+  color: var(--surface-faint);
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.pass-meter__track {
+  background: rgba(26, 26, 24, 0.07);
+  display: block;
+  height: 3px;
+}
+
+.pass-meter__fill {
+  background: var(--danger);
+  display: block;
+  height: 100%;
+  transition: width var(--motion-slow) var(--ease-out);
+}
+
+.pass-meter[data-full="true"] .pass-meter__fill {
+  background: var(--success);
+}
+
+.pass-meter__empty {
+  color: var(--surface-faint);
+  font-family: var(--font-mono);
+}
+
+/* 分层：五根填充条，掉分的那层留出缺口并转色 —— 
+   原本是「检索 10/10 · 生成 8/8 · …」一长串，读不出哪层掉了 */
+.layer-bars {
+  display: flex;
+  gap: 10px;
+}
+
+.layer-bars__item {
+  cursor: default;
+  display: grid;
+  gap: 4px;
+  min-width: 42px;
+}
+
+.layer-bars__track {
+  background: rgba(26, 26, 24, 0.07);
+  display: block;
+  height: 4px;
+}
+
+.layer-bars__fill {
+  background: var(--warning);
+  display: block;
+  height: 100%;
+  transition: width var(--motion-slow) var(--ease-out);
+}
+
+.layer-bars__item[data-full="true"] .layer-bars__fill {
+  background: var(--surface-strong);
+  opacity: 0.42;
+}
+
+.layer-bars__label {
+  color: var(--surface-faint);
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.layer-bars__item[data-full="false"] .layer-bars__label {
+  color: var(--warning);
+}
+
+.layer-bars__item:hover .layer-bars__fill {
+  opacity: 1;
 }

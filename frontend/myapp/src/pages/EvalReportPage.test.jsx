@@ -84,11 +84,22 @@ test("renders the eval run list", async () => {
 
   render(<EvalReportPage />)
 
-  expect(await screen.findByText("2026-08-20 19:45:49 · p2-after")).toBeInTheDocument()
+  // 2026-08-21 三列从「压平的字符串」改成结构化单元格：
+  // 跑批名拆成标签 + 时间戳两级，分数拆成数字 + 完成度线，
+  // 分层从「检索 9/10 · 生成 …」一长串换成每层一根填充条。
+  expect(await screen.findByText("p2-after")).toBeInTheDocument()
+  expect(screen.getByText("2026-08-20 19:45:49")).toBeInTheDocument()
+  expect(screen.getByText("未命名跑批")).toBeInTheDocument()
   expect(screen.getByText("2026-08-20 01:23:40")).toBeInTheDocument()
-  expect(screen.getByText("35/36")).toBeInTheDocument()
-  expect(screen.getByText("36/36")).toBeInTheDocument()
-  expect(screen.getByText("检索 9/10")).toBeInTheDocument()
+
+  // 分数：满分与掉分要在 DOM 上分得开，不只是颜色不同
+  const meters = document.querySelectorAll(".pass-meter")
+  expect(meters.length).toBe(2)
+  expect([...meters].map((m) => m.dataset.full).sort()).toEqual(["false", "true"])
+
+  // 这次改造的核心：掉分的那一层要被单独标出来，而不是埋在一串文字里
+  expect(screen.getByTitle("检索 9/10").dataset.full).toBe("false")
+  expect(screen.getByTitle("检索 10/10").dataset.full).toBe("true")
 })
 
 test("highlights failing cases and shows 36 rows plus trace", async () => {
@@ -100,7 +111,7 @@ test("highlights failing cases and shows 36 rows plus trace", async () => {
 
   const { container } = render(<EvalReportPage />)
 
-  fireEvent.click(await screen.findByText("2026-08-20 19:45:49 · p2-after"))
+  fireEvent.click(await screen.findByText("p2-after"))
 
   await waitFor(() => {
     expect(getEvalReport).toHaveBeenCalledWith("eval30_20260820_194549_p2-after.json")
