@@ -97,8 +97,16 @@
 
   /* 文字与面 */
   --surface-strong: #1a1a18;
-  --surface-muted: rgba(26, 26, 24, 0.56);
-  --surface-faint: rgba(26, 26, 24, 0.34);
+  /* 2026-08-21 上提一档。实测在 #f5f4f1 纸底上：
+       旧 muted 0.56 → 3.91:1（够大字，不够正文 4.5）
+       旧 faint  0.34 → 2.11:1（连大字 3.0 都不到）
+     小标签、时间戳这些全走 faint，评测页一页就有 74 处不达标。
+     现在 muted 0.66 = 5.39:1 正文达标；faint 0.56 = 3.91:1 —— 
+     它只用在 mono 全大写 + 宽字距的短标签上，那种字形视觉重量高于
+     同号正文，且字号一并从 10.5px 提到 11.5px。
+     两级的层次改由字号与字重承担，不再靠把字调淡。 */
+  --surface-muted: rgba(26, 26, 24, 0.66);
+  --surface-faint: rgba(26, 26, 24, 0.56);
   --surface-solid: #ffffff;
   --surface-border: #ddd9d2;
   --surface-border-strong: #c8c2b8;
@@ -157,6 +165,23 @@
 
 * {
   box-sizing: border-box;
+}
+
+/* ── 键盘焦点全局兜底 ────────────────────────────────────────────
+   2026-08-21 实测：侧边栏链接、收起按钮、品牌标、分页控件……
+   30 个可聚焦元素一个焦点环都没有，键盘用户看不到自己在哪。
+   之前只给少数几个按钮单独写了 :focus-visible，覆盖不了全站。
+   兜底放在这里，个别元素再按需微调 offset。
+   用 :focus-visible 而不是 :focus —— 鼠标点击不该出现轮廓。 */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 侧边栏链接贴着左边缘，轮廓外扩会被裁掉，改内嵌 */
+.app-sidebar__link:focus-visible,
+.app-sidebar__toggle:focus-visible {
+  outline-offset: -2px;
 }
 
 html,
@@ -476,7 +501,7 @@ textarea {
 .app-sidebar__group-label {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   margin: 0 0 6px;
@@ -560,7 +585,7 @@ textarea {
 .app-topbar__eyebrow {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   margin: 0;
@@ -781,7 +806,7 @@ textarea {
 .page-workband__eyebrow {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   margin: 0;
@@ -1099,7 +1124,7 @@ textarea {
 .metric-cell__eyebrow {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -3696,7 +3721,7 @@ textarea {
 .ops-block__label {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   margin: 0;
@@ -4135,7 +4160,7 @@ textarea {
 .chat-hero-scene__identity p {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   letter-spacing: 0.14em;
   margin: 0;
   text-transform: uppercase;
@@ -4925,7 +4950,7 @@ textarea {
   color: var(--warning);
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 0.64rem;
+  font-size: 0.7rem;
   letter-spacing: 0.12em;
   padding: 1px 6px;
   white-space: nowrap;
