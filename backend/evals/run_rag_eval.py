@@ -308,7 +308,13 @@ def _print_failure_traces(results: list[dict[str, Any]]) -> None:
             print(f"    {name}: {extra}")
 
 
-async def run_eval(cases: list[dict[str, Any]], base_url: str) -> dict[str, Any]:
+async def run_eval(
+    cases: list[dict[str, Any]],
+    base_url: str,
+    on_progress: Any = None,
+) -> dict[str, Any]:
+    """on_progress(done, total, case_id, status) —— 可选，给页面显示进度用。
+    CLI 不传，行为与从前逐字相同。"""
     async with httpx.AsyncClient() as client:
         token = await authenticate(client, base_url)
         results: list[dict[str, Any]] = []
@@ -327,6 +333,8 @@ async def run_eval(cases: list[dict[str, Any]], base_url: str) -> dict[str, Any]
                 }
                 print(f"{label} ERROR: {exc}")
             results.append(result)
+            if on_progress is not None:
+                await on_progress(index, len(cases), case["id"], result["status"])
 
     report = build_report(results)
     return {**report, "results": results}
