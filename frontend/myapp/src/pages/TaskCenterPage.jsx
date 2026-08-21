@@ -5,7 +5,6 @@ import { TaskUploadCard } from "@/features/task-center/components/TaskUploadCard
 import { useTaskList } from "@/features/task-center/hooks/useTaskList"
 import { Bug, CircleCheckBig, Filter, Layers3, TrendingUp, Users } from "lucide-react"
 
-import { RippleButton } from "@/shared/ui/magicui/ripple-button"
 import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { MetricCard } from "@/shared/ui/MetricCard"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
@@ -105,9 +104,9 @@ export function TaskCenterPage() {
     <div className="page-stack">
       <PageWorkband
         actions={
-          <RippleButton className="secondary-action border-0" rippleColor="rgba(77,141,255,0.28)" type="button" onClick={refresh}>
+          <button className="secondary-action" type="button" onClick={refresh}>
             刷新任务列表
-          </RippleButton>
+          </button>
         }
         aside={
           <PageWorkbandInfoCard

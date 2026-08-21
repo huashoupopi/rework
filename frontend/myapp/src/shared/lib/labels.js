@@ -3,16 +3,21 @@
 // 各自直接渲染后端英文值，于是中文界面里蹦出 completed / corrosion /
 // active / indexed。⛔ 新增映射一律加在这里，不要在页面里另写一份。
 
+// 2026-08-21 换成去饱和的矿物色系。原色板是 antd 默认的高饱和彩虹
+// （青 #13c2c2 / 品红 #eb2f96 / 紫 #9d6bff / 蓝 #1890ff），九种颜色
+// 各自为政，在浅底上互相打架，也和工程橙的单强调色原则冲突。
+// 新色板全部压到中低饱和，色相锚在锈/赭/橄榄/石板这些工业表面色上，
+// 彼此可区分，又不会有任何一种比强调色更抢眼。
 export const DEFECT_COLORS = {
-  corrosion: "#f0803c",
-  craze: "#ff6b6e",
-  hide_craze: "#9d6bff",
-  surface_attach: "#1890ff",
-  surface_corrosion: "#ffa940",
-  surface_eye: "#13c2c2",
-  surface_injure: "#eb2f96",
-  surface_oil: "#52c41a",
-  thunderstrike: "#faad14",
+  corrosion: "#b4551f",
+  craze: "#9f1239",
+  hide_craze: "#6d5080",
+  surface_attach: "#4a6670",
+  surface_corrosion: "#a67c2e",
+  surface_eye: "#3f6b64",
+  surface_injure: "#8c3b30",
+  surface_oil: "#5f6b3a",
+  thunderstrike: "#8a6516",
 }
 
 export const DEFECT_NAMES = {
@@ -59,7 +64,7 @@ export function defectName(value) {
 }
 
 export function defectColor(value) {
-  return DEFECT_COLORS[value] ?? "#2563eb"
+  return DEFECT_COLORS[value] ?? "#7c6f64"
 }
 
 export function taskStatusName(value) {

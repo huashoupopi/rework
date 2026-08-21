@@ -5,7 +5,6 @@ import {
   ClipboardList,
   FileText,
   Home,
-  Layers3,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
@@ -21,9 +20,6 @@ import { useAuthStore } from "@/features/auth/store/auth-store"
 import { useShellStore } from "@/features/app-shell/store/useShellStore"
 import { http } from "@/shared/api/http"
 import { tokenDurationSeconds } from "@/shared/lib/utils"
-import { DotPattern } from "@/shared/ui/magicui/dot-pattern"
-import { LineShadowText } from "@/shared/ui/magicui/line-shadow-text"
-import { RippleButton } from "@/shared/ui/magicui/ripple-button"
 import { PageTransition } from "@/shared/ui/PageTransition"
 import { WindTurbineSvg } from "@/shared/ui/WindTurbineSvg"
 
@@ -84,7 +80,6 @@ export function AppShell() {
 
   return (
     <div className="app-shell" data-sidebar-collapsed={sidebarCollapsed}>
-      <DotPattern className="app-shell__dots" cr={1.1} glow={false} height={22} width={22} />
       <aside className="app-sidebar" data-collapsed={sidebarCollapsed} role="complementary">
         <div className="app-sidebar__brand">
           <button
@@ -104,16 +99,15 @@ export function AppShell() {
           )}
         </div>
 
-        <RippleButton
+        <button
           aria-pressed={sidebarCollapsed}
-          className="app-sidebar__toggle border-0 bg-transparent"
+          className="app-sidebar__toggle"
           onClick={toggleSidebar}
-          rippleColor="rgba(77,141,255,0.28)"
           type="button"
         >
-          {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          {sidebarCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
           {!sidebarCollapsed && <span>收起</span>}
-        </RippleButton>
+        </button>
 
         <nav aria-label="主导航" className="app-sidebar__nav">
           <div className="app-sidebar__group">
@@ -154,13 +148,16 @@ export function AppShell() {
           ) : null}
         </nav>
 
+        {/* 原本这里是「AI 检测工作流 / 一站式协同」——填充话术，工具界面不需要。
+            换成真实信息：当前角色与系统标识。 */}
         {!sidebarCollapsed && (
           <div className="app-sidebar__footnote">
-            <Layers3 size={16} />
-            <div>
-              <strong>AI 检测工作流</strong>
-              <p>检测、问答、知识管理一站式协同。</p>
-            </div>
+            <span className="app-sidebar__footnote-key">角色</span>
+            <span className="app-sidebar__footnote-val">
+              {userInfo?.is_superuser ? "管理员" : "成员"}
+            </span>
+            <span className="app-sidebar__footnote-key">系统</span>
+            <span className="app-sidebar__footnote-val">REWORK v1</span>
           </div>
         )}
       </aside>
@@ -172,20 +169,16 @@ export function AppShell() {
             {/* 顶栏显示的是「当前位置」，页面内容里的 PageWorkband 才是真正的页面标题。
                 这里曾用 <h1>，导致每页两个 H1、同一个词在一屏内显示两遍。
                 样式走 .app-topbar__title 这个 class，改标签不影响视觉。 */}
-            <p className="app-topbar__title">
-              <LineShadowText as="span" shadowColor="rgba(77,141,255,0.28)">
-                {activeItem?.label ?? "工作台"}
-              </LineShadowText>
-            </p>
+            <p className="app-topbar__title">{activeItem?.label ?? "工作台"}</p>
           </div>
           <div className="app-topbar__actions">
             <div className="user-badge" title={userInfo?.is_superuser ? "管理员" : "成员"}>
               <span className="user-badge__avatar">{String(userInfo?.username ?? "访客").slice(0, 1).toUpperCase()}</span>
               <strong>{userInfo?.username ?? "访客"}</strong>
             </div>
-            <RippleButton aria-label="退出登录" className="app-topbar__logout border-0" onClick={handleLogout} rippleColor="rgba(77,141,255,0.28)" type="button">
+            <button aria-label="退出登录" className="app-topbar__logout" onClick={handleLogout} type="button">
               <LogOut size={16} />
-            </RippleButton>
+            </button>
           </div>
         </header>
 

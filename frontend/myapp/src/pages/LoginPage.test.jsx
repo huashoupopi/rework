@@ -71,7 +71,7 @@ test("logs in, loads the current user, and redirects to the app home", async () 
 
   expect(screen.getByRole("heading", { name: "风机叶片智能检测" })).toBeInTheDocument()
   expect(screen.getByText("基于深度学习的缺陷检测、知识管理与智能问答平台。")).toBeInTheDocument()
-  expect(screen.getByText("REWORK")).toBeInTheDocument()
+  expect(screen.getByText("REWORK / 风电运维")).toBeInTheDocument()
 
   await user.type(screen.getByPlaceholderText("请输入用户名"), "demo")
   await user.type(screen.getByPlaceholderText("请输入密码"), "secret")
