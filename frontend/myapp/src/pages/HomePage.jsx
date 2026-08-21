@@ -24,7 +24,8 @@ import { InView } from "@/shared/ui/motion-primitives/in-view"
 
 const STATUS_ROWS = [
   { key: "completed", label: "已完成" },
-  { key: "progressing", label: "处理中" },
+  // live: 值 > 0 时标签前出现一个呼吸点，表示真的有任务在跑
+  { key: "progressing", label: "处理中", live: true },
   { key: "pending", label: "待处理" },
   { key: "failed", label: "失败", tone: "danger" },
 ]
@@ -113,12 +114,20 @@ export function HomePage() {
             <span className="stat-row__num">{total ?? 0}</span>
             <span className="stat-row__key">总任务</span>
           </div>
-          {STATUS_ROWS.map((row) => (
-            <div className="stat-row__cell" data-tone={row.tone ?? "default"} key={row.key}>
-              <span className="stat-row__num">{counts[row.key] ?? 0}</span>
-              <span className="stat-row__key">{row.label}</span>
-            </div>
-          ))}
+          {STATUS_ROWS.map((row) => {
+            const value = counts[row.key] ?? 0
+            // 危险色只在真的有失败时出现 —— 「失败 0」还红着，等于狼来了
+            const tone = value > 0 ? (row.tone ?? "default") : "default"
+            return (
+              <div className="stat-row__cell" data-tone={tone} key={row.key}>
+                <span className="stat-row__num">{value}</span>
+                <span className="stat-row__key">
+                  {row.live && value > 0 ? <i aria-hidden="true" className="live-dot" /> : null}
+                  {row.label}
+                </span>
+              </div>
+            )
+          })}
         </div>
       </section>
 

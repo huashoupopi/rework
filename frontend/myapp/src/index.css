@@ -212,7 +212,7 @@ button {
 }
 
 button:hover:not(:disabled) {
-  box-shadow: 0 8px 24px rgba(24, 51, 96, 0.08);
+  box-shadow: var(--glass-shadow-strong);
   transform: translateY(-1px);
 }
 
@@ -1197,7 +1197,7 @@ textarea {
 /* progress bars */
 
 .progress-bar {
-  background: rgba(16, 32, 56, 0.06);
+  background: rgba(26, 26, 24, 0.05);
   border-radius: 6px;
   height: 8px;
   overflow: hidden;
@@ -1275,7 +1275,7 @@ textarea {
 }
 
 .defect-rank-item__conf--good {
-  color: #2ba370;
+  color: var(--success);
 }
 
 .defect-rank-item__conf--mid {
@@ -1442,7 +1442,7 @@ textarea {
 
 .quick-entry-card__icon--green {
   background: rgba(43, 163, 112, 0.1);
-  color: #2ba370;
+  color: var(--success);
 }
 
 .quick-entry-card__body {
@@ -1515,7 +1515,7 @@ textarea {
 
 .admin-link-card:hover {
   background: var(--glass-bg-strong);
-  box-shadow: 0 4px 16px rgba(24, 51, 96, 0.06);
+  box-shadow: var(--glass-shadow);
 }
 
 /* ─── Toolbar & data surfaces ─── */
@@ -1797,7 +1797,7 @@ textarea {
 }
 
 .task-image-preview__overlay span {
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(26, 26, 24, 0.55);
   border: 1px solid var(--glass-border);
   border-radius: 999px;
   font-size: 0.82rem;
@@ -1816,7 +1816,7 @@ textarea {
 .task-image-preview__empty {
   align-items: center;
   background: var(--glass-bg);
-  border: 1px dashed rgba(129, 144, 174, 0.32);
+  border: 1px dashed var(--surface-border-strong);
   border-radius: 24px;
   display: flex;
   justify-content: center;
@@ -2058,12 +2058,41 @@ textarea {
   gap: 4px;
 }
 
+/* 行内图标按钮：不给边框（会把会话行撑散），但必须有 hover 反馈 ——
+   原先完全没有，鼠标移上去毫无变化，看不出能点。 */
 .chat-sidebar__actions button {
+  align-items: center;
   background: transparent;
   border: 0;
-  color: var(--surface-muted);
+  border-radius: var(--radius-sm);
+  color: var(--surface-faint);
   cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
   padding: 4px;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.chat-sidebar__actions button:hover {
+  background: rgba(26, 26, 24, 0.06);
+  color: var(--surface-strong);
+}
+
+/* 删除是不可逆的，hover 才转危险色 */
+.chat-sidebar__actions button[aria-label^="删除"]:hover {
+  background: rgba(159, 18, 57, 0.08);
+  color: var(--danger);
+}
+
+.chat-sidebar__actions button:active {
+  transform: translateY(1px);
+}
+
+.chat-sidebar__actions button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .context-card {
@@ -2271,7 +2300,7 @@ textarea {
 }
 
 .message-card__image {
-  border: 1px solid rgba(129, 144, 174, 0.2);
+  border: 1px solid var(--surface-border);
   border-radius: 12px;
   max-height: 160px;
   max-width: 200px;
@@ -2314,15 +2343,15 @@ textarea {
 }
 
 .message-card__content.prose code {
-  background: rgba(129, 144, 174, 0.12);
+  background: rgba(26, 26, 24, 0.05);
   border-radius: 4px;
   font-size: 0.88em;
   padding: 1px 5px;
 }
 
 .message-card__content.prose pre {
-  background: rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(129, 144, 174, 0.16);
+  background: rgba(26, 26, 24, 0.035);
+  border: 1px solid var(--surface-border);
   border-radius: 8px;
   margin: 0.6em 0;
   overflow-x: auto;
@@ -2342,24 +2371,24 @@ textarea {
 
 .message-card__content.prose th,
 .message-card__content.prose td {
-  border: 1px solid rgba(129, 144, 174, 0.24);
+  border: 1px solid var(--surface-border);
   padding: 6px 12px;
   text-align: left;
 }
 
 .message-card__content.prose th {
-  background: rgba(129, 144, 174, 0.08);
+  background: rgba(26, 26, 24, 0.03);
   font-weight: 600;
 }
 
 .message-card__content.prose hr {
   border: none;
-  border-top: 1px solid rgba(129, 144, 174, 0.2);
+  border-top: 1px solid var(--surface-border);
   margin: 1em 0;
 }
 
 .message-card__content.prose blockquote {
-  border-left: 3px solid rgba(129, 144, 174, 0.3);
+  border-left: 3px solid var(--surface-border-strong);
   color: var(--surface-muted);
   margin: 0.6em 0;
   padding: 4px 12px;
@@ -2512,7 +2541,7 @@ textarea {
   border: 1px solid var(--glass-border);
   border-radius: 28px;
   box-shadow:
-    0 14px 34px rgba(24, 51, 96, 0.08),
+    var(--glass-shadow-strong),
     inset 0 1px 0 var(--glass-border);
   display: grid;
   gap: 12px;
@@ -3342,7 +3371,7 @@ textarea {
 .eval-sharebar__seg--route,
 .eval-dot--route { background: #9d6bff; }
 .eval-sharebar__seg--generate,
-.eval-dot--generate { background: #2ba370; }
+.eval-dot--generate { background: var(--success); }
 
 .eval-timing__legend {
   display: flex;
@@ -3393,7 +3422,7 @@ textarea {
   gap: 3px;
 }
 
-.eval-delta--up { color: #2ba370; }
+.eval-delta--up { color: var(--success); }
 .eval-delta--down { color: #ff6666; }
 
 .eval-filters {
@@ -4675,4 +4704,100 @@ textarea {
   color: var(--surface-faint);
   font-family: var(--font-mono);
   font-size: 0.72rem;
+}
+
+/* ── 顶栏风机 ────────────────────────────────────────────────────
+   每页都在，常速慢转。切页面时转快一下（「页面换了」的反馈），
+   点一下也加速 —— 跟登录页那台大风机同一个彩蛋。
+   本体是墨黑描线，不上强调色：它是常驻元素，抢眼就成噪音。 */
+.app-topbar__turbine {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--surface-faint);
+  cursor: pointer;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 26px;
+  justify-content: center;
+  padding: 0;
+  transition:
+    border-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+  width: 26px;
+}
+
+.app-topbar__turbine:hover {
+  border-color: var(--surface-border);
+  color: var(--accent);
+}
+
+.app-topbar__turbine:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.app-topbar__turbine .wind-turbine-svg {
+  height: 22px;
+  width: 22px;
+}
+
+/* 常驻元素的转速要慢：登录页那台 3s 一圈是主角，这台 9s 一圈是背景。
+   加速时回到 3s 左右，差别才看得出来。 */
+.app-topbar__turbine .wind-turbine-svg[data-spinning="true"][data-stopped="false"]
+  .wind-turbine-svg__blades {
+  animation-duration: calc(var(--easter-logo-spin) * 3);
+}
+
+/* 选择器必须与上面那条【同等特异性】：慢转规则带了 data-spinning 与
+   data-stopped 两个属性(0,5,0)，加速规则只带 data-boost 就是 (0,4,0)，
+   会被慢转直接压掉 —— 实测点了风机 boost=true 但转速纹丝不动。 */
+.app-topbar__turbine
+  .wind-turbine-svg[data-boost="true"][data-spinning="true"][data-stopped="false"]
+  .wind-turbine-svg__blades {
+  animation-duration: var(--easter-logo-spin);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-topbar__turbine .wind-turbine-svg__blades {
+    animation: none !important;
+  }
+}
+
+/* 进行中的呼吸点：只在真的有任务在跑时出现。
+   全站只有两处常驻动效（这个 + 聊天生成中），都绑定真实状态，不做无由来的动。 */
+.live-dot {
+  animation: live-pulse 1.8s ease-in-out infinite;
+  background: var(--warning);
+  border-radius: 50%;
+  display: inline-block;
+  height: 5px;
+  margin-right: 6px;
+  vertical-align: middle;
+  width: 5px;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.72); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
+
+/* 夜班标记：22:00–06:00 出现。琥珀色取自工业照明，与工程橙同族但更暖，
+   不引入第二个色相。只是一个标记，不改变任何行为。 */
+.app-topbar__shift {
+  background: rgba(180, 83, 9, 0.10);
+  border: 1px solid rgba(180, 83, 9, 0.26);
+  border-radius: var(--radius-sm);
+  color: var(--warning);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  padding: 1px 6px;
+  white-space: nowrap;
 }

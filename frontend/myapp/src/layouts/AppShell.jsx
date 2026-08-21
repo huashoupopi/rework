@@ -26,6 +26,13 @@ import { WindTurbineSvg } from "@/shared/ui/WindTurbineSvg"
 // code = 图号。工程图纸每张都有编号，这里给每个页面一个稳定编号，
 // 顶栏按「REWORK / DWG-03 · 智能问答」显示，比一个孤零零的页名有分量。
 // 编号跟导航顺序走，不跟路由字符串走 —— 换路径不影响它。
+// 风电运维是 24 小时轮班的，夜里巡检和复核都照常。22:00-06:00 顶栏挂一个
+// 夜班标记 —— 这是彩蛋，但不是无由来的花哨：它对着这个行业的真实作息。
+function isNightShift() {
+  const hour = new Date().getHours()
+  return hour >= 22 || hour < 6
+}
+
 const navigationItems = [
   { label: "工作台", path: "/", icon: Home, code: "01" },
   { label: "任务中心", path: "/tasks", icon: UploadCloud, code: "02" },
@@ -53,6 +60,30 @@ export function AppShell() {
   // 彩蛋：点图号进「制图模式」—— 网格线加深、四角显出坐标角标，
   // 像把图纸切到细节视图。再点一下退出。
   const [draftMode, setDraftMode] = React.useState(false)
+  // 顶栏风机：常速慢转。切页面时转快一下 —— 这不是装饰，是「页面换了」的反馈；
+  // 点一下也会加速，跟登录页那台大风机是同一个彩蛋。
+  const [gust, setGust] = React.useState(false)
+  const gustTimerRef = React.useRef(null)
+
+  const blowGust = React.useCallback((ms = 2200) => {
+    window.clearTimeout(gustTimerRef.current)
+    setGust(true)
+    gustTimerRef.current = window.setTimeout(() => setGust(false), ms)
+  }, [])
+
+  React.useEffect(() => {
+    blowGust(1400)
+  }, [location.pathname, blowGust])
+
+  React.useEffect(() => () => window.clearTimeout(gustTimerRef.current), [])
+
+  const [nightShift, setNightShift] = React.useState(isNightShift)
+
+  React.useEffect(() => {
+    // 每分钟对一次表：有人会在 21:5x 打开页面一直挂着
+    const timer = window.setInterval(() => setNightShift(isNightShift()), 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   const activeItem = visibleItems.find((item) =>
     item.path === "/"
@@ -160,6 +191,15 @@ export function AppShell() {
         <header className="app-topbar">
           <div className="app-topbar__intro">
             <button
+              aria-label="让风机转快一点"
+              className="app-topbar__turbine"
+              onClick={() => blowGust()}
+              title="点一下试试"
+              type="button"
+            >
+              <WindTurbineSvg boost={gust} spinning />
+            </button>
+            <button
               aria-label={draftMode ? "退出制图模式" : "进入制图模式"}
               aria-pressed={draftMode}
               className="app-topbar__code"
@@ -173,6 +213,11 @@ export function AppShell() {
                 这里曾用 <h1>，导致每页两个 H1、同一个词在一屏内显示两遍。
                 样式走 .app-topbar__title 这个 class，改标签不影响视觉。 */}
             <p className="app-topbar__title">{activeItem?.label ?? "工作台"}</p>
+            {nightShift ? (
+              <span className="app-topbar__shift" title="22:00–06:00">
+                夜班
+              </span>
+            ) : null}
           </div>
           <div className="app-topbar__actions">
             <div className="user-badge" title={userInfo?.is_superuser ? "管理员" : "成员"}>
