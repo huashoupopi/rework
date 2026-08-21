@@ -16,7 +16,9 @@ export const antdTheme = {
     colorWarning: "#b45309",
     colorError: "#9f1239",
     colorText: "#1a1a18",
-    colorTextSecondary: "rgba(26,26,24,0.56)",
+    colorTextSecondary: "rgba(26,26,24,0.66)",
+    // antd 的 placeholder 默认色在纸底上只有 2 点几比一，与 --surface-faint 对齐
+    colorTextPlaceholder: "rgba(26,26,24,0.52)",
     colorBgContainer: "#ffffff",
     colorBgElevated: "#ffffff",
     colorBgLayout: "transparent",
