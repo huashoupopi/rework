@@ -1,6 +1,5 @@
 import * as React from "react"
-import { Button, Space, Table, Tag } from "antd"
-import { ProgressiveBlur } from "@/shared/ui/motion-primitives/progressive-blur"
+import { Popconfirm, Table, Tag } from "antd"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 export function UserTable({ currentUserId, onDeleteUser, users = [] }) {
@@ -29,16 +28,23 @@ export function UserTable({ currentUserId, onDeleteUser, users = [] }) {
       render: (_, user) => {
         const isSelf = user.id === currentUserId
 
+        // 删账号不可逆，且删的是别人 —— 确认框里必须带上用户名与角色，
+        // 光一句「确认删除？」看不出删的是谁。原先点一下就直接删了。
         return isSelf ? (
-          <Button disabled type="default">
-            不可删除自己
-          </Button>
+          <span className="table-hint">当前登录账号</span>
         ) : (
-          <Space size="small">
-            <Button danger type="link" onClick={() => onDeleteUser?.(user.id)}>
-              删除 {user.username}
-            </Button>
-          </Space>
+          <Popconfirm
+            cancelText="取消"
+            description={`${user.full_name || user.username} · ${user.is_superuser ? "管理员" : "普通用户"}`}
+            okButtonProps={{ danger: true }}
+            okText="删除"
+            onConfirm={() => onDeleteUser?.(user.id)}
+            title={`删除账号 ${user.username}？`}
+          >
+            <button className="table-btn table-btn--danger" type="button">
+              删除
+            </button>
+          </Popconfirm>
         )
       },
     },
@@ -53,7 +59,6 @@ export function UserTable({ currentUserId, onDeleteUser, users = [] }) {
         </div>
       </div>
       <div className="table-fade">
-        <ProgressiveBlur blurIntensity={0.2} className="table-fade__blur table-fade__blur--bottom" direction="bottom" />
         <Table
         columns={columns}
         dataSource={users.map((user) => ({
