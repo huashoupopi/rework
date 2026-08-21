@@ -16,6 +16,7 @@ import logging
 
 from app.core.redis import close_redis, init_redis, parse_redis_settings
 from app.services.yolo_service import YOLOService
+from app.tasks.eval_task import run_eval_batch
 from app.tasks.knowledge_task import run_knowledge_rebuild
 from app.tasks.yolo_task import run_yolo_detection
 
@@ -39,7 +40,7 @@ async def on_shutdown(ctx: dict) -> None:
 
 class WorkerSettings:
     # 注册任务函数列表 Worker只执行这里注册的函数， 未注册的任务会被忽略
-    functions = [run_yolo_detection, run_knowledge_rebuild]
+    functions = [run_yolo_detection, run_knowledge_rebuild, run_eval_batch]
 
     redis_settings = parse_redis_settings()
 

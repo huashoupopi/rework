@@ -11,6 +11,7 @@ import {
   stepTimings,
 } from "@/features/eval-report/lib/analysis"
 import { EvalRunName, LayerBars, PassMeter } from "@/features/eval-report/components/EvalCells"
+import { EvalRunPanel } from "@/features/eval-report/components/EvalRunPanel"
 import { extractErrorMessage } from "@/shared/api/http"
 import { EVAL_LAYER_LABELS as LAYER_LABELS } from "@/shared/lib/labels"
 import { EmptyState } from "@/shared/ui/EmptyState"
@@ -222,6 +223,8 @@ export function EvalReportPage() {
         eyebrow="系统管理"
         title="评测报告"
       />
+
+      <EvalRunPanel onFinished={() => refresh().catch(() => {})} />
 
       {error ? <p role="alert">{extractErrorMessage(error, "加载评测报告失败")}</p> : null}
 

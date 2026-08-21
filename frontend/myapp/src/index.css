@@ -4465,3 +4465,106 @@ textarea {
 .layer-bars__item:hover .layer-bars__fill {
   opacity: 1;
 }
+
+/* ── 评测跑批面板 ────────────────────────────────────────────────
+   页面此前是纯只读的，跑一轮得切终端。 */
+.eval-run {
+  border-bottom: 1px solid var(--surface-border);
+  border-top: 1px solid var(--surface-border);
+  display: grid;
+  gap: 14px;
+  padding: 18px 0 20px;
+}
+
+.eval-run__head {
+  align-items: baseline;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.eval-run__scope {
+  color: var(--surface-muted);
+  font-size: 0.78rem;
+}
+
+.eval-run__scope b {
+  color: var(--surface-strong);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.eval-run__form {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(160px, 1fr) auto;
+}
+
+.eval-run__field {
+  display: grid;
+  gap: 5px;
+}
+
+.eval-run__field > span {
+  color: var(--surface-faint);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 860px) {
+  .eval-run__form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.eval-run__progress {
+  display: grid;
+  gap: 7px;
+}
+
+.eval-run__bar {
+  background: rgba(26, 26, 24, 0.07);
+  height: 4px;
+  overflow: hidden;
+}
+
+.eval-run__bar > span {
+  background: var(--accent);
+  display: block;
+  height: 100%;
+  transition: width var(--motion-slow) var(--ease-out);
+}
+
+.eval-run__progress[data-phase="done"] .eval-run__bar > span {
+  background: var(--success);
+}
+
+.eval-run__progress[data-phase="failed"] .eval-run__bar > span {
+  background: var(--danger);
+  width: 100%;
+}
+
+.eval-run__status {
+  align-items: baseline;
+  color: var(--surface-muted);
+  display: flex;
+  font-size: 0.8rem;
+  gap: 10px;
+  margin: 0;
+}
+
+.eval-run__status b {
+  color: var(--surface-strong);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.eval-run__error {
+  color: var(--danger);
+}
+
+.eval-run__note {
+  color: var(--surface-faint);
+  font-size: 0.74rem;
+  margin: 0;
+}

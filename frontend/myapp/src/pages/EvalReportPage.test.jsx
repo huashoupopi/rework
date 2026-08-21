@@ -1,13 +1,19 @@
 import * as React from "react"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { afterEach, expect, test, vi } from "vitest"
+import { afterEach, beforeEach, expect, test, vi } from "vitest"
 
 const listEvalReports = vi.fn()
 const getEvalReport = vi.fn()
+const listEvalLayers = vi.fn()
+const triggerEvalRun = vi.fn()
+const getEvalRunStatus = vi.fn()
 
 vi.mock("@/features/eval-report/api/eval-api", () => ({
   getEvalReport: (...args) => getEvalReport(...args),
+  getEvalRunStatus: (...args) => getEvalRunStatus(...args),
+  listEvalLayers: (...args) => listEvalLayers(...args),
   listEvalReports: (...args) => listEvalReports(...args),
+  triggerEvalRun: (...args) => triggerEvalRun(...args),
 }))
 
 const { EvalReportPage } = await import("./EvalReportPage")
@@ -55,9 +61,19 @@ const SAMPLE_ITEM = {
   summary: { pass_rate: 0.97, passed_cases: 35, total_cases: 36 },
 }
 
+beforeEach(() => {
+  // 跑批面板挂载即拉层列表 + 轮询状态，默认给它一个空闲态，
+  // 免得每条用例都要重复 mock
+  listEvalLayers.mockResolvedValue({ layers: [{ count: 10, name: "retrieval" }] })
+  getEvalRunStatus.mockResolvedValue({ phase: "idle" })
+})
+
 afterEach(() => {
   listEvalReports.mockReset()
   getEvalReport.mockReset()
+  listEvalLayers.mockReset()
+  triggerEvalRun.mockReset()
+  getEvalRunStatus.mockReset()
 })
 
 test("renders empty state when there are no eval reports", async () => {
@@ -132,4 +148,27 @@ test("highlights failing cases and shows 36 rows plus trace", async () => {
   expect(screen.getByText(/dense=1/)).toBeInTheDocument()
   expect(screen.getByText(/overlap=0/)).toBeInTheDocument()
   expect(screen.getByText("req-red")).toBeInTheDocument()
+})
+
+
+test("starts an eval run from the page instead of the terminal", async () => {
+  listEvalReports.mockResolvedValueOnce({ items: [SAMPLE_ITEM] })
+  listEvalLayers.mockResolvedValue({
+    layers: [
+      { count: 10, name: "retrieval" },
+      { count: 8, name: "generation" },
+    ],
+  })
+  triggerEvalRun.mockResolvedValueOnce({ job_id: "eval30_run", status: "queued" })
+
+  render(<EvalReportPage />)
+
+  // 不选层 = 跑全部，题数由层的 count 汇总而来
+  expect(await screen.findByText("18")).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole("button", { name: /开始跑批/ }))
+
+  await waitFor(() => {
+    expect(triggerEvalRun).toHaveBeenCalledWith({ layers: [], tag: "" })
+  })
 })
