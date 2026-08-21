@@ -79,8 +79,14 @@ test("loads task detail from the route param and renders the completed summary",
     expect(getTaskDetailMock).toHaveBeenCalledWith(7)
   })
 
-  expect(screen.getByText("发现 3 处目标")).toBeInTheDocument()
+  // 2026-08-21 结果摘要重做：原本并排「发现 3 处目标」与「对象 1 个」两句话，
+  // 说的是同一件事却给出两个数。现在只报明细条数，两者对不上时单独提示 ——
+  // 这份 mock 恰好就是 total=3 / objects=1 的不一致数据，正好覆盖那条路径。
+  expect(screen.getByText("处缺陷")).toBeInTheDocument()
+  expect(screen.getByText("模型报告 3 处，结构化明细 1 条")).toBeInTheDocument()
   expect(screen.getByText(/crack/)).toBeInTheDocument()
+  // 置信度从原始浮点 0.98 换成百分数
+  expect(screen.getByText("98%")).toBeInTheDocument()
   expect(screen.getByRole("link", { name: /关联问答/ })).toHaveAttribute("href", "/chat?taskId=7")
   expect(await screen.findByRole("img", { name: "demo.png 原图预览" })).toBeInTheDocument()
   expect(screen.getByLabelText("检测标框画布")).toBeInTheDocument()
@@ -165,11 +171,11 @@ test("hides the previous task immediately when the route changes", async () => {
     </MemoryRouter>,
   )
 
-  expect(await screen.findByText("发现 3 处目标")).toBeInTheDocument()
+  expect(await screen.findByText("模型报告 3 处，结构化明细 0 条")).toBeInTheDocument()
 
   fireEvent.click(screen.getByRole("button", { name: "跳到任务 8" }))
 
-  expect(screen.queryByText("发现 3 处目标")).not.toBeInTheDocument()
+  expect(screen.queryByText("模型报告 3 处，结构化明细 0 条")).not.toBeInTheDocument()
 
   resolveNextTask({
     detect_result: null,

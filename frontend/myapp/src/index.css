@@ -4568,3 +4568,111 @@ textarea {
   font-size: 0.74rem;
   margin: 0;
 }
+
+/* ── 任务详情：检出计数与缺陷清单 ────────────────────────────────
+   原本是「发现 3 处目标」「对象 3 个」两句话 + 一列
+   「腐蚀 · 置信度 0.9231」的纯文本，数字埋在句子里读不出重点。 */
+.detect-count {
+  align-items: baseline;
+  border-bottom: 1px solid var(--surface-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 14px;
+}
+
+.detect-count__num {
+  color: var(--surface-strong);
+  font-family: var(--font-mono);
+  font-size: 2.1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.detect-count__unit {
+  color: var(--surface-muted);
+  font-size: 0.86rem;
+}
+
+/* total 与明细条数对不上时才出现 —— 那是数据不一致，要看得见 */
+.detect-count__mismatch {
+  color: var(--warning);
+  font-size: 0.74rem;
+  margin-left: auto;
+}
+
+.defect-list {
+  display: grid;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.defect-list__row {
+  align-items: center;
+  border-bottom: 1px solid var(--surface-border);
+  column-gap: 12px;
+  display: grid;
+  grid-template-columns: 8px minmax(4.5rem, 8rem) minmax(0, 1fr) 3rem;
+  padding: 10px 0;
+}
+
+.defect-list__dot {
+  border-radius: 1px;
+  display: block;
+  height: 8px;
+  width: 8px;
+}
+
+.defect-list__name {
+  color: var(--surface-strong);
+  font-size: 0.86rem;
+}
+
+.defect-list__track {
+  background: rgba(26, 26, 24, 0.06);
+  display: block;
+  height: 5px;
+}
+
+.defect-list__fill {
+  display: block;
+  height: 100%;
+  opacity: 0.75;
+  transition: width var(--motion-slow) var(--ease-out);
+}
+
+.defect-list__pct {
+  color: var(--surface-strong);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.defect-list__none {
+  color: var(--surface-faint);
+  font-size: 0.76rem;
+  grid-column: 3 / -1;
+}
+
+/* 文档名两级：主行是人读的标题，副行是 doc_key · 版本 · 文件名。
+   原本这些各占一列，六列横向挤满却没多少信息。 */
+.doc-name {
+  display: grid;
+  gap: 2px;
+}
+
+.doc-name__title {
+  color: var(--surface-strong);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.doc-name__meta {
+  color: var(--surface-faint);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
