@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { defectName } from "@/shared/lib/labels"
+import { DEFECT_COLORS, defectName } from "@/shared/lib/labels"
 
 function formatObjectLabel(object, index) {
   return object?.class ? defectName(object.class) : `对象 ${index + 1}`
@@ -48,38 +48,72 @@ export function TaskResultSummary({ onDownload, onExportJson, onExportCsv, task 
       </div>
       {task.status === "completed" ? (
         <div className="task-summary__grid">
-          <div className="task-summary__metric">
-            <span>识别结果</span>
-            <strong>{total === null ? "-" : `发现 ${total} 处目标`}</strong>
+          {/* 2026-08-21 原本这里并排两个指标：「发现 N 处目标」与「对象 N 个」。
+              它们说的是同一件事(total 与 objects.length)，而且数字都埋在句子里。
+              现在只留一个大数，两者对不上时才单独提示 —— 那是数据不一致，
+              不是两个指标。 */}
+          <div className="detect-count">
+            <span className="detect-count__num">{objects.length}</span>
+            <span className="detect-count__unit">处缺陷</span>
+            {total !== null && total !== objects.length ? (
+              <span className="detect-count__mismatch">
+                模型报告 {total} 处，结构化明细 {objects.length} 条
+              </span>
+            ) : null}
           </div>
-          <div className="task-summary__metric">
-            <span>结构化对象</span>
-            <strong>{`对象 ${objects.length} 个`}</strong>
-          </div>
+
           {objects.length > 0 ? (
-            <ul className="task-summary__objects">
-              {objects.map((object, index) => (
-                <li key={`${formatObjectLabel(object, index)}-${index}`}>
-                  {formatObjectLabel(object, index)}
-                  {typeof object?.confidence === "number" ? ` · 置信度 ${object.confidence}` : null}
-                </li>
-              ))}
+            <ul className="defect-list">
+              {objects.map((object, index) => {
+                const conf = typeof object?.confidence === "number" ? object.confidence : null
+                const pct = conf === null ? null : Math.round(conf * 100)
+                const cls = object?.class
+                return (
+                  <li className="defect-list__row" key={`${formatObjectLabel(object, index)}-${index}`}>
+                    <span
+                      className="defect-list__dot"
+                      style={{ background: (cls && DEFECT_COLORS[cls]) || "#7c6f64" }}
+                    />
+                    <span className="defect-list__name">{formatObjectLabel(object, index)}</span>
+                    {pct === null ? (
+                      <span className="defect-list__none">置信度未提供</span>
+                    ) : (
+                      <>
+                        <span className="defect-list__track">
+                          <span
+                            className="defect-list__fill"
+                            style={{
+                              background: (cls && DEFECT_COLORS[cls]) || "#7c6f64",
+                              width: `${pct}%`,
+                            }}
+                          />
+                        </span>
+                        {/* 原本直接打印 0.9231 这种原始浮点，读的人要自己换算 */}
+                        <span className="defect-list__pct">{pct}%</span>
+                      </>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
-          ) : null}
+          ) : (
+            <p className="task-summary__hint">这张图没有检出缺陷。</p>
+          )}
+
           {onDownload || onExportJson || onExportCsv ? (
             <div className="task-summary__actions">
               {onDownload ? (
-                <button type="button" onClick={onDownload}>
+                <button className="table-btn" type="button" onClick={onDownload}>
                   下载单张
                 </button>
               ) : null}
               {onExportJson ? (
-                <button type="button" onClick={onExportJson}>
+                <button className="table-btn" type="button" onClick={onExportJson}>
                   导出 JSON
                 </button>
               ) : null}
               {onExportCsv ? (
-                <button type="button" onClick={onExportCsv}>
+                <button className="table-btn" type="button" onClick={onExportCsv}>
                   导出 CSV
                 </button>
               ) : null}

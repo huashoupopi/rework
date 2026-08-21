@@ -1,6 +1,6 @@
 import * as React from "react"
 import { documentStatusName } from "@/shared/lib/labels"
-import { Button, Popconfirm, Space, Table, Tag, Typography } from "antd"
+import { Popconfirm, Table, Tag, Typography } from "antd"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 function formatVersion(document) {
@@ -36,15 +36,27 @@ export function KnowledgeDocumentTable({
   pageSize = 10,
   total = 0,
 }) {
+  // 2026-08-21 六列合成三列。原本「标题 / Doc Key」是同一份东西的两种写法，
+  // 「当前版本 / 当前文件」也是 —— 六列各占一格，横向挤满却没多少信息。
+  // 现在主行放文档名，副行放 doc_key 与版本、文件名，跟评测页跑批列同一个手法。
   const columns = [
     {
       dataIndex: "title",
-      title: "标题",
-      render: (_, document) => document.title ?? "-",
-    },
-    {
-      dataIndex: "doc_key",
-      title: "Doc Key",
+      title: "文档",
+      render: (_, document) => {
+        const version =
+          document?.latest_version === null || document?.latest_version === undefined
+            ? null
+            : `v${document.latest_version}`
+        const file = document.current_version?.file_name
+        const meta = [document.doc_key, version, file].filter(Boolean).join(" · ")
+        return (
+          <span className="doc-name">
+            <strong className="doc-name__title">{document.title ?? document.doc_key ?? "-"}</strong>
+            {meta ? <span className="doc-name__meta">{meta}</span> : null}
+          </span>
+        )
+      },
     },
     {
       dataIndex: "status",
@@ -56,33 +68,21 @@ export function KnowledgeDocumentTable({
       ),
     },
     {
-      dataIndex: "latest_version",
-      title: "当前版本",
-      render: (_, document) => formatVersion(document),
-    },
-    {
-      dataIndex: ["current_version", "file_name"],
-      title: "当前文件",
-      render: (_, document) => document.current_version?.file_name ?? "-",
-    },
-    {
       key: "actions",
       title: "操作",
       render: (_, document) => (
-        <Space size="small">
-          <Popconfirm
-            title={`删除文档: ${document.title ?? document.doc_key}`}
-            description="此操作将彻底删除文档及其文件，不可恢复。"
-            okText="确认删除"
-            cancelText="取消"
-            okButtonProps={{ danger: true }}
-            onConfirm={() => onDeleteDocument?.(document.doc_key, { physicalDelete: true })}
-          >
-            <Button danger type="link">
-              删除 {document.title ?? document.doc_key}
-            </Button>
-          </Popconfirm>
-        </Space>
+        <Popconfirm
+          cancelText="取消"
+          description="连同文件一起彻底删除，不可恢复。"
+          okButtonProps={{ danger: true }}
+          okText="删除"
+          onConfirm={() => onDeleteDocument?.(document.doc_key, { physicalDelete: true })}
+          title={`删除文档 ${document.title ?? document.doc_key}？`}
+        >
+          <button className="table-btn table-btn--danger" type="button">
+            删除
+          </button>
+        </Popconfirm>
       ),
     },
   ]
