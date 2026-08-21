@@ -10,19 +10,13 @@ import {
   retrievalPaths,
   stepTimings,
 } from "@/features/eval-report/lib/analysis"
+import { EvalRunName, LayerBars, PassMeter } from "@/features/eval-report/components/EvalCells"
 import { extractErrorMessage } from "@/shared/api/http"
+import { EVAL_LAYER_LABELS as LAYER_LABELS } from "@/shared/lib/labels"
 import { EmptyState } from "@/shared/ui/EmptyState"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 import { PageWorkbandInfoCard } from "@/shared/ui/PageWorkbandInfoCard"
-
-const LAYER_LABELS = {
-  generation: "生成",
-  guardrail: "门卫",
-  multi_turn: "多轮",
-  retrieval: "检索",
-  routing: "路由",
-}
 
 const STEP_LABELS = {
   generate: "生成",
@@ -47,15 +41,6 @@ function formatPass(summary) {
     return "-"
   }
   return `${summary.passed_cases ?? 0}/${summary.total_cases ?? 0}`
-}
-
-function formatLayers(layers) {
-  if (!layers) {
-    return "-"
-  }
-  return Object.entries(layers)
-    .map(([name, entry]) => `${LAYER_LABELS[name] ?? name} ${entry.passed ?? 0}/${entry.total ?? 0}`)
-    .join(" · ")
 }
 
 function formatStepValue(value) {
@@ -156,10 +141,11 @@ export function EvalReportPage() {
     URL.revokeObjectURL(url)
   }
 
+  // 三列都从「压平的字符串」换成结构化单元格，见 EvalCells.jsx 顶部注释
   const listColumns = [
-    { dataIndex: "name", render: (name) => formatEvalName(name), title: "跑批" },
-    { key: "score", render: (_, row) => formatPass(row.summary), title: "总分" },
-    { key: "layers", render: (_, row) => formatLayers(row.layers), title: "分层" },
+    { dataIndex: "name", render: (name) => <EvalRunName name={name} />, title: "跑批", width: "34%" },
+    { key: "score", render: (_, row) => <PassMeter summary={row.summary} />, title: "总分", width: "16%" },
+    { key: "layers", render: (_, row) => <LayerBars layers={row.layers} />, title: "分层" },
   ]
 
   const caseColumns = [
