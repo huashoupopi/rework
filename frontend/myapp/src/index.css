@@ -526,29 +526,6 @@ textarea {
   inset: 7px auto 7px -8px;
 }
 
-/* 底部信息：键值对，等宽字排数值。原本是「一站式协同」那类填充话术。 */
-.app-sidebar__footnote {
-  align-items: baseline;
-  border-top: 1px solid var(--surface-border);
-  column-gap: 10px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  padding: 14px 8px 2px;
-  row-gap: 5px;
-}
-
-.app-sidebar__footnote-key {
-  color: var(--surface-faint);
-  font-size: 0.7rem;
-}
-
-.app-sidebar__footnote-val {
-  color: var(--surface-muted);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  text-align: right;
-}
-
 /* ─── Main area ─── */
 
 .app-shell__main {
@@ -679,8 +656,10 @@ textarea {
 
 
 .app-shell__canvas {
-  margin: 0;
-  max-width: 1560px;
+  /* 居中而非贴左：2544 宽的屏上贴左会让右侧空掉近一千像素。
+     上限 1800 是防止超宽屏上表格行太长读不回来。 */
+  margin: 0 auto;
+  max-width: 1800px;
   width: 100%;
 }
 
@@ -3526,7 +3505,7 @@ textarea {
 .ops-page {
   display: grid;
   gap: clamp(26px, 3vh, 40px);
-  max-width: 1560px;
+  max-width: 1800px;
 }
 
 /* 概览横跨整幅；其余分两列 —— 左边「最近任务」需要宽度放文件名，
@@ -4145,4 +4124,86 @@ textarea {
 /* 缺陷分布与最近任务同在左栏 */
 .ops-block--defects {
   grid-column: 1;
+}
+
+/* ── 表格行内操作按钮 ────────────────────────────────────────────
+   原先是裸 <a> 和裸 <button>，跟正文一个样子，看不出可点。
+   现在统一成小号描边按钮，hover 时背后有一层 blur 柔光扩散 ——
+   这是全站唯一用到 filter:blur 的地方，只作用在一个 8px 的小色块上，
+   不是给面板做磨砂（那个在浅底上既看不出效果又很贵）。 */
+.table-btn {
+  align-items: center;
+  background: var(--surface-solid);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  color: var(--surface-muted);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.76rem;
+  isolation: isolate;
+  justify-content: center;
+  line-height: 1.5;
+  padding: 4px 10px;
+  position: relative;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
+  white-space: nowrap;
+}
+
+.table-btn::before {
+  background: var(--accent);
+  border-radius: inherit;
+  content: "";
+  filter: blur(7px);
+  inset: -1px;
+  opacity: 0;
+  position: absolute;
+  transition: opacity var(--motion-base) var(--ease-out);
+  z-index: -1;
+}
+
+.table-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.table-btn:hover:not(:disabled)::before {
+  opacity: 0.22;
+}
+
+.table-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.table-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.table-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* 删除是不可逆动作：默认保持安静，hover 才显出危险色 */
+.table-btn--danger:hover:not(:disabled) {
+  background: rgba(159, 18, 57, 0.08);
+  border-color: rgba(159, 18, 57, 0.3);
+  color: var(--danger);
+}
+
+.table-btn--danger:hover:not(:disabled)::before {
+  background: var(--danger);
+  opacity: 0.18;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table-btn,
+  .table-btn::before {
+    transition: none;
+  }
 }

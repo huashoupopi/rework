@@ -148,18 +148,6 @@ export function AppShell() {
           ) : null}
         </nav>
 
-        {/* 原本这里是「AI 检测工作流 / 一站式协同」——填充话术，工具界面不需要。
-            换成真实信息：当前角色与系统标识。 */}
-        {!sidebarCollapsed && (
-          <div className="app-sidebar__footnote">
-            <span className="app-sidebar__footnote-key">角色</span>
-            <span className="app-sidebar__footnote-val">
-              {userInfo?.is_superuser ? "管理员" : "成员"}
-            </span>
-            <span className="app-sidebar__footnote-key">系统</span>
-            <span className="app-sidebar__footnote-val">REWORK v1</span>
-          </div>
-        )}
       </aside>
 
       <div className="app-shell__main">
