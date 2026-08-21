@@ -1329,24 +1329,10 @@ textarea {
   position: relative;
 }
 
+/* 柔边（ProgressiveBlur）已全部移除：深色卡片上是渐隐，
+   换到纸底后就是「边缘糊了一块」。保留容器本身用于定位。 */
 .table-fade {
   position: relative;
-}
-
-.table-fade__blur {
-  height: 48px;
-  pointer-events: none;
-  position: absolute;
-  width: 100%;
-  z-index: 2;
-}
-
-.table-fade__blur--top {
-  top: 0;
-}
-
-.table-fade__blur--bottom {
-  bottom: 0;
 }
 
 .data-table tbody tr {
@@ -4204,6 +4190,121 @@ textarea {
 @media (prefers-reduced-motion: reduce) {
   .table-btn,
   .table-btn::before {
+    transition: none;
+  }
+}
+
+/* 不可操作的行内说明（如「当前登录账号」）：是状态不是按钮，
+   所以不给按钮外观 —— 原先用的是 disabled Button，看着像个坏掉的按钮。 */
+.table-hint {
+  color: var(--surface-faint);
+  font-size: 0.78rem;
+}
+
+/* ── 图号与制图模式 ──────────────────────────────────────────────
+   顶栏的 DWG-0X 是可点的：进「制图模式」后网格线加深、四角显出坐标角标，
+   像把图纸切到细节视图。纯视觉，不改任何数据。 */
+.app-topbar__code {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--surface-faint);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+  white-space: nowrap;
+}
+
+.app-topbar__code:hover {
+  border-color: var(--surface-border);
+  color: var(--surface-muted);
+}
+
+.app-topbar__code[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.app-shell[data-draft="true"] {
+  --grid-line: rgba(26, 26, 24, 0.16);
+}
+
+/* 制图模式下的四角坐标角标 —— 真实图纸的定位记号 */
+.app-shell[data-draft="true"] .app-shell__content::before,
+.app-shell[data-draft="true"] .app-shell__content::after {
+  border-color: var(--accent);
+  border-style: solid;
+  content: "";
+  height: 14px;
+  pointer-events: none;
+  position: fixed;
+  width: 14px;
+  z-index: 6;
+}
+
+.app-shell[data-draft="true"] .app-shell__content::before {
+  border-width: 1px 0 0 1px;
+  left: 258px;
+  top: 74px;
+}
+
+.app-shell[data-draft="true"] .app-shell__content::after {
+  border-width: 0 1px 1px 0;
+  bottom: 14px;
+  right: 14px;
+}
+
+/* ── 区块标签的制图记号 ──────────────────────────────────────────
+   小标签前面加一段短线，是图纸上的引出线记号。
+   比一行孤零零的小字有分量，且不引入任何新颜色。 */
+.ops-block__label::before,
+.page-workband__eyebrow::before,
+.data-surface__eyebrow::before {
+  background: var(--surface-border-strong);
+  content: "";
+  display: inline-block;
+  height: 1px;
+  margin-right: 8px;
+  vertical-align: middle;
+  width: 14px;
+}
+
+/* ── 页面标题：hover 时一条橙线从左扫出 ──────────────────────── */
+.ops-page__title,
+.page-workband__copy h1 {
+  display: inline-block;
+  position: relative;
+}
+
+.ops-page__title::after,
+.page-workband__copy h1::after {
+  background: var(--accent);
+  bottom: -5px;
+  content: "";
+  height: 2px;
+  left: 0;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--motion-slow) var(--ease-out);
+  width: 100%;
+}
+
+.ops-page__title:hover::after,
+.page-workband__copy h1:hover::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ops-page__title::after,
+  .page-workband__copy h1::after {
     transition: none;
   }
 }
