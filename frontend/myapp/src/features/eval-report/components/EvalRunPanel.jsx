@@ -1,5 +1,5 @@
 import * as React from "react"
-import { App, Input, Select } from "antd"
+import { Input, Select } from "antd"
 import { Play } from "lucide-react"
 
 import {
@@ -8,6 +8,7 @@ import {
   triggerEvalRun,
 } from "@/features/eval-report/api/eval-api"
 import { extractErrorMessage } from "@/shared/api/http"
+import { useAppMessage } from "@/shared/lib/use-app-message"
 import { EVAL_LAYER_LABELS } from "@/shared/lib/labels"
 
 const POLL_MS = 2500
@@ -23,7 +24,7 @@ const POLL_MS = 2500
  * 2. 跑批期间不轮询业务数据，只轮询进度。列表在跑完那一刻刷新一次。
  */
 export function EvalRunPanel({ onFinished }) {
-  const { message } = App.useApp()
+  const message = useAppMessage()
   const [layers, setLayers] = React.useState([])
   const [selectedLayers, setSelectedLayers] = React.useState([])
   const [tag, setTag] = React.useState("")

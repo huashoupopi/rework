@@ -2288,15 +2288,27 @@ textarea {
   padding: 16px;
 }
 
+/* 2026-08-21 两边原本都是带边框的盒子，只有背景色不同 —— 一屏下来
+   全是框，读不出主次。改成「用户有块、助手无块」：
+   助手的长回答直接铺在纸上，归属靠左侧一条线标记（工程文档的批注语汇）；
+   用户的提问短，用淡色块一眼看出是自己说的。 */
 .message-card--assistant {
-  background: var(--glass-bg-strong);
-  border: 1px solid var(--glass-border);
+  background: transparent;
+  border: 0;
+  border-left: 2px solid var(--surface-border);
+  border-radius: 0;
+  padding: 4px 0 4px 16px;
+}
+
+.message-card--assistant:hover {
+  border-left-color: var(--accent-line);
 }
 
 .message-card--user {
   background: var(--accent-soft);
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--accent-line);
   justify-self: end;
+  max-width: min(100%, 560px);
 }
 
 .message-card__header {
@@ -2335,7 +2347,7 @@ textarea {
 
 .message-card__image {
   border: 1px solid var(--surface-border);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   max-height: 160px;
   max-width: 200px;
   object-fit: cover;
@@ -2469,7 +2481,7 @@ textarea {
 }
 
 .collapsible-panel__trigger:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(26, 26, 24, 0.04);
 }
 
 .collapsible-panel__body {
@@ -2498,8 +2510,8 @@ textarea {
 /* ─── Source items ─── */
 
 .source-item {
-  background: var(--glass-bg);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(26, 26, 24, 0.02);
+  border: 1px solid var(--surface-border);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
 }
@@ -2527,7 +2539,7 @@ textarea {
 }
 
 .source-item__score {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(26, 26, 24, 0.05);
   border-radius: 4px;
   color: var(--surface-muted);
   font-size: 0.7rem;

@@ -2,11 +2,12 @@ import * as React from "react"
 import { DEFECT_COLORS as COLORS, DEFECT_NAMES as NAMES } from "@/shared/lib/labels"
 import { Download, ListChecks } from "lucide-react"
 
-import { App, Popconfirm } from "antd"
+import { Popconfirm } from "antd"
 
 import { deleteTask, downloadTaskBatch, downloadTaskImage } from "../api/task-api"
 import { TaskStatusTag } from "./TaskStatusTag"
 import { extractErrorMessage } from "@/shared/api/http"
+import { useAppMessage } from "@/shared/lib/use-app-message"
 import { EmptyState } from "@/shared/ui/EmptyState"
 import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
@@ -76,7 +77,7 @@ export function TaskTable({
 }) {
   const [selectedIds, setSelectedIds] = React.useState([])
   const [deletingId, setDeletingId] = React.useState(null)
-  const { message } = App.useApp()
+  const message = useAppMessage()
 
   // 删除不可逆，所以每一行都带文件名进确认框 —— 用户要能核对删的是哪一条。
   async function handleDelete(task) {
