@@ -15,11 +15,26 @@ from app.routers.auth import get_current_user
 
 
 class _FakeRedis:
+    """2026-08-21 补 eval()：聊天锁(core/chat_lock.py)用 Lua 脚本做
+    「只删自己那把锁」的原子释放，这个 fake 只有 set/delete，
+    走到释放那步就 AttributeError。与 _FakeDb 是同一类问题 ——
+    实现加了功能，测试脚手架没跟上。"""
+
     async def set(self, *args, **kwargs):
         return True
 
     async def delete(self, *args, **kwargs):
         return 1
+
+    async def eval(self, *args, **kwargs):
+        # 释放锁的 Lua 返回「删掉了几个键」，1 = 正常释放
+        return 1
+
+    async def get(self, *args, **kwargs):
+        return None
+
+    async def expire(self, *args, **kwargs):
+        return True
 
 
 class _FakeBgSession:
@@ -30,8 +45,53 @@ class _FakeBgSession:
         return False
 
 
+class _FakeResult:
+    """execute() 的返回壳。这个测试只关心可观测性(request_id 头与日志)，
+    会话查询返回什么都不影响断言，一律给空。"""
+
+    def scalar_one_or_none(self):
+        return None
+
+    def scalars(self):
+        return self
+
+    def all(self):
+        return []
+
+    def first(self):
+        return None
+
+
 class _FakeDb:
+    """2026-08-21 补齐：原本只有 get()。chat 路由后来加了「查已有会话，
+    没有就建一个」，走的是 db.execute()，这个 fake 没跟上，
+    测试从此一直红着(AttributeError: no attribute 'execute')。"""
+
     async def get(self, *args, **kwargs):
+        return None
+
+    async def execute(self, *args, **kwargs):
+        return _FakeResult()
+
+    def add(self, *args, **kwargs):
+        return None
+
+    async def commit(self):
+        return None
+
+    async def flush(self):
+        return None
+
+    async def refresh(self, obj, *args, **kwargs):
+        # 新建会话后要读 id，给一个稳定值
+        if not getattr(obj, "id", None):
+            try:
+                obj.id = 1
+            except (AttributeError, TypeError):
+                pass
+        return None
+
+    async def rollback(self):
         return None
 
 
