@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 
 import { useAuthStore } from "@/features/auth/store/auth-store"
+import { DEFECT_COLORS, DEFECT_NAMES } from "@/shared/lib/labels"
 import { useTaskList } from "@/features/task-center/hooks/useTaskList"
 import { InView } from "@/shared/ui/motion-primitives/in-view"
 
@@ -73,6 +74,26 @@ export function HomePage() {
   const counts = statusCounts ?? {}
   const recent = (tasks ?? []).slice(0, 6)
 
+  // 缺陷分布只能按【已加载的这一页】统计 —— 后端的 status_counts 给的是
+  // 任务状态的全量分布，缺陷明细在 detect_result 里，不随分页汇总。
+  // 所以下面的标题写明「最近 N 条」，不写成全量，免得读的人以为是总账。
+  const defects = React.useMemo(() => {
+    const stats = {}
+    let total = 0
+    for (const task of tasks ?? []) {
+      for (const obj of task.detect_result?.objects ?? []) {
+        const cls = obj.class || "unknown"
+        stats[cls] = (stats[cls] ?? 0) + 1
+        total += 1
+      }
+    }
+    const ranked = Object.entries(stats)
+      .map(([cls, count]) => ({ cls, count, pct: total > 0 ? Math.round((count / total) * 100) : 0 }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+    return { ranked, total }
+  }, [tasks])
+
   return (
     <div className="ops-page">
       <header className="ops-page__head">
@@ -85,7 +106,7 @@ export function HomePage() {
       </header>
 
       {/* 概览：数字全部走等宽字与 tabular-nums，位宽不随数值变化跳动 */}
-      <section aria-label="任务概览" className="ops-block">
+      <section aria-label="任务概览" className="ops-block ops-block--wide">
         <p className="ops-block__label">概览</p>
         <div className="stat-row">
           <div className="stat-row__cell">
@@ -101,67 +122,104 @@ export function HomePage() {
         </div>
       </section>
 
-      <section aria-label="主要操作" className="ops-block">
-        <p className="ops-block__label">主要操作</p>
-        <div className="action-list">
-          {PRIMARY_ACTIONS.map((action) => (
-            <Link className="action-list__row" key={action.to} to={action.to}>
-              <action.icon className="action-list__icon" size={18} strokeWidth={1.5} />
-              <span className="action-list__title">{action.title}</span>
-              <span className="action-list__copy">{action.copy}</span>
-              <ArrowRight className="action-list__arrow" size={15} strokeWidth={1.5} />
-            </Link>
-          ))}
-        </div>
-      </section>
+      <div className="ops-columns">
+        <InView once>
+          <section aria-label="最近任务" className="ops-block">
+            <div className="ops-block__headrow">
+              <p className="ops-block__label">最近任务</p>
+              <Link className="ops-block__more" to="/tasks">
+                全部任务
+                <ArrowRight size={13} strokeWidth={1.5} />
+              </Link>
+            </div>
+            {recent.length === 0 ? (
+              <p className="ops-empty">
+                还没有检测任务。<Link to="/tasks">上传第一批叶片图像</Link>后，结果会出现在这里。
+              </p>
+            ) : (
+              <ul className="record-list">
+                {recent.map((task) => (
+                  <li className="record-list__row" key={task.id}>
+                    <span className="record-list__time">{formatTime(task.created_at)}</span>
+                    <span className="record-list__name" title={task.file_name}>
+                      {task.file_name}
+                    </span>
+                    <span className="record-list__status" data-status={task.status}>
+                      {STATUS_LABEL[task.status] ?? task.status}
+                    </span>
+                    <Link className="record-list__link" to={`/tasks/${task.id}`}>
+                      查看
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </InView>
 
-      <InView once>
-        <section aria-label="最近任务" className="ops-block">
+        <section aria-label="缺陷分布" className="ops-block ops-block--defects">
           <div className="ops-block__headrow">
-            <p className="ops-block__label">最近任务</p>
-            <Link className="ops-block__more" to="/tasks">
-              全部任务
-              <ArrowRight size={13} strokeWidth={1.5} />
-            </Link>
+            <p className="ops-block__label">缺陷分布</p>
+            <span className="ops-block__note">
+              {defects.total > 0
+                ? `最近 ${(tasks ?? []).length} 条任务共 ${defects.total} 处`
+                : "暂无数据"}
+            </span>
           </div>
-          {recent.length === 0 ? (
-            <p className="ops-empty">
-              还没有检测任务。<Link to="/tasks">上传第一批叶片图像</Link>后，结果会出现在这里。
-            </p>
+          {defects.ranked.length === 0 ? (
+            <p className="ops-empty">已加载的任务里还没有检出缺陷。</p>
           ) : (
-            <ul className="record-list">
-              {recent.map((task) => (
-                <li className="record-list__row" key={task.id}>
-                  <span className="record-list__time">{formatTime(task.created_at)}</span>
-                  <span className="record-list__name" title={task.file_name}>
-                    {task.file_name}
+            <ul className="defect-bars">
+              {defects.ranked.map((item) => (
+                <li className="defect-bars__row" key={item.cls}>
+                  <span className="defect-bars__name">{DEFECT_NAMES[item.cls] ?? item.cls}</span>
+                  <span className="defect-bars__track">
+                    <span
+                      className="defect-bars__fill"
+                      style={{
+                        background: DEFECT_COLORS[item.cls] ?? "#7c6f64",
+                        width: `${Math.max(item.pct, 2)}%`,
+                      }}
+                    />
                   </span>
-                  <span className="record-list__status" data-status={task.status}>
-                    {STATUS_LABEL[task.status] ?? task.status}
-                  </span>
-                  <Link className="record-list__link" to={`/tasks/${task.id}`}>
-                    查看
-                  </Link>
+                  <span className="defect-bars__num">{item.count}</span>
+                  <span className="defect-bars__pct">{item.pct}%</span>
                 </li>
               ))}
             </ul>
           )}
         </section>
-      </InView>
 
-      {userInfo?.is_superuser && (
-        <section aria-label="管理入口" className="ops-block">
-          <p className="ops-block__label">管理</p>
-          <div className="chip-row">
-            {ADMIN_LINKS.map((link) => (
-              <Link className="chip-row__item" key={link.to} to={link.to}>
-                <link.icon size={15} strokeWidth={1.5} />
-                <span>{link.label}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+        <div className="ops-side">
+          <section aria-label="主要操作" className="ops-block">
+            <p className="ops-block__label">主要操作</p>
+            <div className="action-list action-list--stacked">
+              {PRIMARY_ACTIONS.map((action) => (
+                <Link className="action-list__row" key={action.to} to={action.to}>
+                  <action.icon className="action-list__icon" size={18} strokeWidth={1.5} />
+                  <span className="action-list__title">{action.title}</span>
+                  <span className="action-list__copy">{action.copy}</span>
+                  <ArrowRight className="action-list__arrow" size={15} strokeWidth={1.5} />
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {userInfo?.is_superuser && (
+            <section aria-label="管理入口" className="ops-block">
+              <p className="ops-block__label">管理</p>
+              <div className="chip-row">
+                {ADMIN_LINKS.map((link) => (
+                  <Link className="chip-row__item" key={link.to} to={link.to}>
+                    <link.icon size={15} strokeWidth={1.5} />
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

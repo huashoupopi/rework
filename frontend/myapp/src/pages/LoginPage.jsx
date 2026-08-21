@@ -67,6 +67,10 @@ export function LoginPage() {
       clearAuth()
       const nextFails = failCount + 1
       setFailCount(nextFails)
+      // 密码错了也让叶片空转几圈：错误提示之外的一点手感，
+      // 与成功时的 boost 共用同一条通道，只是这次不跳转。
+      setBoost(true)
+      window.setTimeout(() => setBoost(false), 2600)
       setErrorMessage(
         nextFails >= 3
           ? "叶片检修中，请稍后再试"

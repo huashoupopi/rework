@@ -13,8 +13,6 @@ const WindTurbine3D = React.lazy(() =>
 //   ① 三张等宽玻璃卡片 → 工程规格明细栏（卡片横排是 AI 模板的招牌构图）
 //   ② 明细栏 → 一张检测示意图 + 一行能力标签（登录页第一屏字太多）
 // 登录页不需要解释产品，一张标注图说得比三段文案清楚，也更符合工程图纸的表达。
-const CAPABILITIES = ["缺陷识别", "上下文问答", "知识库治理"]
-
 export function AuthScene({
   boost = false,
   children,
@@ -23,6 +21,21 @@ export function AuthScene({
   spinning = true,
   stopped = false,
 }) {
+  // 彩蛋：点风机让它加速转几圈。外部传进来的 boost（登录成功/密码错误）
+  // 与这里的点击取或，两个来源互不干扰。
+  const [clickBoost, setClickBoost] = React.useState(false)
+  const timerRef = React.useRef(null)
+
+  React.useEffect(() => () => window.clearTimeout(timerRef.current), [])
+
+  function handleSpin() {
+    window.clearTimeout(timerRef.current)
+    setClickBoost(true)
+    timerRef.current = window.setTimeout(() => setClickBoost(false), 2600)
+  }
+
+  const spinFast = boost || clickBoost
+
   return (
     <div className="auth-page">
       <div className="auth-stage">
@@ -46,21 +59,22 @@ export function AuthScene({
           >
             <div className="auth-hero__diagram">
               <BladeScanDiagram />
-              <ul className="cap-line">
-                {CAPABILITIES.map((cap) => (
-                  <li key={cap}>{cap}</li>
-                ))}
-              </ul>
             </div>
           </InView>
         </section>
         {children}
       </div>
-      <div className="auth-page__turbine" aria-hidden="true">
-        <React.Suspense fallback={<WindTurbineSvg boost={boost} spinning={spinning} stopped={stopped} />}>
-          <WindTurbine3D boost={boost} spinning={spinning} stopped={stopped} />
+      <button
+        aria-label="让风机转快一点"
+        className="auth-page__turbine"
+        onClick={handleSpin}
+        title="点一下试试"
+        type="button"
+      >
+        <React.Suspense fallback={<WindTurbineSvg boost={spinFast} spinning={spinning} stopped={stopped} />}>
+          <WindTurbine3D boost={spinFast} spinning={spinning} stopped={stopped} />
         </React.Suspense>
-      </div>
+      </button>
     </div>
   )
 }

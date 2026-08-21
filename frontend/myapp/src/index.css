@@ -680,7 +680,7 @@ textarea {
 
 .app-shell__canvas {
   margin: 0;
-  max-width: 1320px;
+  max-width: 1560px;
   width: 100%;
 }
 
@@ -1073,44 +1073,6 @@ textarea {
   font-size: 0.95rem;
   letter-spacing: -0.02em;
   text-align: right;
-}
-
-.chat-hero-scene__threads {
-  background:
-    linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg));
-  border: 1px solid var(--glass-border);
-  border-radius: 26px;
-  display: grid;
-  gap: 12px;
-  min-height: 172px;
-  padding: 18px 18px 20px;
-}
-
-.chat-hero-scene__thread {
-  border-radius: 18px;
-  height: 42px;
-}
-
-.chat-hero-scene__thread--assistant {
-  background:
-    linear-gradient(90deg, var(--glass-bg-strong), var(--glass-bg)),
-    linear-gradient(135deg, var(--glass-border), transparent);
-  width: 82%;
-}
-
-.chat-hero-scene__thread--user {
-  background:
-    linear-gradient(135deg, rgba(38, 103, 255, 0.18), var(--accent-soft)),
-    linear-gradient(135deg, var(--glass-border), transparent);
-  justify-self: end;
-  width: 62%;
-}
-
-.chat-hero-scene__thread--assistant-soft {
-  background:
-    linear-gradient(90deg, var(--glass-bg-strong), var(--glass-bg)),
-    linear-gradient(135deg, rgba(93, 107, 255, 0.08), rgba(93, 107, 255, 0));
-  width: 72%;
 }
 
 /* ─── Metrics grid ─── */
@@ -2702,16 +2664,25 @@ textarea {
   /* 左对齐而非居中(2026-08-21)：宽屏下两边均分留白会让页面发虚，
      内容压住左侧、右侧交给风机图示，空白因此有了方向。 */
   display: grid;
-  gap: clamp(32px, 5vw, 88px);
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 400px);
+  gap: clamp(32px, 4vw, 72px);
+  /* 第三列是留给风机的空档：风机自己绝对定位，这一列保证登录卡不顶到它身上。
+     宽屏下三段各占一块，内容与风机之间不再空出四百多像素。 */
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 390px) minmax(0, 0.72fr);
   align-content: center;
-  margin: 0 auto 0 max(5vw, 40px);
-  max-width: 1180px;
+  margin: 0 auto;
+  max-width: 1760px;
   min-height: calc(100dvh - clamp(56px, 8vh, 112px));
   padding: clamp(24px, 5vh, 72px) 0;
   position: relative;
   width: 100%;
   z-index: 1;
+}
+
+@media (max-width: 1500px) {
+  .auth-stage {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+    max-width: 1180px;
+  }
 }
 
 @media (max-width: 1100px) {
@@ -2829,24 +2800,6 @@ textarea {
   fill: var(--surface-strong);
 }
 
-/* 能力标签：一行，用竖线分隔，不用卡片不用图标 */
-.cap-line {
-  border-top: 1px solid var(--surface-border);
-  color: var(--surface-muted);
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 0.84rem;
-  gap: 0;
-  list-style: none;
-  margin: 0;
-  padding: 14px 0 0;
-}
-
-.cap-line li + li {
-  border-left: 1px solid var(--surface-border);
-  margin-left: 16px;
-  padding-left: 16px;
-}
 
 .auth-card {
   align-self: center;
@@ -3024,16 +2977,34 @@ textarea {
 /* 风机从「浮在版心正中」改成图纸角落的设备图示(2026-08-21)：
    绝对定位到右下，压在登录卡下层。它是背景锚点，不参与内容排版，
    所以不再占据 grid 行、也不再把 hero 撑高。同心圆 Ripple 已移除。 */
+/* 风机是彩蛋按钮：点一下加速转几圈。清掉 button 的默认外观，
+   它在视觉上仍然只是图纸角落的设备图示。 */
 .auth-page__turbine {
+  appearance: none;
+  background: none;
+  border: 0;
   bottom: clamp(16px, 2.2vh, 30px);
-  height: min(78vh, 740px);
-  /* 0.42 太淡会变成孤立小图标；0.62 让它站得住又不抢正文 */
+  cursor: pointer;
+  display: block;
+  height: min(82vh, 800px);
   opacity: 0.62;
-  pointer-events: none;
+  padding: 0;
   position: absolute;
-  right: clamp(24px, 3vw, 64px);
-  width: min(30vw, 620px);
+  right: clamp(8px, 1vw, 28px);
+  transition: opacity var(--motion-slow) var(--ease-out);
+  width: min(34vw, 700px);
   z-index: 0;
+}
+
+.auth-page__turbine:hover {
+  opacity: 0.82;
+}
+
+.auth-page__turbine:focus-visible {
+  border-radius: var(--radius-md);
+  opacity: 0.9;
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
 }
 
 @media (max-width: 1100px) {
@@ -3554,8 +3525,60 @@ textarea {
 
 .ops-page {
   display: grid;
-  gap: clamp(28px, 3.4vh, 44px);
-  max-width: 1400px;
+  gap: clamp(26px, 3vh, 40px);
+  max-width: 1560px;
+}
+
+/* 概览横跨整幅；其余分两列 —— 左边「最近任务」需要宽度放文件名，
+   右边是操作与入口。宽屏下右半边不再空一大片。 */
+.ops-columns {
+  align-items: start;
+  display: grid;
+  gap: clamp(26px, 3vh, 40px) clamp(28px, 3vw, 56px);
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
+}
+
+/* 右栏跨两行，与左栏两块并齐 */
+.ops-side {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.ops-side {
+  display: grid;
+  gap: clamp(26px, 3vh, 40px);
+}
+
+@media (max-width: 1080px) {
+  .ops-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 右栏窄，动作行改成两行堆叠，描述让到第二行 */
+.action-list--stacked .action-list__row {
+  grid-template-columns: 20px minmax(0, 1fr) 16px;
+  row-gap: 3px;
+}
+
+.action-list--stacked .action-list__copy {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.action-list--stacked .action-list__arrow {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.action-list--stacked .action-list__title {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.action-list--stacked .action-list__icon {
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .ops-page__head {
@@ -3735,10 +3758,7 @@ textarea {
   border-bottom: 1px solid var(--surface-border);
   column-gap: 16px;
   display: grid;
-  /* 文件名封顶 42rem：真实文件名带 32 位哈希后缀，放任它撑满会把
-     状态与操作推到屏幕另一头，一行读不完。 */
-  grid-template-columns: 6.5rem minmax(0, 42rem) 5rem 3rem;
-  justify-content: start;
+  grid-template-columns: 6.5rem minmax(0, 1fr) 5rem 3rem;
   padding: 11px 14px 11px 0;
   position: relative;
   transition: background var(--motion-fast) var(--ease-out);
@@ -3939,4 +3959,190 @@ textarea {
 .data-surface .ant-list-item {
   padding-left: 0;
   padding-right: 0;
+}
+
+/* ── 聊天页头的对话流示意 ────────────────────────────────────────
+   每根竖条 = 一条消息，高度按内容长度，用户与助手分色。
+   取代原先三条纯装饰的「线程条」——那在浅底下就是一个空白圆角框。 */
+.chat-flow {
+  align-items: flex-end;
+  border-bottom: 1px solid var(--surface-border);
+  display: flex;
+  gap: 3px;
+  height: 62px;
+  padding-bottom: 1px;
+}
+
+.chat-flow--empty {
+  align-items: center;
+  color: var(--surface-faint);
+  font-size: 0.76rem;
+  justify-content: flex-start;
+}
+
+.chat-flow__bar {
+  border-radius: 1px;
+  flex: 1;
+  max-width: 9px;
+  min-height: 6px;
+  transition: height var(--motion-slow) var(--ease-out);
+}
+
+.chat-flow__bar[data-role="user"] {
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+.chat-flow__bar[data-role="assistant"] {
+  background: var(--surface-strong);
+  opacity: 0.32;
+}
+
+.chat-hero-scene {
+  align-content: start;
+  display: grid;
+  gap: 16px;
+}
+
+.chat-hero-scene__identity {
+  display: grid;
+  gap: 2px;
+}
+
+.chat-hero-scene__identity p {
+  color: var(--surface-faint);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.chat-hero-scene__identity strong {
+  color: var(--surface-strong);
+  font-size: 1rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-hero-scene__identity span {
+  color: var(--surface-muted);
+  font-size: 0.78rem;
+}
+
+/* 三个数放一排，等宽字对齐 */
+.chat-hero-scene__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.chat-hero-scene__fact {
+  border-right: 1px solid var(--surface-border);
+  display: grid;
+  gap: 2px;
+  padding-right: 12px;
+}
+
+.chat-hero-scene__fact:last-child {
+  border-right: 0;
+}
+
+.chat-hero-scene__fact span {
+  color: var(--surface-faint);
+  font-size: 0.7rem;
+}
+
+.chat-hero-scene__fact strong {
+  color: var(--surface-strong);
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* 生成中：状态字换成强调色 + 缓慢呼吸，是全站唯一的常驻动效 */
+.chat-hero-scene__fact strong[data-live="true"] {
+  animation: chat-live-pulse 1.6s ease-in-out infinite;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.chat-hero-scene__fact strong[data-live="false"] {
+  font-size: 0.9rem;
+}
+
+@keyframes chat-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-hero-scene__fact strong[data-live="true"] {
+    animation: none;
+  }
+}
+
+/* ── 缺陷分布条 ──────────────────────────────────────────────────
+   数量与占比走等宽字右对齐，条形用矿物色板。
+   条子不加圆角：这是量度不是装饰。 */
+.defect-bars {
+  border-top: 1px solid var(--surface-border);
+  display: grid;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.defect-bars__row {
+  align-items: center;
+  border-bottom: 1px solid var(--surface-border);
+  column-gap: 14px;
+  display: grid;
+  grid-template-columns: minmax(4.5rem, 7rem) minmax(0, 1fr) 2.5rem 2.8rem;
+  padding: 9px 0;
+}
+
+.defect-bars__name {
+  color: var(--surface-strong);
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.defect-bars__track {
+  background: rgba(26, 26, 24, 0.05);
+  display: block;
+  height: 7px;
+}
+
+.defect-bars__fill {
+  display: block;
+  height: 100%;
+  transition: width var(--motion-slow) var(--ease-out);
+}
+
+.defect-bars__num,
+.defect-bars__pct {
+  color: var(--surface-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.defect-bars__pct {
+  color: var(--surface-strong);
+}
+
+.ops-block__note {
+  color: var(--surface-faint);
+  font-size: 0.74rem;
+}
+
+/* 缺陷分布与最近任务同在左栏 */
+.ops-block--defects {
+  grid-column: 1;
 }
