@@ -8,8 +8,6 @@ import { useAuthStore } from "@/features/auth/store/auth-store"
 import { extractErrorMessage } from "@/shared/api/http"
 import { tokenDurationSeconds } from "@/shared/lib/utils"
 import { GlassCard } from "@/shared/ui/GlassCard"
-import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
-import { Spotlight } from "@/shared/ui/motion-primitives/spotlight"
 
 import { AuthScene } from "./AuthScene"
 
@@ -90,10 +88,6 @@ export function LoginPage() {
       titleLines={["风机叶片", "智能检测"]}
     >
       <GlassCard className="auth-card">
-        <Spotlight className="from-[rgba(77,141,255,0.22)] via-[rgba(77,141,255,0.08)] to-transparent" size={260} />
-        <div className="auth-card__trail">
-          <BorderTrail className="bg-[var(--accent)]" size={36} transition={{ duration: 12, ease: "linear", repeat: Number.POSITIVE_INFINITY }} />
-        </div>
         <div className="auth-card__copy">
           <p className="auth-card__eyebrow">登录</p>
           <Typography.Title level={2}>欢迎回来</Typography.Title>
