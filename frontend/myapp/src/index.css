@@ -449,7 +449,7 @@ textarea {
 
 .app-sidebar__brand-copy p {
   color: var(--surface-strong);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   margin: 0;
@@ -457,7 +457,7 @@ textarea {
 
 .app-sidebar__brand-copy span {
   color: var(--surface-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
 }
 
 .app-sidebar__toggle {
@@ -468,7 +468,7 @@ textarea {
   color: var(--surface-muted);
   cursor: pointer;
   display: flex;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   gap: 7px;
   justify-content: center;
   padding: 6px 10px;
@@ -501,7 +501,7 @@ textarea {
 .app-sidebar__group-label {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   margin: 0 0 6px;
@@ -585,7 +585,7 @@ textarea {
 .app-topbar__eyebrow {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   margin: 0;
@@ -634,7 +634,7 @@ textarea {
   color: var(--paper);
   display: flex;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   height: 26px;
   justify-content: center;
@@ -643,7 +643,7 @@ textarea {
 
 .user-badge strong {
   color: var(--surface-strong);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -714,7 +714,7 @@ textarea {
 .page-workband__eyebrow,
 .page-header__eyebrow {
   color: var(--surface-muted);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   margin: 0;
@@ -733,7 +733,7 @@ textarea {
 .page-workband__description,
 .page-header__description {
   color: var(--surface-muted);
-  font-size: 0.96rem;
+  font-size: 0.95rem;
   line-height: 1.6;
   margin: 0;
   max-width: 54ch;
@@ -806,7 +806,7 @@ textarea {
 .page-workband__eyebrow {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   margin: 0;
@@ -815,13 +815,13 @@ textarea {
 
 .page-workband__description {
   color: var(--surface-muted);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   margin: 0;
 }
 
 .page-workband__supporting {
   color: var(--surface-faint);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   margin: 0;
 }
 
@@ -922,7 +922,7 @@ textarea {
 
 .workband-info-card__label {
   color: var(--surface-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   margin: 0;
@@ -930,7 +930,7 @@ textarea {
 }
 
 .workband-info-card__title {
-  font-size: 1.08rem;
+  font-size: 1.05rem;
   letter-spacing: -0.02em;
   line-height: 1.1;
   padding-right: 20px;
@@ -958,7 +958,7 @@ textarea {
 
 .workband-info-card__item span {
   color: var(--surface-muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 
 .workband-info-card__item strong {
@@ -985,7 +985,7 @@ textarea {
 .home-hero-scene__identity p,
 .chat-hero-scene__identity p {
   color: var(--surface-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   margin: 0;
@@ -994,7 +994,7 @@ textarea {
 
 .home-hero-scene__identity strong,
 .chat-hero-scene__identity strong {
-  font-size: 1.14rem;
+  font-size: 1.15rem;
   letter-spacing: -0.03em;
   line-height: 1.05;
 }
@@ -1002,7 +1002,7 @@ textarea {
 .home-hero-scene__identity span,
 .chat-hero-scene__identity span {
   color: var(--surface-muted);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   line-height: 1.5;
 }
 
@@ -1011,7 +1011,7 @@ textarea {
     linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg)),
     radial-gradient(circle at 20% 20%, var(--accent-soft), transparent 40%);
   border: 1px solid var(--glass-border);
-  border-radius: 26px;
+  border-radius: var(--radius-xl);
   min-height: 170px;
   overflow: hidden;
   padding: 18px 20px;
@@ -1040,7 +1040,7 @@ textarea {
 
 .home-flow li {
   color: var(--surface-strong);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
   padding: 12px 0 12px 4px;
   position: relative;
@@ -1048,7 +1048,7 @@ textarea {
 
 .home-flow li::before {
   background: var(--accent);
-  border-radius: 99px;
+  border-radius: var(--radius-sm);
   box-shadow: var(--glow-accent);
   content: "";
   height: 9px;
@@ -1078,7 +1078,7 @@ textarea {
 .home-hero-scene__fact span,
 .chat-hero-scene__fact span {
   color: var(--surface-muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 
 .home-hero-scene__fact strong,
@@ -1124,7 +1124,7 @@ textarea {
 .metric-cell__eyebrow {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1141,12 +1141,12 @@ textarea {
 
 .metric-cell__title {
   color: var(--surface-muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 .metric-cell__description {
   color: var(--surface-faint);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   margin: 0;
 }
 
@@ -1158,7 +1158,7 @@ textarea {
 
 .defect-tag {
   background: color-mix(in srgb, var(--tag-color, #999) 12%, transparent);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   color: var(--tag-color, #999);
   font-size: 0.75rem;
   font-weight: 600;
@@ -1192,7 +1192,7 @@ textarea {
 
 .defect-stats-panel__eyebrow {
   color: var(--surface-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   margin: 0;
@@ -1201,7 +1201,7 @@ textarea {
 
 .defect-stats-panel__summary {
   color: var(--surface-muted);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   margin: 0;
   text-align: right;
 }
@@ -1218,7 +1218,7 @@ textarea {
 
 .defect-stats-panel__completion-label {
   display: flex;
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   justify-content: space-between;
   margin-bottom: 6px;
 }
@@ -1232,7 +1232,7 @@ textarea {
 
 .progress-bar {
   background: rgba(26, 26, 24, 0.05);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   height: 8px;
   overflow: hidden;
   width: 100%;
@@ -1240,7 +1240,7 @@ textarea {
 
 .progress-bar--lg {
   height: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 
 .progress-bar__fill {
@@ -1267,7 +1267,7 @@ textarea {
 .defect-rank-item__head {
   align-items: center;
   display: flex;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   gap: 8px;
   margin-bottom: 6px;
 }
@@ -1435,7 +1435,7 @@ textarea {
   align-items: center;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 22px;
+  border-radius: var(--radius-xl);
   color: inherit;
   display: flex;
   gap: 16px;
@@ -1456,7 +1456,7 @@ textarea {
 
 .quick-entry-card__icon {
   align-items: center;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   display: flex;
   flex-shrink: 0;
   height: 44px;
@@ -1492,7 +1492,7 @@ textarea {
 
 .quick-entry-card__body p {
   color: var(--surface-muted);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   margin: 0;
 }
 
@@ -1516,7 +1516,7 @@ textarea {
 
 .admin-grid__label {
   color: var(--surface-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   margin: 0;
@@ -1537,7 +1537,7 @@ textarea {
   border-radius: var(--radius-sm);
   color: var(--surface-strong);
   display: inline-flex;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 500;
   gap: 8px;
   padding: 10px 16px;
@@ -1571,14 +1571,14 @@ textarea {
 
 .toolbar-panel label {
   display: grid;
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-weight: 500;
   gap: 6px;
 }
 
 .toolbar-surface__summary {
   color: var(--surface-muted);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   grid-column: 1 / -1;
   margin: 8px 0 0;
 }
@@ -1646,10 +1646,10 @@ textarea {
 .selection-pill {
   background: var(--glass-bg-strong);
   border: 1px solid var(--glass-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   color: var(--surface-muted);
   display: inline-flex;
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   gap: 8px;
   margin: 0;
   padding: 8px 14px;
@@ -1675,7 +1675,7 @@ textarea {
 .upload-panel__note p,
 .upload-panel__copy p:last-child {
   color: var(--surface-muted);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   margin: 0;
 }
 
@@ -1721,7 +1721,7 @@ textarea {
 
 .pagination-bar {
   color: var(--surface-muted);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   margin-top: 12px;
 }
 
@@ -1758,7 +1758,7 @@ textarea {
 
 .task-detail-stage__meta p {
   color: var(--surface-muted);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   margin: 0;
 }
 
@@ -1775,7 +1775,7 @@ textarea {
 }
 
 .task-image-preview__header h3 {
-  font-size: 1.08rem;
+  font-size: 1.05rem;
   margin: 2px 0 0;
 }
 
@@ -1783,9 +1783,9 @@ textarea {
   align-self: center;
   background: var(--glass-bg-strong);
   border: 1px solid var(--glass-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   color: var(--surface-muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   margin: 0;
   padding: 8px 12px;
 }
@@ -1796,7 +1796,7 @@ textarea {
   background:
     linear-gradient(180deg, rgba(244, 248, 255, 0.96), rgba(237, 244, 255, 0.86));
   border: 1px solid var(--glass-border);
-  border-radius: 28px;
+  border-radius: var(--radius-lg);
   display: flex;
   justify-content: center;
   min-height: 0;
@@ -1833,8 +1833,8 @@ textarea {
 .task-image-preview__overlay span {
   background: rgba(26, 26, 24, 0.55);
   border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  font-size: 0.82rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
   font-weight: 500;
   padding: 10px 14px;
 }
@@ -1851,7 +1851,7 @@ textarea {
   align-items: center;
   background: var(--glass-bg);
   border: 1px dashed var(--surface-border-strong);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   display: flex;
   justify-content: center;
   min-height: 220px;
@@ -1888,9 +1888,9 @@ textarea {
 .task-summary__status {
   background: var(--accent-soft);
   border: 1px solid var(--surface-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   color: var(--accent);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 500;
   margin: 0;
   padding: 6px 14px;
@@ -1904,7 +1904,7 @@ textarea {
 
 .task-summary__hint {
   color: var(--surface-muted);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   margin: 0;
 }
 
@@ -1924,7 +1924,7 @@ textarea {
 
 .task-summary__metric span {
   color: var(--surface-muted);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1961,9 +1961,9 @@ textarea {
   align-items: center;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   display: inline-flex;
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   gap: 8px;
   padding: 6px 14px 6px 8px;
 }
@@ -1971,7 +1971,7 @@ textarea {
 .context-banner__icon {
   align-items: center;
   background: var(--accent-soft);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   color: var(--accent);
   display: flex;
   height: 28px;
@@ -2020,7 +2020,7 @@ textarea {
   color: var(--surface-muted);
   cursor: pointer;
   display: inline-flex;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   gap: 5px;
   padding: 5px 10px;
   transition:
@@ -2038,7 +2038,7 @@ textarea {
 
 .chat-sidebar__empty {
   color: var(--surface-muted);
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   margin: 0;
 }
 
@@ -2063,7 +2063,7 @@ textarea {
 .chat-sidebar__item {
   background: var(--surface-solid);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   color: inherit;
   cursor: pointer;
   display: grid;
@@ -2078,7 +2078,7 @@ textarea {
 }
 
 .chat-sidebar__title {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
 }
 
@@ -2157,8 +2157,8 @@ textarea {
 
 .context-card__defects li {
   background: var(--accent-soft);
-  border-radius: 999px;
-  font-size: 0.82rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
   padding: 4px 10px;
 }
 
@@ -2176,7 +2176,7 @@ textarea {
 .context-card__preset {
   background: transparent;
   border: 1px solid var(--glass-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   color: inherit;
   cursor: pointer;
   font-size: 0.8rem;
@@ -2185,7 +2185,7 @@ textarea {
 
 .context-card__empty {
   color: var(--surface-muted);
-  font-size: 0.85rem;
+  font-size: 0.86rem;
 }
 
 .chat-workspace {
@@ -2212,14 +2212,14 @@ textarea {
   background: var(--danger-soft);
   border-radius: var(--radius-sm);
   color: #b42318;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   margin: 0;
   padding: 10px 14px;
 }
 
 .chat-loading {
   color: var(--surface-muted);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   padding: 12px 0;
 }
 
@@ -2231,7 +2231,7 @@ textarea {
   align-content: start;
   background: linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg));
   border: 1px solid var(--glass-border);
-  border-radius: 28px;
+  border-radius: var(--radius-lg);
   display: grid;
   gap: 14px;
   min-height: 0;
@@ -2257,7 +2257,7 @@ textarea {
 .chat-empty-state__icon {
   align-items: center;
   background: var(--accent-soft);
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   color: var(--accent);
   display: flex;
   height: 56px;
@@ -2318,7 +2318,7 @@ textarea {
 }
 
 .message-card__role {
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-weight: 600;
 }
 
@@ -2390,7 +2390,7 @@ textarea {
 
 .message-card__content.prose code {
   background: rgba(26, 26, 24, 0.05);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.88em;
   padding: 1px 5px;
 }
@@ -2398,7 +2398,7 @@ textarea {
 .message-card__content.prose pre {
   background: rgba(26, 26, 24, 0.035);
   border: 1px solid var(--surface-border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin: 0.6em 0;
   overflow-x: auto;
   padding: 12px 16px;
@@ -2501,7 +2501,7 @@ textarea {
 .collapsible-panel__body p {
   color: var(--surface-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   line-height: 1.6;
   margin: 0;
   white-space: pre-wrap;
@@ -2524,7 +2524,7 @@ textarea {
 
 .source-item__index {
   color: var(--surface-muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
@@ -2540,7 +2540,7 @@ textarea {
 
 .source-item__score {
   background: rgba(26, 26, 24, 0.05);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   color: var(--surface-muted);
   font-size: 0.7rem;
   font-weight: 600;
@@ -2559,7 +2559,7 @@ textarea {
 
 .source-item__snippet {
   color: var(--surface-muted);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   font-style: italic;
   line-height: 1.5;
   margin: 4px 0 0;
@@ -2575,7 +2575,7 @@ textarea {
 
 .task-detail-error p {
   color: var(--surface-muted);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   margin: 0;
 }
 
@@ -2585,7 +2585,7 @@ textarea {
   background:
     linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg));
   border: 1px solid var(--glass-border);
-  border-radius: 28px;
+  border-radius: var(--radius-lg);
   box-shadow:
     var(--glass-shadow-strong),
     inset 0 1px 0 var(--glass-border);
@@ -2604,7 +2604,7 @@ textarea {
 
 .chat-composer__field textarea {
   background: var(--glass-bg-strong);
-  border-radius: 22px;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--glass-border);
   min-height: 56px;
   padding: 14px 16px;
@@ -2632,10 +2632,10 @@ textarea {
   align-items: center;
   background: var(--glass-bg-strong);
   border: 1px solid var(--glass-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   gap: 6px;
   min-height: 36px;
   padding: 0 14px;
@@ -2742,7 +2742,7 @@ textarea {
 
 .auth-hero__eyebrow {
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   margin: 0;
@@ -2751,7 +2751,7 @@ textarea {
 
 .auth-card__eyebrow {
   color: var(--surface-muted);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   margin: 0;
@@ -3057,7 +3057,7 @@ textarea {
 .glass-button {
   background: var(--glass-bg-strong);
   border: 1px solid var(--glass-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   box-shadow: var(--glass-shadow);
   color: var(--surface-strong);
   min-height: 40px;
@@ -3264,7 +3264,7 @@ textarea {
 
 .data-surface__eyebrow {
   color: var(--surface-muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   letter-spacing: 0.08em;
   margin: 0 0 4px;
   text-transform: uppercase;
@@ -3428,7 +3428,7 @@ textarea {
 
 .eval-layer__name {
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 .eval-layer__score {
@@ -3438,7 +3438,7 @@ textarea {
 
 .eval-layer__meter {
   background: var(--surface-muted);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   display: block;
   height: 4px;
   overflow: hidden;
@@ -3473,7 +3473,7 @@ textarea {
 
 .eval-sharebar {
   background: var(--surface-muted);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   display: flex;
   height: 10px;
   margin: 10px 0;
@@ -3534,7 +3534,7 @@ textarea {
   align-items: center;
   color: var(--text-muted);
   display: flex;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   gap: 8px;
   margin: 0 0 12px;
 }
@@ -3594,7 +3594,7 @@ textarea {
 
 .eval-paths li span {
   color: var(--text-muted);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
 }
 
 .eval-paths__query {
@@ -3607,7 +3607,7 @@ textarea {
 
 .eval-paths__query code {
   background: var(--surface-muted);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.8rem;
   padding: 2px 6px;
 }
@@ -3624,13 +3624,13 @@ textarea {
 .eval-moves li {
   align-items: center;
   display: flex;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   gap: 5px;
 }
 
 .eval-trace__ms {
   color: var(--text-muted);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 400;
   margin-left: 6px;
 }
@@ -3717,7 +3717,7 @@ textarea {
 
 .ops-page__sub {
   color: var(--surface-muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   margin: 5px 0 0;
 }
 
@@ -3736,7 +3736,7 @@ textarea {
 .ops-block__label {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.16em;
   margin: 0;
@@ -3747,7 +3747,7 @@ textarea {
   align-items: center;
   color: var(--surface-muted);
   display: inline-flex;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   gap: 5px;
   transition: color var(--motion-fast) var(--ease-out);
 }
@@ -3837,7 +3837,7 @@ textarea {
 
 .stat-row__key {
   color: var(--surface-muted);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
 }
 
 /* ── 动作清单：取代等宽卡片横排 ──────────────────────────── */
@@ -3894,7 +3894,7 @@ textarea {
 
 .action-list__copy {
   color: var(--surface-muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 
 .action-list__arrow {
@@ -3930,14 +3930,14 @@ textarea {
 .record-list__time {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   padding-left: 12px;
 }
 
 .record-list__name {
   color: var(--surface-strong);
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3945,7 +3945,7 @@ textarea {
 
 .record-list__status {
   color: var(--surface-muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 .record-list__status[data-status="failed"] {
@@ -3962,7 +3962,7 @@ textarea {
 
 .record-list__link {
   color: var(--surface-faint);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   text-align: right;
   transition: color var(--motion-fast) var(--ease-out);
 }
@@ -4009,7 +4009,7 @@ textarea {
 .ops-empty {
   border-top: 1px solid var(--surface-border);
   color: var(--surface-muted);
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   margin: 0;
   padding: 22px 0 24px;
 }
@@ -4050,8 +4050,8 @@ textarea {
    在工程橙的单强调色体系里非常突兀（蓝色标签尤其）。
    这里只改颜色不改语义，业务代码一行不动。 */
 .ant-tag {
-  border-radius: 2px;
-  font-size: 0.74rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
   line-height: 1.7;
 }
 
@@ -4139,12 +4139,12 @@ textarea {
 .chat-flow--empty {
   align-items: center;
   color: var(--surface-faint);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   justify-content: flex-start;
 }
 
 .chat-flow__bar {
-  border-radius: 1px;
+  border-radius: var(--radius-sm);
   flex: 1;
   max-width: 9px;
   min-height: 6px;
@@ -4175,7 +4175,7 @@ textarea {
 .chat-hero-scene__identity p {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   margin: 0;
   text-transform: uppercase;
@@ -4192,7 +4192,7 @@ textarea {
 
 .chat-hero-scene__identity span {
   color: var(--surface-muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 /* 三个数放一排，等宽字对齐 */
@@ -4269,7 +4269,7 @@ textarea {
 
 .defect-bars__name {
   color: var(--surface-strong);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4291,7 +4291,7 @@ textarea {
 .defect-bars__pct {
   color: var(--surface-muted);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
@@ -4302,7 +4302,7 @@ textarea {
 
 .ops-block__note {
   color: var(--surface-faint);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
 }
 
 /* 缺陷分布与最近任务同在左栏 */
@@ -4323,7 +4323,7 @@ textarea {
   color: var(--surface-muted);
   cursor: pointer;
   display: inline-flex;
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   isolation: isolate;
   justify-content: center;
   line-height: 1.5;
@@ -4396,7 +4396,7 @@ textarea {
    所以不给按钮外观 —— 原先用的是 disabled Button，看着像个坏掉的按钮。 */
 .table-hint {
   color: var(--surface-faint);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 /* ── 图号与制图模式 ──────────────────────────────────────────────
@@ -4409,7 +4409,7 @@ textarea {
   color: var(--surface-faint);
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   letter-spacing: 0.08em;
   padding: 2px 6px;
   transition:
@@ -4547,7 +4547,7 @@ textarea {
 
 .run-name__tag {
   color: var(--surface-strong);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -4555,7 +4555,7 @@ textarea {
 .run-name__stamp {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -4592,7 +4592,7 @@ textarea {
 
 .pass-meter__nums i {
   color: var(--surface-faint);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-style: normal;
 }
 
@@ -4683,7 +4683,7 @@ textarea {
 
 .eval-run__scope {
   color: var(--surface-muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 .eval-run__scope b {
@@ -4706,7 +4706,7 @@ textarea {
 
 .eval-run__field > span {
   color: var(--surface-faint);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 860px) {
@@ -4763,7 +4763,7 @@ textarea {
 
 .eval-run__note {
   color: var(--surface-faint);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   margin: 0;
 }
 
@@ -4797,7 +4797,7 @@ textarea {
 /* total 与明细条数对不上时才出现 —— 那是数据不一致，要看得见 */
 .detect-count__mismatch {
   color: var(--warning);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   margin-left: auto;
 }
 
@@ -4818,7 +4818,7 @@ textarea {
 }
 
 .defect-list__dot {
-  border-radius: 1px;
+  border-radius: var(--radius-sm);
   display: block;
   height: 8px;
   width: 8px;
@@ -4852,7 +4852,7 @@ textarea {
 
 .defect-list__none {
   color: var(--surface-faint);
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   grid-column: 3 / -1;
 }
 
@@ -4872,7 +4872,7 @@ textarea {
 .doc-name__meta {
   color: var(--surface-faint);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
 }
 
 /* ── 顶栏风机 ────────────────────────────────────────────────────
@@ -4988,7 +4988,7 @@ textarea {
 .skeleton-bar {
   animation: skeleton-sheen 1.4s ease-in-out infinite;
   background: rgba(26, 26, 24, 0.07);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   display: block;
   height: 10px;
 }
@@ -5015,7 +5015,7 @@ textarea {
   background: rgba(159, 18, 57, 0.06);
   border-left: 2px solid var(--danger);
   color: var(--danger);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   margin: 0;
   padding: 10px 14px;
 }
