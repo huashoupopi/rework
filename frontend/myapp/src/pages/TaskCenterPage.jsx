@@ -234,6 +234,7 @@ export function TaskCenterPage() {
       </GlassPanel>
 
       <TaskTable
+        onDeleted={() => refresh()}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         page={page}
