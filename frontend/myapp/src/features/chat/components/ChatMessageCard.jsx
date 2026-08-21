@@ -5,7 +5,6 @@ import { WindTurbineSvg } from "@/shared/ui/WindTurbineSvg"
 import Markdown from "react-markdown"
 import { BrainCircuit, ChevronDown, ChevronRight, FileText } from "lucide-react"
 
-import { AnimatedShinyText } from "@/shared/ui/magicui/animated-shiny-text"
 import { TextShimmerWave } from "@/shared/ui/motion-primitives/text-shimmer-wave"
 
 import { extractAssistantThink } from "../utils/extractAssistantThink"
@@ -236,7 +235,7 @@ export function ChatMessageCard({ message }) {
         <div className="message-card__content prose">
           <Markdown>{displayContent}</Markdown>
           {isStreaming ? (
-            <AnimatedShinyText className="mx-0 max-w-none">正在写入答复</AnimatedShinyText>
+            <span className="stream-hint">正在写入答复</span>
           ) : null}
         </div>
       ) : isStreaming ? (

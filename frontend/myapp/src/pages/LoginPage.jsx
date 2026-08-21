@@ -7,7 +7,6 @@ import { getCurrentUser, login } from "@/features/auth/api/auth-api"
 import { useAuthStore } from "@/features/auth/store/auth-store"
 import { extractErrorMessage } from "@/shared/api/http"
 import { tokenDurationSeconds } from "@/shared/lib/utils"
-import { InteractiveHoverButton } from "@/shared/ui/magicui/interactive-hover-button"
 import { GlassCard } from "@/shared/ui/GlassCard"
 import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
 import { Spotlight } from "@/shared/ui/motion-primitives/spotlight"
@@ -104,9 +103,9 @@ export function LoginPage() {
           <Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码" }]}>
             <Input.Password disabled={locked} placeholder="请输入密码" />
           </Form.Item>
-          <InteractiveHoverButton className="w-full border-[var(--glass-border)] bg-[var(--glass-bg-strong)]" disabled={locked || submitting} type="submit">
+          <button className="primary-action primary-action--block" disabled={locked || submitting} type="submit">
             {submitting ? "叶片加速中" : "登录"}
-          </InteractiveHoverButton>
+          </button>
         </Form>
         <Typography.Paragraph>
           <Link to="/register">没有账号？立即注册</Link>

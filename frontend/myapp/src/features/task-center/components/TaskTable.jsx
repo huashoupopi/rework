@@ -5,8 +5,6 @@ import { Download, ListChecks } from "lucide-react"
 import { downloadTaskBatch, downloadTaskImage } from "../api/task-api"
 import { TaskStatusTag } from "./TaskStatusTag"
 import { EmptyState } from "@/shared/ui/EmptyState"
-import { Meteors } from "@/shared/ui/magicui/meteors"
-import { Ripple } from "@/shared/ui/magicui/ripple"
 import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
 import { ProgressiveBlur } from "@/shared/ui/motion-primitives/progressive-blur"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
@@ -136,7 +134,7 @@ export function TaskTable({
             <ListChecks size={16} />
             <span>{`已选 ${selectedIds.length} 项`}</span>
           </p>
-          <button className="secondary-action" disabled={!canBatchDownload} type="button" onClick={handleBatchDownload}>
+          <button disabled={!canBatchDownload} type="button" onClick={handleBatchDownload}>
             <Download size={16} />
             <span>批量下载</span>
           </button>
@@ -162,7 +160,7 @@ export function TaskTable({
             {tasks.length === 0 ? (
               <tr>
                 <td colSpan={7}>
-                  <EmptyState action={<Meteors number={3} />} description="上传叶片图片后，检测任务会出现在这里。" title="还没有任务" />
+                  <EmptyState description="上传叶片图片后，检测任务会出现在这里。" title="还没有任务" />
                 </td>
               </tr>
             ) : null}
@@ -185,7 +183,6 @@ export function TaskTable({
                   <td>
                     <div className="status-cell">
                       {detecting ? <BorderTrail className="bg-[var(--accent)]" size={18} transition={{ duration: 8, ease: "linear", repeat: Number.POSITIVE_INFINITY }} /> : null}
-                      {completed ? <Ripple className="opacity-80" mainCircleOpacity={0.16} mainCircleSize={48} numCircles={3} /> : null}
                       <TaskStatusTag status={task.status} />
                     </div>
                   </td>

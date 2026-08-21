@@ -13,7 +13,6 @@ import {
 import { extractErrorMessage } from "@/shared/api/http"
 import { EmptyState } from "@/shared/ui/EmptyState"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
-import { RippleButton } from "@/shared/ui/magicui/ripple-button"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 import { PageWorkbandInfoCard } from "@/shared/ui/PageWorkbandInfoCard"
 
@@ -212,15 +211,14 @@ export function EvalReportPage() {
     <div className="page-stack">
       <PageWorkband
         actions={
-          <RippleButton
+          <button className="secondary-action"
             disabled={loading}
-            rippleColor="rgba(77,141,255,0.28)"
             type="button"
             onClick={() => refresh().catch(() => {})}
           >
             <RefreshCw size={14} />
             刷新
-          </RippleButton>
+          </button>
         }
         aside={
           <PageWorkbandInfoCard
@@ -272,10 +270,10 @@ export function EvalReportPage() {
               <p className="data-surface__eyebrow">{formatEvalName(selectedName)}</p>
               <h2>分层通过率与耗时分布</h2>
             </div>
-            <RippleButton rippleColor="rgba(77,141,255,0.28)" type="button" onClick={downloadReport}>
+            <button className="secondary-action" type="button" onClick={downloadReport}>
               <Download size={14} />
               导出 JSON
-            </RippleButton>
+            </button>
           </div>
 
           <ul className="eval-layer-grid">

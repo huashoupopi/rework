@@ -8,7 +8,6 @@ import { ConversationList } from "@/features/chat/components/ConversationList"
 import { useChatSession } from "@/features/chat/hooks/useChatSession"
 import { useConversations } from "@/features/chat/hooks/useConversations"
 import { useTaskDetail } from "@/features/task-center/hooks/useTaskDetail"
-import { AnimatedShinyText } from "@/shared/ui/magicui/animated-shiny-text"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 
@@ -105,7 +104,7 @@ export function ChatPage() {
   )
 
   return (
-    <div className="page-stack">
+    <div className="page-stack page-stack--fill">
       <PageWorkband
         aside={<ChatHeroScene sending={sending} taskId={taskId} />}
         className="page-workband--immersive"
@@ -139,7 +138,7 @@ export function ChatPage() {
           ) : null}
           {loadingHistory ? (
             <div className="chat-loading">
-              <AnimatedShinyText>加载历史消息...</AnimatedShinyText>
+              加载历史消息...
             </div>
           ) : null}
           <ChatMessageList messages={messages} />

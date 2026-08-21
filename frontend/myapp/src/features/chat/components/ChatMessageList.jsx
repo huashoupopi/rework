@@ -2,7 +2,6 @@ import * as React from "react"
 import { Bot } from "lucide-react"
 
 import { ChatMessageCard } from "./ChatMessageCard"
-import { Meteors } from "@/shared/ui/magicui/meteors"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 export function ChatMessageList({ messages = [] }) {
@@ -35,7 +34,6 @@ export function ChatMessageList({ messages = [] }) {
     >
       {messages.length === 0 ? (
         <div className="chat-empty-state">
-          <Meteors number={4} />
           <div className="chat-empty-state__icon">
             <Bot size={28} />
           </div>

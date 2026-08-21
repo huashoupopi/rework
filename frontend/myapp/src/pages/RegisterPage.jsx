@@ -5,7 +5,6 @@ import { Link, Navigate, useNavigate } from "react-router-dom"
 import { register } from "@/features/auth/api/auth-api"
 import { useAuthStore } from "@/features/auth/store/auth-store"
 import { extractErrorMessage } from "@/shared/api/http"
-import { InteractiveHoverButton } from "@/shared/ui/magicui/interactive-hover-button"
 import { GlassCard } from "@/shared/ui/GlassCard"
 import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
 import { Spotlight } from "@/shared/ui/motion-primitives/spotlight"
@@ -63,9 +62,9 @@ export function RegisterPage() {
           <Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码" }]}>
             <Input.Password placeholder="请输入密码" />
           </Form.Item>
-          <InteractiveHoverButton className="w-full border-[var(--glass-border)] bg-[var(--glass-bg-strong)]" disabled={submitting} type="submit">
+          <button className="primary-action primary-action--block" disabled={submitting} type="submit">
             注册
-          </InteractiveHoverButton>
+          </button>
         </Form>
         <Typography.Paragraph>
           <Link to="/login">已有账号？去登录</Link>

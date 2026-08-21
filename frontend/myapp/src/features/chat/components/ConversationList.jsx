@@ -60,7 +60,7 @@ export function ConversationList({
     <GlassPanel as="aside" className="chat-sidebar" aria-label="会话列表">
       <div className="chat-sidebar__head">
         <h2>会话</h2>
-        <button className="secondary-action" type="button" disabled={creating} onClick={onCreate}>
+        <button type="button" disabled={creating} onClick={onCreate}>
           <Plus size={14} />
           <span>新建</span>
         </button>
