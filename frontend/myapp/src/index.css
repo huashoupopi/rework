@@ -667,6 +667,11 @@ textarea {
 
 .page-stack {
   display: grid;
+  /* minmax(0,1fr) 而不是默认的 auto：grid item 的 min-width 默认是 auto，
+     里面的宽表格会把每一个区块都撑到内容宽度。390px 实测所有页面级容器
+     被顶到 1058px —— 页头、上传区、缺陷面板、表格全部超出屏幕。
+     收缩交给这里，横向滚动交给表格自己的容器。 */
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
 }
 
@@ -755,6 +760,7 @@ textarea {
   align-content: start;
   display: grid;
   gap: 18px;
+  min-width: 0;
 }
 
 .page-workband__copy {
@@ -805,6 +811,9 @@ textarea {
 .page-workband__aside {
   align-self: start;
   border-left: 1px solid var(--surface-border);
+  /* grid item 默认 min-width:auto，里面的信息卡会把整行撑开 ——
+     390px 实测被顶到 1030px */
+  min-width: 0;
   display: grid;
   padding-left: clamp(18px, 2vw, 28px);
   position: relative;
@@ -2833,15 +2842,90 @@ textarea {
 
 /* ─── Responsive ─── */
 
-@media (max-width: 1120px) {
-  .app-shell {
-    grid-template-columns: 1fr;
+/* 2026-08-21 重做响应式分档。原先只有一档：≤1120px 就把 .app-shell 变成
+   单列、侧边栏 position:static —— 那是深色浮岛时代的策略，改成贴边分栏
+   （侧边栏 100dvh）之后，同一条规则的效果变成「侧边栏占满整屏、内容被
+   推到下面」。390px 实测就是这样。
+
+   现在分三档：
+   ①  >1120px  正常侧边栏 244px
+   ② 768–1120  自动收起成图标栏，保留左侧布局（窄桌面窗口、平板）
+   ③  <768px   侧边栏改成顶部横向滚动导航条 */
+
+@media (max-width: 1120px) and (min-width: 769px) {
+  .app-shell,
+  .app-shell[data-sidebar-collapsed="false"] {
+    grid-template-columns: 64px minmax(0, 1fr);
   }
 
   .app-sidebar {
-    height: auto;
-    position: static;
+    align-items: center;
+    padding: 22px 8px 18px;
   }
+
+  .app-sidebar__brand-copy,
+  .app-sidebar__group-label,
+  .app-sidebar__toggle span,
+  .app-sidebar__link span {
+    display: none;
+  }
+
+  .app-sidebar__link {
+    justify-content: center;
+    padding: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  /* 顶部横滚导航条：竖列在小屏上会吃掉整屏 */
+  .app-sidebar {
+    border-bottom: 1px solid var(--surface-border);
+    border-right: 0;
+    flex-direction: row;
+    gap: 12px;
+    height: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 12px;
+    position: sticky;
+    top: 0;
+  }
+
+  .app-sidebar__brand-copy,
+  .app-sidebar__group-label,
+  .app-sidebar__toggle {
+    display: none;
+  }
+
+  .app-sidebar__nav {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .app-sidebar__group {
+    display: flex;
+    gap: 2px;
+  }
+
+  .app-sidebar__link {
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+
+  /* 选中标记从左竖线改成底横线 —— 横向排列时竖线无处安放 */
+  .app-sidebar__link--active::before {
+    inset: auto 0 0 0;
+    height: 2px;
+    width: auto;
+  }
+}
+
+@media (max-width: 1120px) {
 
   .metrics-grid,
   .metrics-grid--5,
@@ -3648,8 +3732,21 @@ textarea {
   border-bottom: 1px solid var(--surface-border);
   border-right: 1px solid var(--surface-border);
   display: grid;
-  gap: 4px;
+  gap: 5px;
   padding: 16px 18px;
+}
+
+.stat-row__cell:last-child {
+  border-right: 1px solid var(--surface-border);
+}
+
+/* 总任务是分母，字号比分类大一档，作为整行的视觉锚点 */
+.stat-row__cell[data-kind="total"] {
+  background: rgba(26, 26, 24, 0.022);
+}
+
+.stat-row__cell[data-kind="total"] .stat-row__num {
+  font-size: 2rem;
 }
 
 .stat-row__num {
@@ -3662,8 +3759,40 @@ textarea {
   line-height: 1;
 }
 
+/* 失败这一列的红标的是【类别】不是当下状态，所以 0 也保留红色 ——
+   否则一眼扫过去分不出哪格是失败。但 0 用淡红，有值才是实红：
+   识别性与「别狼来了」两头都要。 */
 .stat-row__cell[data-tone="danger"] .stat-row__num {
   color: var(--danger);
+}
+
+.stat-row__cell[data-tone="danger"][data-empty="true"] .stat-row__num {
+  color: rgba(159, 18, 57, 0.42);
+}
+
+.stat-row__cell[data-empty="true"]:not([data-tone="danger"]) .stat-row__num {
+  color: var(--surface-faint);
+}
+
+/* 占比微条：这一类占全部任务多少 */
+.stat-row__share {
+  background: rgba(26, 26, 24, 0.06);
+  display: block;
+  height: 3px;
+  margin-top: 3px;
+}
+
+.stat-row__share-fill {
+  background: var(--surface-strong);
+  display: block;
+  height: 100%;
+  opacity: 0.34;
+  transition: width var(--motion-slow) var(--ease-out);
+}
+
+.stat-row__cell[data-tone="danger"] .stat-row__share-fill {
+  background: var(--danger);
+  opacity: 0.6;
 }
 
 .stat-row__key {
@@ -4800,4 +4929,60 @@ textarea {
   letter-spacing: 0.12em;
   padding: 1px 6px;
   white-space: nowrap;
+}
+
+
+/* 收缩之后表格要能自己横滚，不然窄屏上是「被裁掉」而不是「可以划」。
+   .table-fade 是表格的定位容器，滚动挂在它身上。 */
+.table-fade {
+  overflow-x: auto;
+}
+
+.data-surface .ant-table-wrapper,
+.data-surface table {
+  min-width: 0;
+}
+
+/* ── 加载骨架与页面级错误 ────────────────────────────────────────
+   骨架按内容的真实尺寸排，不是通用转圈 —— 加载完不会跳版。 */
+.skeleton-bar {
+  animation: skeleton-sheen 1.4s ease-in-out infinite;
+  background: rgba(26, 26, 24, 0.07);
+  border-radius: 2px;
+  display: block;
+  height: 10px;
+}
+
+@keyframes skeleton-sheen {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.stat-row[data-loading="true"] .stat-row__num {
+  animation: skeleton-sheen 1.4s ease-in-out infinite;
+  color: var(--surface-faint);
+}
+
+.record-list--skeleton .record-list__row:hover {
+  background: transparent;
+}
+
+.record-list--skeleton .record-list__row::before {
+  display: none;
+}
+
+.ops-alert {
+  background: rgba(159, 18, 57, 0.06);
+  border-left: 2px solid var(--danger);
+  color: var(--danger);
+  font-size: 0.84rem;
+  margin: 0;
+  padding: 10px 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-bar,
+  .stat-row[data-loading="true"] .stat-row__num {
+    animation: none;
+  }
 }

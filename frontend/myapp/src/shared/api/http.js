@@ -92,6 +92,14 @@ export function extractErrorMessage(error, fallback = "请求失败，请稍后�
     return detail.msg
   }
 
+  // axios 的网络层错误（请求发出去了但没有 response）message 是
+  // "Network Error" / "timeout of 30000ms exceeded" 这类英文技术文案，
+  // 对用户没有任何可执行的信息。给一句能指向下一步的中文。
+  if (error?.request && !error?.response) {
+    const timedOut = typeof error.message === "string" && error.message.includes("timeout")
+    return timedOut ? "请求超时，服务可能正忙，请稍后重试" : "连不上服务，请确认后端是否在运行"
+  }
+
   if (error instanceof Error && error.message) {
     return error.message
   }
