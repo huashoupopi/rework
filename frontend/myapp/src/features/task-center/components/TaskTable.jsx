@@ -2,13 +2,14 @@ import * as React from "react"
 import { DEFECT_COLORS as COLORS, DEFECT_NAMES as NAMES } from "@/shared/lib/labels"
 import { Download, ListChecks } from "lucide-react"
 
-import { downloadTaskBatch, downloadTaskImage } from "../api/task-api"
+import { Popconfirm } from "antd"
+
+import { deleteTask, downloadTaskBatch, downloadTaskImage } from "../api/task-api"
 import { TaskStatusTag } from "./TaskStatusTag"
+import { extractErrorMessage } from "@/shared/api/http"
+import { useAppMessage } from "@/shared/lib/use-app-message"
 import { EmptyState } from "@/shared/ui/EmptyState"
-import { Meteors } from "@/shared/ui/magicui/meteors"
-import { Ripple } from "@/shared/ui/magicui/ripple"
 import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
-import { ProgressiveBlur } from "@/shared/ui/motion-primitives/progressive-blur"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 
 function isCompleted(task) {
@@ -72,8 +73,25 @@ export function TaskTable({
   total = 0,
   onPageChange,
   onPageSizeChange,
+  onDeleted,
 }) {
   const [selectedIds, setSelectedIds] = React.useState([])
+  const [deletingId, setDeletingId] = React.useState(null)
+  const message = useAppMessage()
+
+  // 删除不可逆，所以每一行都带文件名进确认框 —— 用户要能核对删的是哪一条。
+  async function handleDelete(task) {
+    setDeletingId(task.id)
+    try {
+      await deleteTask(task.id)
+      message.success(`已删除 ${task.file_name}`)
+      onDeleted?.(task.id)
+    } catch (error) {
+      message.error(extractErrorMessage(error, "删除失败，请稍后重试"))
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   React.useEffect(() => {
     setSelectedIds((currentSelectedIds) =>
@@ -136,7 +154,7 @@ export function TaskTable({
             <ListChecks size={16} />
             <span>{`已选 ${selectedIds.length} 项`}</span>
           </p>
-          <button className="secondary-action" disabled={!canBatchDownload} type="button" onClick={handleBatchDownload}>
+          <button disabled={!canBatchDownload} type="button" onClick={handleBatchDownload}>
             <Download size={16} />
             <span>批量下载</span>
           </button>
@@ -144,8 +162,6 @@ export function TaskTable({
       </div>
 
       <div className="table-wrap table-fade">
-        <ProgressiveBlur blurIntensity={0.2} className="table-fade__blur table-fade__blur--top" direction="top" />
-        <ProgressiveBlur blurIntensity={0.2} className="table-fade__blur table-fade__blur--bottom" direction="bottom" />
         <table className="data-table">
           <thead>
             <tr>
@@ -162,7 +178,7 @@ export function TaskTable({
             {tasks.length === 0 ? (
               <tr>
                 <td colSpan={7}>
-                  <EmptyState action={<Meteors number={3} />} description="上传叶片图片后，检测任务会出现在这里。" title="还没有任务" />
+                  <EmptyState description="上传叶片图片后，检测任务会出现在这里。" title="还没有任务" />
                 </td>
               </tr>
             ) : null}
@@ -185,17 +201,33 @@ export function TaskTable({
                   <td>
                     <div className="status-cell">
                       {detecting ? <BorderTrail className="bg-[var(--accent)]" size={18} transition={{ duration: 8, ease: "linear", repeat: Number.POSITIVE_INFINITY }} /> : null}
-                      {completed ? <Ripple className="opacity-80" mainCircleOpacity={0.16} mainCircleSize={48} numCircles={3} /> : null}
                       <TaskStatusTag status={task.status} />
                     </div>
                   </td>
                   <td>{formatCreatedAt(task.created_at)}</td>
                   <td><DetectSummary task={task} /></td>
                   <td className="table-actions">
-                    <a href={`/tasks/${task.id}`}>查看详情</a>
-                    <button disabled={!completed} type="button" onClick={() => handleSingleDownload(task)}>
+                    <a className="table-btn" href={`/tasks/${task.id}`}>查看详情</a>
+                    <button
+                      className="table-btn"
+                      disabled={!completed}
+                      type="button"
+                      onClick={() => handleSingleDownload(task)}
+                    >
                       下载单张
                     </button>
+                    <Popconfirm
+                      cancelText="取消"
+                      description={task.file_name}
+                      okButtonProps={{ danger: true, loading: deletingId === task.id }}
+                      okText="删除"
+                      onConfirm={() => handleDelete(task)}
+                      title="删除这条任务？"
+                    >
+                      <button className="table-btn table-btn--danger" type="button">
+                        删除
+                      </button>
+                    </Popconfirm>
                   </td>
                 </tr>
               )

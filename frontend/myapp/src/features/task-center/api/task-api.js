@@ -69,3 +69,9 @@ export async function downloadTaskBatch(taskIds) {
 
   return response.data
 }
+
+// 后端 routers/task.py:233 早就有这个接口（权限：本人或超管；同时删文件与记录），
+// 前端一直没接，失败的任务只能堆在列表里。
+export async function deleteTask(taskId) {
+  await http.delete(`/tasks/${taskId}`)
+}

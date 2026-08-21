@@ -73,6 +73,11 @@ class Settings(BaseSettings):
     RRF_K: int = 60
     RAG_FUSION_MODE: str = "concat"  # concat=库现状拼接去重；rrf=自研 RRF。默认保留原行为
 
+    # === 评测 ===
+    # 评测跑批是打自己的 HTTP 接口(与 CLI 同一条路径)，所以要一个自指的 base_url。
+    # worker 与 API 是两个进程，容器化部署时这里要指向 API 服务名而不是 localhost。
+    EVAL_BASE_URL: str = "http://localhost:8000"
+
     # === 知识库配置 ===
     KNOWLEDGE_DIR: str = str(Path(__file__).resolve().parent.parent.parent / "knowledge_base")
     MANAGED_VERSIONS_DIR: str = ""  # 版本归档目录，_build_derived_paths 自动填充

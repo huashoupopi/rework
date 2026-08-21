@@ -1,6 +1,5 @@
 import * as React from "react"
 import { RefreshCw } from "lucide-react"
-import { RippleButton } from "@/shared/ui/magicui/ripple-button"
 import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { KnowledgeDocumentTable } from "@/features/knowledge-admin/components/KnowledgeDocumentTable"
 import { KnowledgeUploadCard } from "@/features/knowledge-admin/components/KnowledgeUploadCard"
@@ -30,10 +29,10 @@ export function KnowledgeDocumentsPage() {
     <div className="page-stack">
       <PageWorkband
         actions={
-          <RippleButton className="secondary-action border-0" disabled={loading} rippleColor="rgba(77,141,255,0.28)" type="button" onClick={refresh}>
+          <button className="secondary-action" disabled={loading} type="button" onClick={refresh}>
             <RefreshCw size={16} />
             刷新文档列表
-          </RippleButton>
+          </button>
         }
         aside={
           <PageWorkbandInfoCard
@@ -82,7 +81,7 @@ export function KnowledgeDocumentsPage() {
               <option value="deleted">已删除</option>
             </select>
           </label>
-          <button disabled={loading} type="button" onClick={refresh}>
+          <button className="secondary-action" disabled={loading} type="button" onClick={refresh}>
             刷新
           </button>
         </section>

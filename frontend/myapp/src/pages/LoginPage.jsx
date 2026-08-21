@@ -7,10 +7,7 @@ import { getCurrentUser, login } from "@/features/auth/api/auth-api"
 import { useAuthStore } from "@/features/auth/store/auth-store"
 import { extractErrorMessage } from "@/shared/api/http"
 import { tokenDurationSeconds } from "@/shared/lib/utils"
-import { InteractiveHoverButton } from "@/shared/ui/magicui/interactive-hover-button"
 import { GlassCard } from "@/shared/ui/GlassCard"
-import { BorderTrail } from "@/shared/ui/motion-primitives/border-trail"
-import { Spotlight } from "@/shared/ui/motion-primitives/spotlight"
 
 import { AuthScene } from "./AuthScene"
 
@@ -68,6 +65,10 @@ export function LoginPage() {
       clearAuth()
       const nextFails = failCount + 1
       setFailCount(nextFails)
+      // 密码错了也让叶片空转几圈：错误提示之外的一点手感，
+      // 与成功时的 boost 共用同一条通道，只是这次不跳转。
+      setBoost(true)
+      window.setTimeout(() => setBoost(false), 2600)
       setErrorMessage(
         nextFails >= 3
           ? "叶片检修中，请稍后再试"
@@ -87,10 +88,6 @@ export function LoginPage() {
       titleLines={["风机叶片", "智能检测"]}
     >
       <GlassCard className="auth-card">
-        <Spotlight className="from-[rgba(77,141,255,0.22)] via-[rgba(77,141,255,0.08)] to-transparent" size={260} />
-        <div className="auth-card__trail">
-          <BorderTrail className="bg-[var(--accent)]" size={36} transition={{ duration: 12, ease: "linear", repeat: Number.POSITIVE_INFINITY }} />
-        </div>
         <div className="auth-card__copy">
           <p className="auth-card__eyebrow">登录</p>
           <Typography.Title level={2}>欢迎回来</Typography.Title>
@@ -104,9 +101,9 @@ export function LoginPage() {
           <Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码" }]}>
             <Input.Password disabled={locked} placeholder="请输入密码" />
           </Form.Item>
-          <InteractiveHoverButton className="w-full border-[var(--glass-border)] bg-[var(--glass-bg-strong)]" disabled={locked || submitting} type="submit">
+          <button className="primary-action primary-action--block" disabled={locked || submitting} type="submit">
             {submitting ? "叶片加速中" : "登录"}
-          </InteractiveHoverButton>
+          </button>
         </Form>
         <Typography.Paragraph>
           <Link to="/register">没有账号？立即注册</Link>

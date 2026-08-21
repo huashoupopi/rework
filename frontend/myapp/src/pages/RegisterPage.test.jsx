@@ -41,7 +41,7 @@ test("registers successfully and returns to the login page", async () => {
 
   expect(screen.getByRole("heading", { name: "创建你的账号" })).toBeInTheDocument()
   expect(screen.getByText("加入智能检测平台，开始使用 AI 驱动的工作流。")).toBeInTheDocument()
-  expect(screen.getByText("REWORK")).toBeInTheDocument()
+  expect(screen.getByText("REWORK / 风电运维")).toBeInTheDocument()
 
   await user.type(screen.getByPlaceholderText("请输入用户名"), "demo")
   await user.type(screen.getByPlaceholderText("请输入姓名（选填）"), "Demo User")

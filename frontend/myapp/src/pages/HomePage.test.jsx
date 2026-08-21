@@ -40,16 +40,17 @@ test("renders welcome hero and quick actions for normal users", () => {
 
   renderHomePage()
 
-  expect(screen.getByText("工作台")).toBeInTheDocument()
-  expect(screen.getByRole("heading", { name: "从这里开始今天的检测工作" })).toBeInTheDocument()
-  expect(screen.getByText("你好，demo")).toBeInTheDocument()
-  expect(screen.getByText("上传叶片图片、查看缺陷分析结果，或在智能问答中继续深入。")).toBeInTheDocument()
-  expect(screen.getByText("今天先完成上传、复核和追问。")).toBeInTheDocument()
-  expect(screen.getByText("当前账号")).toBeInTheDocument()
-  expect(screen.getByText("demo")).toBeInTheDocument()
+  // 2026-08-21 工作台由 marketing hero 改为 utility dashboard：
+  // 标语式大标题（「从这里开始今天的检测工作」）、「当前账号」侧卡、
+  // 写死的「今日节奏 3 步」全部移除，改为先给状态、再给动作、最后给入口。
+  expect(screen.getByRole("heading", { name: "工作台" })).toBeInTheDocument()
+  expect(screen.getByText("demo · 成员")).toBeInTheDocument()
+  expect(screen.getByText("概览")).toBeInTheDocument()
+  expect(screen.getByText("总任务")).toBeInTheDocument()
+  expect(screen.getByText("主要操作")).toBeInTheDocument()
   expect(screen.getByRole("link", { name: /上传检测任务/ })).toBeInTheDocument()
   expect(screen.getAllByRole("link", { name: /智能问答/ }).length).toBeGreaterThanOrEqual(1)
-  expect(screen.queryByText("管理员功能")).not.toBeInTheDocument()
+  expect(screen.queryByText("管理")).not.toBeInTheDocument()
 })
 
 test("renders admin grid for superusers", () => {
@@ -67,8 +68,9 @@ test("renders admin grid for superusers", () => {
 
   renderHomePage()
 
-  expect(screen.getByText("管理员功能")).toBeInTheDocument()
-  expect(screen.getByText("知识库管理")).toBeInTheDocument()
+  // 「管理员功能」这个分组标题收敛成「管理」；原本重复出现的
+  // 「知识库管理」快捷卡与「知识库文档」入口合并为后者一处。
+  expect(screen.getByText("管理")).toBeInTheDocument()
   expect(screen.getByText("知识库文档")).toBeInTheDocument()
   expect(screen.getByText("索引重建")).toBeInTheDocument()
   expect(screen.getByText("用户管理")).toBeInTheDocument()

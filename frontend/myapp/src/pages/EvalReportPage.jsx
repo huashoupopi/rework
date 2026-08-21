@@ -10,20 +10,14 @@ import {
   retrievalPaths,
   stepTimings,
 } from "@/features/eval-report/lib/analysis"
+import { EvalRunName, LayerBars, PassMeter } from "@/features/eval-report/components/EvalCells"
+import { EvalRunPanel } from "@/features/eval-report/components/EvalRunPanel"
 import { extractErrorMessage } from "@/shared/api/http"
+import { EVAL_LAYER_LABELS as LAYER_LABELS } from "@/shared/lib/labels"
 import { EmptyState } from "@/shared/ui/EmptyState"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
-import { RippleButton } from "@/shared/ui/magicui/ripple-button"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 import { PageWorkbandInfoCard } from "@/shared/ui/PageWorkbandInfoCard"
-
-const LAYER_LABELS = {
-  generation: "生成",
-  guardrail: "门卫",
-  multi_turn: "多轮",
-  retrieval: "检索",
-  routing: "路由",
-}
 
 const STEP_LABELS = {
   generate: "生成",
@@ -48,15 +42,6 @@ function formatPass(summary) {
     return "-"
   }
   return `${summary.passed_cases ?? 0}/${summary.total_cases ?? 0}`
-}
-
-function formatLayers(layers) {
-  if (!layers) {
-    return "-"
-  }
-  return Object.entries(layers)
-    .map(([name, entry]) => `${LAYER_LABELS[name] ?? name} ${entry.passed ?? 0}/${entry.total ?? 0}`)
-    .join(" · ")
 }
 
 function formatStepValue(value) {
@@ -157,10 +142,11 @@ export function EvalReportPage() {
     URL.revokeObjectURL(url)
   }
 
+  // 三列都从「压平的字符串」换成结构化单元格，见 EvalCells.jsx 顶部注释
   const listColumns = [
-    { dataIndex: "name", render: (name) => formatEvalName(name), title: "跑批" },
-    { key: "score", render: (_, row) => formatPass(row.summary), title: "总分" },
-    { key: "layers", render: (_, row) => formatLayers(row.layers), title: "分层" },
+    { dataIndex: "name", render: (name) => <EvalRunName name={name} />, title: "跑批", width: "34%" },
+    { key: "score", render: (_, row) => <PassMeter summary={row.summary} />, title: "总分", width: "16%" },
+    { key: "layers", render: (_, row) => <LayerBars layers={row.layers} />, title: "分层" },
   ]
 
   const caseColumns = [
@@ -212,15 +198,14 @@ export function EvalReportPage() {
     <div className="page-stack">
       <PageWorkband
         actions={
-          <RippleButton
+          <button className="secondary-action"
             disabled={loading}
-            rippleColor="rgba(77,141,255,0.28)"
             type="button"
             onClick={() => refresh().catch(() => {})}
           >
             <RefreshCw size={14} />
             刷新
-          </RippleButton>
+          </button>
         }
         aside={
           <PageWorkbandInfoCard
@@ -238,6 +223,8 @@ export function EvalReportPage() {
         eyebrow="系统管理"
         title="评测报告"
       />
+
+      <EvalRunPanel onFinished={() => refresh().catch(() => {})} />
 
       {error ? <p role="alert">{extractErrorMessage(error, "加载评测报告失败")}</p> : null}
 
@@ -272,10 +259,10 @@ export function EvalReportPage() {
               <p className="data-surface__eyebrow">{formatEvalName(selectedName)}</p>
               <h2>分层通过率与耗时分布</h2>
             </div>
-            <RippleButton rippleColor="rgba(77,141,255,0.28)" type="button" onClick={downloadReport}>
+            <button className="secondary-action" type="button" onClick={downloadReport}>
               <Download size={14} />
               导出 JSON
-            </RippleButton>
+            </button>
           </div>
 
           <ul className="eval-layer-grid">

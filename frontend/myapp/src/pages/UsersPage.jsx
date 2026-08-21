@@ -1,7 +1,6 @@
 import * as React from "react"
 import { UserTable } from "@/features/user-admin/components/UserTable"
 import { useUserAdmin } from "@/features/user-admin/hooks/useUserAdmin"
-import { RippleButton } from "@/shared/ui/magicui/ripple-button"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 import { PageWorkbandInfoCard } from "@/shared/ui/PageWorkbandInfoCard"
 
@@ -12,9 +11,9 @@ export function UsersPage() {
     <div className="page-stack">
       <PageWorkband
         actions={
-          <RippleButton disabled={loading} rippleColor="rgba(77,141,255,0.28)" type="button" onClick={refresh}>
+          <button className="secondary-action" disabled={loading} type="button" onClick={refresh}>
             刷新
-          </RippleButton>
+          </button>
         }
         aside={
           <PageWorkbandInfoCard

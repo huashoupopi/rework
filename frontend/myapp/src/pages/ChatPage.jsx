@@ -8,7 +8,6 @@ import { ConversationList } from "@/features/chat/components/ConversationList"
 import { useChatSession } from "@/features/chat/hooks/useChatSession"
 import { useConversations } from "@/features/chat/hooks/useConversations"
 import { useTaskDetail } from "@/features/task-center/hooks/useTaskDetail"
-import { AnimatedShinyText } from "@/shared/ui/magicui/animated-shiny-text"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
 
@@ -21,31 +20,69 @@ function parseOptionalInt(value) {
   return Number.isNaN(parsed) ? undefined : parsed
 }
 
-function ChatHeroScene({ sending, taskId }) {
+// 2026-08-21 重做。原版右侧是三条纯装饰的「线程条」，浅底下就是一个空白圆角框，
+// 页头因此只有标题和三行静态文案 —— 看起来朴素是因为它确实什么都没说。
+// 现在换成对话流示意：每一轮一根竖条，用户与助手分色，高度按内容长度走，
+// 像检测记录的走纸图。数据全部来自当前会话，不是装饰。
+function ChatFlowStrip({ messages }) {
+  const recent = messages.slice(-22)
+  if (recent.length === 0) {
+    return <div className="chat-flow chat-flow--empty">还没有对话</div>
+  }
+
+  // 固定 600 字封顶时实测高度两极化：用户提问普遍很短(压到 12%)、
+  // 助手回答普遍超过 600 字(全部顶到 100%)，条形失去层次。
+  // 改成按【当前这批】的最长一条归一化，再套平方根压缩长尾，
+  // 短消息因此抬得起来，一条超长回答也不会把其余压平。
+  const maxLen = Math.max(1, ...recent.map((m) => String(m?.content ?? "").length))
+
+  return (
+    <div aria-hidden="true" className="chat-flow">
+      {recent.map((message, index) => {
+        const len = String(message?.content ?? "").length
+        const height = 14 + Math.sqrt(len / maxLen) * 86
+        return (
+          <span
+            className="chat-flow__bar"
+            data-role={message?.role === "user" ? "user" : "assistant"}
+            key={`${message?.id ?? index}-${index}`}
+            style={{ height: `${height}%` }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+function ChatHeroScene({ conversationTitle, messages = [], sending, taskId }) {
+  const turns = messages.length
+  const sourceCount = messages.reduce(
+    (sum, message) => sum + (Array.isArray(message?.meta?.sources) ? message.meta.sources.length : 0),
+    0,
+  )
+
   return (
     <div className="chat-hero-scene">
       <div className="chat-hero-scene__identity">
         <p>当前会话</p>
-        <strong>{taskId === undefined ? "本轮会话" : "任务推理会话"}</strong>
+        <strong title={conversationTitle}>{conversationTitle || (taskId === undefined ? "本轮会话" : "任务推理会话")}</strong>
         <span>{taskId === undefined ? "自由问答" : `任务 #${taskId} 上下文已连接`}</span>
       </div>
-      <div aria-hidden="true" className="chat-hero-scene__threads">
-        <div className="chat-hero-scene__thread chat-hero-scene__thread--assistant" />
-        <div className="chat-hero-scene__thread chat-hero-scene__thread--user" />
-        <div className="chat-hero-scene__thread chat-hero-scene__thread--assistant-soft" />
-      </div>
+
+      <ChatFlowStrip messages={messages} />
+
       <div className="chat-hero-scene__facts">
         <div className="chat-hero-scene__fact">
-          <span>上下文</span>
-          <strong>{taskId === undefined ? "自由问答" : "带任务上下文"}</strong>
+          <span>消息</span>
+          <strong>{turns}</strong>
         </div>
         <div className="chat-hero-scene__fact">
-          <span>模式</span>
-          <strong>{taskId === undefined ? "自由模式" : "任务推理"}</strong>
+          <span>引用</span>
+          <strong>{sourceCount}</strong>
         </div>
         <div className="chat-hero-scene__fact">
           <span>状态</span>
-          <strong>{sending ? "生成中" : "可继续追问"}</strong>
+          <strong data-live={sending ? "true" : "false"}>{sending ? "生成中" : "可追问"}</strong>
         </div>
       </div>
     </div>
@@ -105,9 +142,16 @@ export function ChatPage() {
   )
 
   return (
-    <div className="page-stack">
+    <div className="page-stack page-stack--fill">
       <PageWorkband
-        aside={<ChatHeroScene sending={sending} taskId={taskId} />}
+        aside={
+          <ChatHeroScene
+            conversationTitle={activeConversation?.title}
+            messages={messages}
+            sending={sending}
+            taskId={taskId}
+          />
+        }
         className="page-workband--immersive"
         description="围绕当前任务继续推理、追问和记录处理判断。"
         eyebrow="智能问答"
@@ -139,7 +183,7 @@ export function ChatPage() {
           ) : null}
           {loadingHistory ? (
             <div className="chat-loading">
-              <AnimatedShinyText>加载历史消息...</AnimatedShinyText>
+              加载历史消息...
             </div>
           ) : null}
           <ChatMessageList messages={messages} />

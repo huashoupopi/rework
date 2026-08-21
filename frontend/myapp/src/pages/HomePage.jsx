@@ -5,154 +5,265 @@ import {
   Bot,
   ClipboardList,
   FileText,
-  LibraryBig,
   RefreshCw,
   UploadCloud,
   Users,
 } from "lucide-react"
 
 import { useAuthStore } from "@/features/auth/store/auth-store"
-import { InteractiveHoverButton } from "@/shared/ui/magicui/interactive-hover-button"
-import { Meteors } from "@/shared/ui/magicui/meteors"
-import { Pointer } from "@/shared/ui/magicui/pointer"
-import { RippleButton } from "@/shared/ui/magicui/ripple-button"
+import { extractErrorMessage } from "@/shared/api/http"
+import { DEFECT_COLORS, DEFECT_NAMES } from "@/shared/lib/labels"
+import { useTaskList } from "@/features/task-center/hooks/useTaskList"
 import { InView } from "@/shared/ui/motion-primitives/in-view"
-import { SlidingNumber } from "@/shared/ui/motion-primitives/sliding-number"
-import { Spotlight } from "@/shared/ui/motion-primitives/spotlight"
-import { PageWorkband } from "@/shared/ui/PageWorkband"
 
-function HomeHeroScene({ username, userRole }) {
-  return (
-    <div className="home-hero-scene">
-      <div className="home-hero-scene__identity">
-        <p>当前账号</p>
-        <strong>{username}</strong>
-        <span>{`你好，${username}`}</span>
-      </div>
-      <div aria-hidden="true" className="home-hero-scene__signal">
-        <Meteors maxDuration={9} minDuration={5} number={4} />
-        <Pointer />
-        <ol className="home-flow">
-          <li>上传</li>
-          <li>复核</li>
-          <li>追问</li>
-        </ol>
-      </div>
-      <div className="home-hero-scene__facts">
-        <div className="home-hero-scene__fact">
-          <span>角色</span>
-          <strong>{userRole}</strong>
-        </div>
-        <div className="home-hero-scene__fact">
-          <span>今日节奏</span>
-          <strong className="home-step-count__meter">
-            <SlidingNumber value={3} />
-            <span>步 · 上传 / 复核 / 追问</span>
-          </strong>
-        </div>
-      </div>
-    </div>
-  )
+// 2026-08-21 推倒重写。原版的三处问题：
+//   ① 整页包在 PageWorkband 这个巨型容器里 → 卡片套卡片套卡片
+//   ② dashboard 顶了一个 marketing hero（「从这里开始今天的检测工作」）
+//   ③ 一个数据都没有：`SlidingNumber value={3}` 是写死的假数字
+// 现在改成 utility 模式：先给状态，再给动作，最后给入口。
+// 数据走 useTaskList 的 statusCounts / total —— 后端本来就返回全量分布。
+
+const STATUS_ROWS = [
+  { key: "completed", label: "已完成" },
+  // live: 值 > 0 时标签前出现一个呼吸点，表示真的有任务在跑
+  { key: "progressing", label: "处理中", live: true },
+  { key: "pending", label: "待处理" },
+  { key: "failed", label: "失败", tone: "danger" },
+]
+
+const PRIMARY_ACTIONS = [
+  {
+    to: "/tasks",
+    icon: UploadCloud,
+    title: "上传检测任务",
+    copy: "叶片图像 → 自动缺陷识别与结构化分析",
+  },
+  {
+    to: "/chat",
+    icon: Bot,
+    title: "智能问答",
+    copy: "基于检测结果与知识库展开追问",
+  },
+]
+
+const ADMIN_LINKS = [
+  { to: "/knowledge/documents", icon: FileText, label: "知识库文档" },
+  { to: "/knowledge/rebuild", icon: RefreshCw, label: "索引重建" },
+  { to: "/users", icon: Users, label: "用户管理" },
+  { to: "/evals", icon: ClipboardList, label: "评测报告" },
+]
+
+const STATUS_LABEL = {
+  completed: "已完成",
+  progressing: "处理中",
+  pending: "待处理",
+  failed: "失败",
+}
+
+function formatTime(value) {
+  if (!value) return "—"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "—"
+  const pad = (n) => String(n).padStart(2, "0")
+  return `${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
 export function HomePage() {
   const userInfo = useAuthStore((state) => state.userInfo)
-  const userRole = userInfo?.is_superuser ? "管理员" : "成员"
   const username = userInfo?.username ?? "访客"
+  const { error, loading, statusCounts, tasks, total } = useTaskList()
+  // 首次加载时 tasks 是空数组、计数是 0 —— 不区分的话会把「还在拉」
+  // 显示成「没有任务」，这是两回事
+  const firstLoad = loading && (tasks ?? []).length === 0 && !total
+
+  const counts = statusCounts ?? {}
+  const recent = (tasks ?? []).slice(0, 6)
+
+  // 缺陷分布只能按【已加载的这一页】统计 —— 后端的 status_counts 给的是
+  // 任务状态的全量分布，缺陷明细在 detect_result 里，不随分页汇总。
+  // 所以下面的标题写明「最近 N 条」，不写成全量，免得读的人以为是总账。
+  const defects = React.useMemo(() => {
+    const stats = {}
+    let total = 0
+    for (const task of tasks ?? []) {
+      for (const obj of task.detect_result?.objects ?? []) {
+        const cls = obj.class || "unknown"
+        stats[cls] = (stats[cls] ?? 0) + 1
+        total += 1
+      }
+    }
+    const ranked = Object.entries(stats)
+      .map(([cls, count]) => ({ cls, count, pct: total > 0 ? Math.round((count / total) * 100) : 0 }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+    return { ranked, total }
+  }, [tasks])
 
   return (
-    <div className="page-stack">
-      <PageWorkband
-        actions={
-          <div className="dashboard-hero__actions">
-            <Link to="/tasks">
-              <InteractiveHoverButton type="button">
-                <UploadCloud size={16} />
-                上传检测任务
-              </InteractiveHoverButton>
-            </Link>
-            <Link to="/chat">
-              <RippleButton className="secondary-action border-0" rippleColor="rgba(77,141,255,0.28)" type="button">
-                <Bot size={16} />
-                智能问答
-              </RippleButton>
-            </Link>
-          </div>
-        }
-        aside={
-          <HomeHeroScene username={username} userRole={userRole} />
-        }
-        className="dashboard-workband"
-        description="上传叶片图片、查看缺陷分析结果，或在智能问答中继续深入。"
-        eyebrow="工作台"
-        footer={
-          <InView once>
-            <section className="quick-entry-grid" aria-label="快捷入口">
-              <Link className="quick-entry-card" to="/tasks">
-                <Spotlight className="from-[rgba(77,141,255,0.2)] via-[rgba(77,141,255,0.08)] to-transparent" size={220} />
-                <div className="quick-entry-card__icon quick-entry-card__icon--blue">
-                  <UploadCloud size={20} />
-                </div>
-                <div className="quick-entry-card__body">
-                  <strong>任务中心</strong>
-                  <p>上传叶片图片，查看缺陷检测结果</p>
-                </div>
-                <ArrowRight size={16} className="quick-entry-card__arrow" />
-              </Link>
-              <Link className="quick-entry-card" to="/chat">
-                <Spotlight className="from-[rgba(77,141,255,0.2)] via-[rgba(77,141,255,0.08)] to-transparent" size={220} />
-                <div className="quick-entry-card__icon quick-entry-card__icon--purple">
-                  <Bot size={20} />
-                </div>
-                <div className="quick-entry-card__body">
-                  <strong>智能问答</strong>
-                  <p>基于检测结果进行深度分析对话</p>
-                </div>
-                <ArrowRight size={16} className="quick-entry-card__arrow" />
-              </Link>
-              {userInfo?.is_superuser && (
-                <Link className="quick-entry-card" to="/knowledge/documents">
-                  <Spotlight className="from-[rgba(77,141,255,0.2)] via-[rgba(77,141,255,0.08)] to-transparent" size={220} />
-                  <div className="quick-entry-card__icon quick-entry-card__icon--green">
-                    <LibraryBig size={20} />
-                  </div>
-                  <div className="quick-entry-card__body">
-                    <strong>知识库管理</strong>
-                    <p>文档上传、索引重建与分块配置</p>
-                  </div>
-                  <ArrowRight size={16} className="quick-entry-card__arrow" />
-                </Link>
-              )}
-            </section>
-          </InView>
-        }
-        supporting="今天先完成上传、复核和追问。"
-        title="从这里开始今天的检测工作"
-      />
+    <div className="ops-page">
+      <header className="ops-page__head">
+        <div>
+          <h1 className="ops-page__title">工作台</h1>
+          <p className="ops-page__sub">
+            {username} · {userInfo?.is_superuser ? "管理员" : "成员"}
+          </p>
+        </div>
+      </header>
 
-      {userInfo?.is_superuser && (
-        <section className="admin-grid" aria-label="管理入口">
-          <p className="admin-grid__label">管理员功能</p>
-          <div className="admin-grid__items">
-            <Link className="admin-link-card" to="/knowledge/documents">
-              <FileText size={16} />
-              <span>知识库文档</span>
-            </Link>
-            <Link className="admin-link-card" to="/knowledge/rebuild">
-              <RefreshCw size={16} />
-              <span>索引重建</span>
-            </Link>
-            <Link className="admin-link-card" to="/users">
-              <Users size={16} />
-              <span>用户管理</span>
-            </Link>
-            <Link className="admin-link-card" to="/evals">
-              <ClipboardList size={16} />
-              <span>评测报告</span>
-            </Link>
+      {/* 概览：数字全部走等宽字与 tabular-nums，位宽不随数值变化跳动 */}
+      {error ? (
+        <p className="ops-alert" role="alert">
+          {extractErrorMessage(error, "任务数据加载失败")}
+        </p>
+      ) : null}
+
+      <section aria-label="任务概览" className="ops-block ops-block--wide">
+        <p className="ops-block__label">概览</p>
+        <div className="stat-row" data-loading={firstLoad ? "true" : "false"}>
+          <div className="stat-row__cell" data-kind="total">
+            <span className="stat-row__num">{total ?? 0}</span>
+            <span className="stat-row__key">总任务</span>
           </div>
+          {STATUS_ROWS.map((row) => {
+            const value = counts[row.key] ?? 0
+            const share = total > 0 ? Math.round((value / total) * 100) : 0
+            return (
+              <div
+                className="stat-row__cell"
+                data-empty={value === 0 ? "true" : "false"}
+                data-tone={row.tone ?? "default"}
+                key={row.key}
+              >
+                <span className="stat-row__num">{value}</span>
+                <span className="stat-row__key">
+                  {row.live && value > 0 ? <i aria-hidden="true" className="live-dot" /> : null}
+                  {row.label}
+                </span>
+                {/* 占比微条：五格原本只有数字和标签，长得一模一样。
+                    这条给的是「这一类占全部任务多少」，是信息不是装饰。
+                    总任务那格没有 —— 它是分母。 */}
+                <span className="stat-row__share" title={`占全部任务 ${share}%`}>
+                  <span className="stat-row__share-fill" style={{ width: `${share}%` }} />
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      <div className="ops-columns">
+        <InView once>
+          <section aria-label="最近任务" className="ops-block">
+            <div className="ops-block__headrow">
+              <p className="ops-block__label">最近任务</p>
+              <Link className="ops-block__more" to="/tasks">
+                全部任务
+                <ArrowRight size={13} strokeWidth={1.5} />
+              </Link>
+            </div>
+            {firstLoad ? (
+              <ul className="record-list record-list--skeleton" aria-hidden="true">
+                {[0, 1, 2, 3].map((i) => (
+                  <li className="record-list__row" key={i}>
+                    <span className="skeleton-bar" style={{ width: "5rem" }} />
+                    <span className="skeleton-bar" style={{ width: `${52 + i * 9}%` }} />
+                    <span className="skeleton-bar" style={{ width: "3rem" }} />
+                    <span />
+                  </li>
+                ))}
+              </ul>
+            ) : error ? (
+              // 请求失败时不能说「还没有任务」—— 拉不到和没有是两回事，
+              // 上面已经有错误条，这里保持沉默
+              <p className="ops-empty">数据暂时取不到。</p>
+            ) : recent.length === 0 ? (
+              <p className="ops-empty">
+                还没有检测任务。<Link to="/tasks">上传第一批叶片图像</Link>后，结果会出现在这里。
+              </p>
+            ) : (
+              <ul className="record-list">
+                {recent.map((task) => (
+                  <li className="record-list__row" key={task.id}>
+                    <span className="record-list__time">{formatTime(task.created_at)}</span>
+                    <span className="record-list__name" title={task.file_name}>
+                      {task.file_name}
+                    </span>
+                    <span className="record-list__status" data-status={task.status}>
+                      {STATUS_LABEL[task.status] ?? task.status}
+                    </span>
+                    <Link className="record-list__link" to={`/tasks/${task.id}`}>
+                      查看
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </InView>
+
+        <section aria-label="缺陷分布" className="ops-block ops-block--defects">
+          <div className="ops-block__headrow">
+            <p className="ops-block__label">缺陷分布</p>
+            <span className="ops-block__note">
+              {defects.total > 0
+                ? `最近 ${(tasks ?? []).length} 条任务共 ${defects.total} 处`
+                : "暂无数据"}
+            </span>
+          </div>
+          {defects.ranked.length === 0 ? (
+            <p className="ops-empty">已加载的任务里还没有检出缺陷。</p>
+          ) : (
+            <ul className="defect-bars">
+              {defects.ranked.map((item) => (
+                <li className="defect-bars__row" key={item.cls}>
+                  <span className="defect-bars__name">{DEFECT_NAMES[item.cls] ?? item.cls}</span>
+                  <span className="defect-bars__track">
+                    <span
+                      className="defect-bars__fill"
+                      style={{
+                        background: DEFECT_COLORS[item.cls] ?? "#7c6f64",
+                        width: `${Math.max(item.pct, 2)}%`,
+                      }}
+                    />
+                  </span>
+                  <span className="defect-bars__num">{item.count}</span>
+                  <span className="defect-bars__pct">{item.pct}%</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
-      )}
+
+        <div className="ops-side">
+          <section aria-label="主要操作" className="ops-block">
+            <p className="ops-block__label">主要操作</p>
+            <div className="action-list action-list--stacked">
+              {PRIMARY_ACTIONS.map((action) => (
+                <Link className="action-list__row" key={action.to} to={action.to}>
+                  <action.icon className="action-list__icon" size={18} strokeWidth={1.5} />
+                  <span className="action-list__title">{action.title}</span>
+                  <span className="action-list__copy">{action.copy}</span>
+                  <ArrowRight className="action-list__arrow" size={15} strokeWidth={1.5} />
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {userInfo?.is_superuser && (
+            <section aria-label="管理入口" className="ops-block">
+              <p className="ops-block__label">管理</p>
+              <div className="chip-row">
+                {ADMIN_LINKS.map((link) => (
+                  <Link className="chip-row__item" key={link.to} to={link.to}>
+                    <link.icon size={15} strokeWidth={1.5} />
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

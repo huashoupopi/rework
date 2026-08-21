@@ -1,9 +1,7 @@
 import * as React from "react"
 
 import { tokenDurationSeconds } from "@/shared/lib/utils"
-import { DotPattern } from "@/shared/ui/magicui/dot-pattern"
-import { LineShadowText } from "@/shared/ui/magicui/line-shadow-text"
-import { Ripple } from "@/shared/ui/magicui/ripple"
+import { BladeScanDiagram } from "@/shared/ui/BladeScanDiagram"
 import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { WindTurbineSvg } from "@/shared/ui/WindTurbineSvg"
 
@@ -11,24 +9,10 @@ const WindTurbine3D = React.lazy(() =>
   import("@/shared/ui/WindTurbine3D").then((module) => ({ default: module.WindTurbine3D })),
 )
 
-const METRICS = [
-  {
-    label: "检测",
-    title: "智能缺陷识别",
-    copy: "上传图片即可获得自动化检测结果与结构化分析。",
-  },
-  {
-    label: "问答",
-    title: "上下文对话",
-    copy: "围绕检测任务展开深度分析，获得精准回答。",
-  },
-  {
-    label: "知识",
-    title: "知识库治理",
-    copy: "统一管理文档资产、索引构建与检索策略。",
-  },
-]
-
+// 2026-08-21 两轮改动：
+//   ① 三张等宽玻璃卡片 → 工程规格明细栏（卡片横排是 AI 模板的招牌构图）
+//   ② 明细栏 → 一张检测示意图 + 一行能力标签（登录页第一屏字太多）
+// 登录页不需要解释产品，一张标注图说得比三段文案清楚，也更符合工程图纸的表达。
 export function AuthScene({
   boost = false,
   children,
@@ -37,49 +21,60 @@ export function AuthScene({
   spinning = true,
   stopped = false,
 }) {
+  // 彩蛋：点风机让它加速转几圈。外部传进来的 boost（登录成功/密码错误）
+  // 与这里的点击取或，两个来源互不干扰。
+  const [clickBoost, setClickBoost] = React.useState(false)
+  const timerRef = React.useRef(null)
+
+  React.useEffect(() => () => window.clearTimeout(timerRef.current), [])
+
+  function handleSpin() {
+    window.clearTimeout(timerRef.current)
+    setClickBoost(true)
+    timerRef.current = window.setTimeout(() => setClickBoost(false), 2600)
+  }
+
+  const spinFast = boost || clickBoost
+
   return (
     <div className="auth-page">
-      <DotPattern className="auth-page__dots" cr={1.15} glow={false} height={20} width={20} />
       <div className="auth-stage">
         <section className="auth-hero">
-          <p className="auth-hero__eyebrow">REWORK</p>
+          <p className="auth-hero__eyebrow">REWORK / 风电运维</p>
           <h1 className="auth-hero__title">
             {titleLines.map((line) => (
               <span className="auth-hero__title-line" key={line}>
-                <LineShadowText as="span" shadowColor="rgba(77,141,255,0.28)">
-                  {line}
-                </LineShadowText>
+                {line}
               </span>
             ))}
           </h1>
           <p className="auth-hero__description">{description}</p>
           <InView
             once
-            transition={{ duration: tokenDurationSeconds("--motion-slow", 220) }}
+            transition={{ duration: tokenDurationSeconds("--motion-slow", 180) }}
             variants={{
-              hidden: { opacity: 0, y: 8 },
+              hidden: { opacity: 0, y: 6 },
               visible: { opacity: 1, y: 0 },
             }}
           >
-            <div className="auth-hero__panel">
-              {METRICS.map((metric) => (
-                <div className="auth-hero__metric" key={metric.label}>
-                  <span>{metric.label}</span>
-                  <strong>{metric.title}</strong>
-                  <p>{metric.copy}</p>
-                </div>
-              ))}
+            <div className="auth-hero__diagram">
+              <BladeScanDiagram />
             </div>
           </InView>
-          <div className="auth-hero__turbine">
-            <Ripple className="auth-hero__ripple" mainCircleOpacity={0.24} mainCircleSize={220} numCircles={6} />
-            <React.Suspense fallback={<WindTurbineSvg boost={boost} spinning={spinning} stopped={stopped} />}>
-              <WindTurbine3D boost={boost} spinning={spinning} stopped={stopped} />
-            </React.Suspense>
-          </div>
         </section>
         {children}
       </div>
+      <button
+        aria-label="让风机转快一点"
+        className="auth-page__turbine"
+        onClick={handleSpin}
+        title="点一下试试"
+        type="button"
+      >
+        <React.Suspense fallback={<WindTurbineSvg boost={spinFast} spinning={spinning} stopped={stopped} />}>
+          <WindTurbine3D boost={spinFast} spinning={spinning} stopped={stopped} />
+        </React.Suspense>
+      </button>
     </div>
   )
 }

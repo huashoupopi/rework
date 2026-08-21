@@ -8,8 +8,6 @@ import { taskStatusName } from "@/shared/lib/labels"
 import { TaskImagePreview } from "@/features/task-center/components/TaskImagePreview"
 import { TaskResultSummary } from "@/features/task-center/components/TaskResultSummary"
 import { useTaskDetail } from "@/features/task-center/hooks/useTaskDetail"
-import { AnimatedShinyText } from "@/shared/ui/magicui/animated-shiny-text"
-import { RippleButton } from "@/shared/ui/magicui/ripple-button"
 import { InView } from "@/shared/ui/motion-primitives/in-view"
 import { GlassPanel } from "@/shared/ui/GlassPanel"
 import { PageWorkband } from "@/shared/ui/PageWorkband"
@@ -60,14 +58,14 @@ export function TaskDetailPage() {
         </GlassPanel>
 
         <GlassPanel className="task-detail-analysis">
-          {loading && !activeTask ? <AnimatedShinyText>加载中...</AnimatedShinyText> : null}
+          {loading && !activeTask ? <span className="inline-loading">加载中…</span> : null}
           {error ? (
             <div className="task-detail-error" role="alert">
               <p>{getErrorMessage(error)}</p>
-              <RippleButton className="secondary-action border-0" onClick={refresh} rippleColor="rgba(77,141,255,0.28)" type="button">
+              <button className="secondary-action" onClick={refresh} type="button">
                 <RefreshCw size={14} />
                 重试
-              </RippleButton>
+              </button>
             </div>
           ) : null}
           {activeTask ? (
